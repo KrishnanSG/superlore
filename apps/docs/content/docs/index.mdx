@@ -1,0 +1,70 @@
+---
+title: superlore
+icon: Sparkles
+description: The agent-native knowledge base. One corpus. Humans and agents.
+summary: Author once in MDX — humans get a clean, visual KB; agents get a first-class MCP over the same structured content.
+tags: [overview, introduction]
+---
+
+superlore is an **agent-native knowledge base**. You author your knowledge once, in MDX, and the
+same structured content becomes two things at once:
+
+- a clean, interactive, **visual** knowledge base for **humans**, and
+- a first-class **MCP** (Model Context Protocol) server for **agents**, over the _same_ content.
+
+Most docs tools render pages for people and bolt an MCP onto scraped HTML afterwards. superlore is
+**content-first**: a structured content model is the source of truth, and both the human site and
+the agent MCP are projections of it. Nothing is scraped; the two faces never drift.
+
+<Note title="The one idea to take away">
+  Every superlore component has two faces from one authored instance — a **render face** for humans
+  and a **knowledge face** (typed, structured data) for agents. A `Timeline` is never a picture an
+  agent has to interpret; the agent gets the items behind it.
+</Note>
+
+## Why superlore
+
+<CardGroup cols={3}>
+  <Card title="For readers" icon="book-open">
+    Calm, editorial, fast. Search-first, light and dark as equals, structural components that make
+    complex knowledge legible at a glance.
+  </Card>
+  <Card title="For agents" icon="bot">
+    A built-in MCP exposes search, pages, sections, lists, relations, and the data behind every
+    component — no scraping, no guessing.
+  </Card>
+  <Card title="For authors" icon="pen-line">
+    Write MDX. Drop in cards, timelines, boards, entities, tables, and diagrams. Deploy anywhere.
+  </Card>
+</CardGroup>
+
+## Start here
+
+<CardGroup cols={2}>
+  <Card title="Getting started" icon="rocket" href="/docs/getting-started">
+    Install superlore, scaffold a KB, author your first page.
+  </Card>
+  <Card title="Architecture" icon="layout-template" href="/docs/architecture">
+    How content-first + the dual-representation contract fit together.
+  </Card>
+  <Card title="Components" icon="component" href="/docs/components">
+    The full component library, with when-to-use guidance.
+  </Card>
+  <Card title="Authoring for agents" icon="sparkles" href="/docs/agents/authoring-for-agents">
+    How an agent should write superlore-style docs.
+  </Card>
+</CardGroup>
+
+## What you get
+
+<StatGrid
+  stats={[
+    { label: "Authored source", value: "1", hint: "MDX — write once" },
+    { label: "Audiences served", value: "2", hint: "humans + agents" },
+    { label: "MCP tools", value: "5", hint: "search · get · list · navigate · component data" },
+    { label: "Deploy", value: "Anywhere", hint: "Vercel or any Next host — your data" },
+  ]}
+/>
+
+This very site is built with superlore and is **MCP-enabled and public** — point your agent at
+[`/api/mcp`](/docs/agents/mcp) and it can read these docs directly.

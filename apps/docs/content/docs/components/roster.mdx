@@ -1,0 +1,129 @@
+---
+title: Roster
+icon: Users
+description: A team roster of people with roles, tags, and optional reporting lines that render as an org structure.
+summary: Roster renders people as cards with reporting lines and serializes to a roster knowledge node where each person is graph-addressable and reportsTo is an org edge.
+tags: [components, knowledge-structures, dual-representation, roster, people, org]
+---
+
+A `Roster` is a team roster — people with a name, role, tags, and an optional `reportsTo` that draws
+the reporting lines. Humans read cards grouped by who-reports-to-whom; the agent gets
+`{ kind:"roster", people:[{ id, name, role, reportsTo }] }` — each person addressable as
+`entity:person/${slug}`, the org tree expressed as `reportsTo` edges between ids. So "who reports to
+X?" or "everyone tagged `agent`" is a query, not prose-reading.
+
+<Example
+  code={`<Roster
+  label="Core team"
+  people={[
+    { name: "Krishnan S G", role: "Head of Engineering", slug: "krishnan", tags: ["lead"] },
+    {
+      name: "Agent: Scaffolder",
+      role: "Scaffold skill",
+      slug: "scaffolder",
+      reportsTo: "krishnan",
+      tags: ["agent"],
+    },
+    {
+      name: "Agent: Author",
+      role: "Vibe skill",
+      slug: "author",
+      reportsTo: "krishnan",
+      tags: ["agent"],
+      refs: [{ rel: "related", target: "/docs/skills", label: "Skills" }],
+    },
+  ]}
+/>`}
+>
+  <Roster
+    label="Core team"
+    people={[
+      { name: "Krishnan S G", role: "Head of Engineering", slug: "krishnan", tags: ["lead"] },
+      {
+        name: "Agent: Scaffolder",
+        role: "Scaffold skill",
+        slug: "scaffolder",
+        reportsTo: "krishnan",
+        tags: ["agent"],
+      },
+      {
+        name: "Agent: Author",
+        role: "Vibe skill",
+        slug: "author",
+        reportsTo: "krishnan",
+        tags: ["agent"],
+        refs: [{ rel: "related", target: "/docs/skills", label: "Skills" }],
+      },
+    ]}
+  />
+</Example>
+
+## When to use it
+
+Team pages, org charts, contributor lists, on-call rosters. The reporting lines render as an indented
+structure and serialize as resolved `reportsTo` ids, so the org graph is queryable.
+
+## Props
+
+**`Roster`**
+
+| Prop     | Type                  | Default    | Description                    |
+| -------- | --------------------- | ---------- | ------------------------------ |
+| `people` | `RosterPersonInput[]` | —          | The people, in order           |
+| `label`  | `string`              | `"Roster"` | Accessible name for the roster |
+
+**`RosterPersonInput`**
+
+| Field       | Type                         | Description                                                         |
+| ----------- | ---------------------------- | ------------------------------------------------------------------- |
+| `name`      | `string`                     | Display name                                                        |
+| `role`      | `string`                     | Optional role                                                       |
+| `slug`      | `string`                     | Stable id; addresses the person as `entity:person/slug`             |
+| `email`     | `string`                     | Optional contact                                                    |
+| `reportsTo` | `string`                     | The `name` or `slug` of the manager — resolved to an id in the face |
+| `tags`      | `string[]`                   | Chips                                                               |
+| `refs`      | `{ rel?, target, label? }[]` | Typed links                                                         |
+
+## What the agent sees
+
+Each person gets a stable id, and `reportsTo` is resolved from a name/slug to that manager's id — so
+the org structure is a real edge an agent can traverse:
+
+```json
+{
+  "kind": "roster",
+  "id": "core-team",
+  "title": "Core team",
+  "people": [
+    {
+      "id": "krishnan",
+      "name": "Krishnan S G",
+      "role": "Head of Engineering",
+      "slug": "krishnan",
+      "tags": ["lead"]
+    },
+    {
+      "id": "scaffolder",
+      "name": "Agent: Scaffolder",
+      "role": "Scaffold skill",
+      "slug": "scaffolder",
+      "reportsTo": "krishnan",
+      "tags": ["agent"]
+    },
+    {
+      "id": "author",
+      "name": "Agent: Author",
+      "role": "Vibe skill",
+      "slug": "author",
+      "reportsTo": "krishnan",
+      "tags": ["agent"],
+      "refs": [{ "rel": "related", "target": "/docs/skills", "label": "Skills", "internal": true }]
+    }
+  ]
+}
+```
+
+<Note title="People are graph nodes">
+  Each person's `slug` makes them addressable as `entity:person/krishnan`, and `reportsTo` is an
+  id-to-id edge — so a Roster is an org graph the MCP can walk, not just a list of cards.
+</Note>

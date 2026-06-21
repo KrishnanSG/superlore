@@ -1,0 +1,46 @@
+---
+title: Badge
+icon: Tag
+description: An inline status chip with a broad colour, size, and shape set — the Mintlify-compatible primitive.
+summary: Badge is the Mintlify-compatible inline chip; inline-only and carries no knowledge face by design.
+tags: [components, primitives, inline, badge]
+---
+
+`Badge` is an inline status chip — a status, a version, a label that sits in a line of text or a
+header. It's the Mintlify-compatible primitive, with a broad colour, size, and shape set. Badges
+are **inline-only** and carry **no knowledge face** by design — they're presentational. For the
+editorial chip used across superlore pages, see [Pill](/docs/components/pill).
+
+## When to use it
+
+Reach for a badge to tag something inline — `beta` next to a feature name, a version after a
+heading, a `passing`/`blocked` status in a row. Pick the colour by intent.
+
+## Props
+
+| Prop       | Type                                                  | Default   | Description                     |
+| ---------- | ----------------------------------------------------- | --------- | ------------------------------- |
+| `color`    | `gray \| violet \| green \| yellow \| red \| surface` | `gray`    | Chip colour                     |
+| `size`     | `xs \| sm \| md \| lg`                                | `md`      | Chip size                       |
+| `shape`    | `rounded \| pill`                                     | `rounded` | Corner style                    |
+| `icon`     | `string \| ReactNode`                                 | —         | Optional leading icon           |
+| `stroke`   | `boolean`                                             | `false`   | Outline-only (transparent fill) |
+| `disabled` | `boolean`                                             | `false`   | Dim the chip                    |
+
+## Live example
+
+<div className="not-prose flex flex-wrap items-center gap-2">
+  <Badge color="violet">violet</Badge>
+  <Badge color="green" icon="check">
+    passing
+  </Badge>
+  <Badge color="yellow" shape="pill">
+    beta
+  </Badge>
+  <Badge color="red" stroke>
+    blocked
+  </Badge>
+  <Badge color="surface" size="lg">
+    v0.1.0
+  </Badge>
+</div>

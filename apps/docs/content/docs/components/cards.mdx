@@ -1,0 +1,46 @@
+---
+title: Cards
+icon: SquareMousePointer
+description: Navigation tiles that link to related pages, grouped into a responsive grid.
+summary: Card is a navigation surface — title, description, icon, and href; CardGroup lays out a 1–4 column grid.
+tags: [components, primitives, cards, navigation]
+---
+
+A `Card` is a navigation surface: a tile that links to a related page (or stands alone as an
+informational block). Group them with `CardGroup` to lay out a 1–4 column grid.
+
+## When to use it
+
+Use cards to point the reader at where to go next — a grid of related pages at the end of a
+section, or a row of entry points on a landing page. Drop the `href` and a card reads as a plain
+informational tile instead of a link.
+
+## Props
+
+**`Card`**
+
+| Prop          | Type                  | Default | Description                                           |
+| ------------- | --------------------- | ------- | ----------------------------------------------------- |
+| `title`       | `ReactNode`           | —       | The card heading                                      |
+| `description` | `ReactNode`           | —       | A one-line gloss under the title                      |
+| `icon`        | `string \| ReactNode` | —       | A lucide icon name (or a node) shown on the card      |
+| `href`        | `string`              | —       | Makes the card a link; omit for an informational tile |
+| `children`    | `ReactNode`           | —       | Body content below the description                    |
+
+**`CardGroup`**
+
+| Prop       | Type               | Default | Description                                    |
+| ---------- | ------------------ | ------- | ---------------------------------------------- |
+| `cols`     | `1 \| 2 \| 3 \| 4` | `2`     | Columns at desktop width (collapses on mobile) |
+| `children` | `ReactNode`        | —       | One or more `<Card>` elements                  |
+
+## Live example
+
+<CardGroup cols={2}>
+  <Card title="With an icon + link" icon="rocket" href="/docs/getting-started">
+    Optional icon, title, description, and href.
+  </Card>
+  <Card title="Plain card" icon="info">
+    Cards without an href read as informational tiles.
+  </Card>
+</CardGroup>

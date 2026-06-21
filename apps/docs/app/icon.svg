@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="9 10 46 46" width="64" height="64" role="img" aria-label="superlore">
+  <!-- Favicon: the superlore "Fold" mark on a transparent background (no tile). -->
+  <polygon points="14,20 32,12 32,46 14,54" fill="#6d5cf0" />
+  <polygon points="32,12 50,20 50,54 32,46" fill="#6d5cf0" opacity="0.5" />
+</svg>

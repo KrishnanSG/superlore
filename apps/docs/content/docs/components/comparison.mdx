@@ -1,0 +1,123 @@
+---
+title: Comparison
+icon: Columns2
+description: A feature matrix — options (columns) × criteria (rows), with cells that are yes / no / partial or free text.
+summary: Comparison renders a feature matrix and serializes to a comparison knowledge node where every cell is a typed verdict or text keyed by option id.
+tags: [components, knowledge-structures, dual-representation, comparison, matrix]
+---
+
+A `Comparison` is a feature matrix — **options** across the columns, **criteria** down the rows, and
+a cell at every intersection. A cell is a verdict (`yes` / `no` / `partial`) or free text. Humans
+read a tidy matrix with marks; the agent gets `{ kind:"comparison", options, criteria }` where every
+cell is a typed `verdict` or `text` keyed by option id — never a rendered checkmark it has to
+recognise. So "which option supports X?" is a filter, not OCR.
+
+<Example
+  code={`<Comparison
+  caption="superlore vs. a plain docs site"
+  options={["superlore", "Plain docs", "Docs + bolt-on MCP"]}
+  rows={[
+    { criterion: "MCP-native", cells: [true, false, "partial"] },
+    { criterion: "Dual representation", cells: [true, false, false] },
+    { criterion: "Author once", cells: [true, true, "partial"] },
+    { criterion: "Hosting", cells: ["your Vercel", "your Vercel", "your Vercel"] },
+  ]}
+/>`}
+>
+  <Comparison
+    caption="superlore vs. a plain docs site"
+    options={["superlore", "Plain docs", "Docs + bolt-on MCP"]}
+    rows={[
+      { criterion: "MCP-native", cells: [true, false, "partial"] },
+      { criterion: "Dual representation", cells: [true, false, false] },
+      { criterion: "Author once", cells: [true, true, "partial"] },
+      { criterion: "Hosting", cells: ["your Vercel", "your Vercel", "your Vercel"] },
+    ]}
+  />
+</Example>
+
+## When to use it
+
+Product comparisons, capability matrices, vendor evaluations, build-vs-buy tables. Because each cell
+is typed, an agent can answer "which options are `partial` on MCP-native?" directly from the data.
+
+## Props
+
+**`Comparison`**
+
+| Prop      | Type                     | Default | Description                             |
+| --------- | ------------------------ | ------- | --------------------------------------- |
+| `options` | `string[]`               | —       | Column headers — the options compared   |
+| `rows`    | `{ criterion, cells }[]` | —       | One row per criterion                   |
+| `caption` | `string`                 | —       | Optional caption; also the node `title` |
+
+**Row** — `{ criterion: string; cells: ComparisonCellInput[] }`. Each `cells` array is positional:
+one entry per option, in `options` order. A cell is:
+
+| Value                       | Renders as | In the face              |
+| --------------------------- | ---------- | ------------------------ |
+| `true`                      | ✓          | `{ verdict: "yes" }`     |
+| `false` (or a missing cell) | –          | `{ verdict: "no" }`      |
+| `"partial"`                 | ~          | `{ verdict: "partial" }` |
+| any other `string`          | the text   | `{ text: "…" }`          |
+
+## What the agent sees
+
+Options become ids; every cell is a typed verdict or text, keyed by option id — comparable without
+reading a glyph:
+
+```json
+{
+  "kind": "comparison",
+  "id": "superlore-vs-a-plain-docs-site",
+  "title": "superlore vs. a plain docs site",
+  "options": [
+    { "id": "superlore", "label": "superlore" },
+    { "id": "plain-docs", "label": "Plain docs" },
+    { "id": "docs-bolt-on-mcp", "label": "Docs + bolt-on MCP" }
+  ],
+  "criteria": [
+    {
+      "id": "mcp-native",
+      "label": "MCP-native",
+      "cells": {
+        "superlore": { "verdict": "yes" },
+        "plain-docs": { "verdict": "no" },
+        "docs-bolt-on-mcp": { "verdict": "partial" }
+      }
+    },
+    {
+      "id": "dual-representation",
+      "label": "Dual representation",
+      "cells": {
+        "superlore": { "verdict": "yes" },
+        "plain-docs": { "verdict": "no" },
+        "docs-bolt-on-mcp": { "verdict": "no" }
+      }
+    },
+    {
+      "id": "author-once",
+      "label": "Author once",
+      "cells": {
+        "superlore": { "verdict": "yes" },
+        "plain-docs": { "verdict": "yes" },
+        "docs-bolt-on-mcp": { "verdict": "partial" }
+      }
+    },
+    {
+      "id": "hosting",
+      "label": "Hosting",
+      "cells": {
+        "superlore": { "text": "your Vercel" },
+        "plain-docs": { "text": "your Vercel" },
+        "docs-bolt-on-mcp": { "text": "your Vercel" }
+      }
+    }
+  ]
+}
+```
+
+<Tip title="Cells keep their meaning">
+  A `partial` is a real value, not a half-shaded glyph — the agent can rank options by how many
+  criteria each fully meets, with no image interpretation.
+</Tip>

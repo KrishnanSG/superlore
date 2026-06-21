@@ -1,0 +1,191 @@
+---
+title: Getting started
+icon: Rocket
+description: The fastest way to start a superlore KB — let Claude configure it all for you — plus the manual path to wire superlore in by hand.
+summary: Start a superlore KB by letting Claude scaffold it for you with the superlore plugin ("Make me a docs using superlore"), or wire the superlore package in by hand — install, import the theme, spread the components, base the schema, mount the MCP route.
+tags: [guide, setup]
+---
+
+## Claude can automatically configure it all for you
+
+The fastest way to start a superlore knowledge base is to let your agent do it. Install the **superlore
+Claude plugin**, then say:
+
+<KeyFacts items={[{ label: "Say to Claude", value: "Make me a docs using superlore" }]} />
+
+Claude drives the whole setup — it asks two quick questions, scaffolds the project, writes your
+config, seeds starter pages, and offers to connect the MCP. You don't need to know how superlore works.
+
+<Steps>
+  <Step title="Add the superlore plugin (one time)">
+    From inside Claude: ```bash /plugin marketplace add KrishnanSG/superlore /plugin install
+    superlore@superlore ```
+  </Step>
+  <Step title="Ask Claude to build it">
+    In a fresh session, say: ```text Make me a docs using superlore ```
+  </Step>
+</Steps>
+
+### What Claude will do — and ask
+
+<Steps>
+  <Step title="Ask 2 questions">
+    Using its question prompt, Claude asks **what kind of KB** this is — a **Company KB** (internal,
+    for your teams + agents) or **Product Documentation** (public, for your users) — and **who can
+    read it** — **auth-protected** (Google SSO gates the site _and_ the MCP) or **public**.
+  </Step>
+  <Step title="Warn if a company KB would be public">
+    If you choose a **Company KB** without auth, Claude warns you clearly — an internal KB shouldn't
+    be world-readable, and the MCP would expose the same content — and offers to add Google SSO
+    before you deploy.
+  </Step>
+  <Step title="Scaffold + configure">
+    Claude runs `superlore init` with your answers, writes `superlore.json` (your KB's `name`,
+    `type`, `auth`, and `mcp` settings), and mounts the MCP route — narrating each step.
+  </Step>
+  <Step title="Seed starter content + connect the MCP">
+    It seeds a page or two so the KB isn't empty, then offers to register the MCP with your agent
+    (asking your permission first) so you can immediately query your own corpus.
+  </Step>
+</Steps>
+
+<Tip title="Then keep talking to Claude">
+  After scaffolding, just ask: _"add a page about our onboarding"_, _"make a Q3 roadmap"_, or
+  _"diagram our architecture"_ — the superlore authoring skills turn intent into structured MDX.
+  When you're ready, ask Claude to deploy (self-host on Vercel today; **superlore Cloud** is
+  [waitlisted](/cloud)).
+</Tip>
+
+## Prefer the command line?
+
+If you'd rather scaffold from your terminal, install the **superlore CLI** — one command, nothing to
+clone:
+
+```bash
+curl -fsSL https://superlore.vercel.app/install.sh | sh
+```
+
+<Note>
+  Windows (PowerShell): `irm https://superlore.vercel.app/install.ps1 | iex`. Already have a Node
+  package manager? `npm i -g superlore-cli` works just as well.
+</Note>
+
+Then scaffold and preview:
+
+```bash
+superlore init my-kb   # asks the same 2 questions, writes superlore.json, seeds pages
+cd my-kb
+superlore dev          # local preview at http://localhost:3000
+```
+
+`superlore deploy` is reserved for managed **superlore Cloud** ([waitlisted](/cloud)); self-host today
+with `superlore build` and any Next.js host.
+
+## Or wire it up by hand
+
+superlore is a component library, theme, and MCP server you drop into your docs app. If
+you'd rather not use the plugin, set it up manually.
+
+## Prerequisites
+
+<KeyFacts
+  items={[
+    { label: "Node", value: "≥ 20" },
+    { label: "Next.js", value: "16" },
+    { label: "React", value: "19" },
+    { label: "Fumadocs", value: "ui + core 16" },
+    { label: "Tailwind", value: "v4" },
+  ]}
+/>
+
+## Install & wire it up
+
+<Steps>
+  <Step title="Install">
+    ```bash
+    npm i superlore
+    # peers: next@16, react@19, fumadocs-ui@16, fumadocs-core@16, tailwindcss@4
+    ```
+  </Step>
+  <Step title="Import the theme">
+    In your global stylesheet, after Tailwind and the Fumadocs presets:
+    ```css
+    @import "tailwindcss";
+    @import "fumadocs-ui/css/neutral.css";
+    @import "fumadocs-ui/css/preset.css";
+    @import "superlore/css";
+
+    @source "../node_modules/superlore/dist";
+    ```
+
+  </Step>
+  <Step title="Wire the components">
+    Spread superlore's MDX components into your `useMDXComponents`:
+    ```tsx
+    import { getMDXComponents } from "superlore";
+    export function useMDXComponents(components) {
+      return getMDXComponents(components);
+    }
+    ```
+  </Step>
+  <Step title="Use the frontmatter schema">
+    In `source.config.ts`, base your page schema on superlore's — it carries Fumadocs' defaults plus
+    the knowledge-envelope fields (`summary`, `tags`). Add your own fields with `.extend({...})`:
+    ```ts
+    import { defineDocs } from "fumadocs-mdx/config";
+    import { superloreFrontmatterSchema } from "superlore/frontmatter";
+
+    export const docs = defineDocs({
+      dir: "content/docs",
+      docs: { schema: superloreFrontmatterSchema.extend({ /* your fields */ }) },
+    });
+    ```
+
+  </Step>
+  <Step title="Mount the MCP route">
+    Expose the MCP over the same content so agents can read it — see [MCP](/docs/agents/mcp).
+  </Step>
+  <Step title="Author MDX">
+    Write a page with frontmatter + components — see [Components](/docs/components).
+  </Step>
+</Steps>
+
+## A first page
+
+```mdx
+---
+title: Q3 Roadmap
+summary: What ships this quarter and when.
+tags: [roadmap]
+---
+
+<Timeline
+  items={[
+    { date: "2026-07-01", title: "Kickoff", status: "done" },
+    { date: "2026-Q3", title: "GA launch", status: "planned" },
+  ]}
+/>
+```
+
+That single `Timeline` renders a polished, accessible list for humans **and** serializes to a
+structured `{ kind: "timeline", items: [...] }` your agent reads over the MCP. You did not write
+the data twice — there is one source.
+
+## Where to next
+
+<CardGroup cols={3}>
+  <Card title="Components" icon="blocks" href="/docs/components">
+    The full library, each with a live example and its knowledge face.
+  </Card>
+  <Card title="Canvas" icon="pen-tool" href="/docs/canvas">
+    The FigJam-style whiteboard authored in MDX.
+  </Card>
+  <Card title="Enable auth" icon="shield" href="/docs/auth">
+    Gate the site (and the MCP) with Google SSO — optional, off by default.
+  </Card>
+</CardGroup>
+
+<Tip title="Light and dark are equal">
+  superlore ships both themes from one token set and defaults to the reader's system preference.
+  Never branch on theme in your code — it's a pure CSS-token swap.
+</Tip>

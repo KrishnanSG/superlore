@@ -1,0 +1,34 @@
+---
+title: Accordions
+icon: ChevronDown
+description: Collapsible detail — optional depth or FAQ-style content, present by default but folded away.
+summary: Group Accordion items in an AccordionGroup; each takes a title summary line and revealed children.
+tags: [components, primitives, layout, accordion]
+---
+
+Collapsible detail. Reach for it when content is optional depth or FAQ-style — present by default
+but folded away. Group `<Accordion>` items in an `<AccordionGroup>`.
+
+## When to use it
+
+Use accordions to keep a page scannable when some content is reference-only or answers a "what
+about…?" — FAQs, edge cases, long config blocks. If the reader needs every item in order, use
+[Steps](/docs/components/steps); if they need one of several alternatives, use
+[Tabs](/docs/components/tabs).
+
+## Props
+
+| Component     | Prop       | Type        | Description                     |
+| ------------- | ---------- | ----------- | ------------------------------- |
+| `<Accordion>` | `title`    | `string`    | The always-visible summary line |
+| `<Accordion>` | `children` | `ReactNode` | The revealed body               |
+
+## Live example
+
+<AccordionGroup>
+  <Accordion title="Is superlore open source?">Yes — Apache-2.0 licensed.</Accordion>
+  <Accordion title="Do I have to host it?">No. You deploy it; we never host your data.</Accordion>
+  <Accordion title="Does authoring change for agents?">
+    No — you author one MDX source; the MCP serves the structured face automatically.
+  </Accordion>
+</AccordionGroup>

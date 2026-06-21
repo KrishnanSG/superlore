@@ -1,0 +1,30 @@
+---
+title: Frames
+icon: Frame
+description: Frame an image or any block in a bordered, centered figure — with an optional caption and hint.
+summary: Frame wraps content in a bordered figure with an optional caption below and a muted hint above.
+tags: [components, primitives, media, frame]
+---
+
+Frame an image or any block with a bordered, centered figure — with an optional caption below and
+a hint above. Good for screenshots that need a clean container.
+
+## When to use it
+
+Use a frame to give a screenshot or rendered preview a consistent, bordered container with a
+caption — so it reads as a figure rather than a loose image. For a preview that sits on a hatched
+backdrop and links somewhere, reach for a [Tile](/docs/components/tiles) instead.
+
+## Props
+
+| Prop       | Type        | Description                      |
+| ---------- | ----------- | -------------------------------- |
+| `caption`  | `ReactNode` | Centered caption under the frame |
+| `hint`     | `ReactNode` | Muted hint shown above the frame |
+| `children` | `ReactNode` | The framed content               |
+
+## Live example
+
+<Frame caption="A framed block with a caption.">
+  <div>Drop an image or any node here.</div>
+</Frame>

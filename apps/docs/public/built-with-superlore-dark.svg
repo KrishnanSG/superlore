@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="172" height="28" viewBox="0 0 172 28" role="img" aria-label="Built with superlore">
+  <title>Built with superlore</title>
+  <!-- superlore "Built with" badge — DARK theme (fixed). For dark backgrounds. -->
+  <defs>
+    <clipPath id="r"><rect width="172" height="28" rx="5" /></clipPath>
+  </defs>
+  <g clip-path="url(#r)">
+    <rect width="172" height="28" fill="#0B0C0E" />
+    <rect width="38" height="28" fill="#6D5CF0" />
+    <g transform="translate(8 3) scale(0.34375)">
+      <polygon points="14,20 32,12 32,46 14,54" fill="#FFFFFF" />
+      <polygon points="32,12 50,20 50,54 32,46" fill="#FFFFFF" opacity="0.5" />
+    </g>
+    <text x="50" y="18.5"
+      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif"
+      font-size="12">
+      <tspan fill="#c8c9ce">Built with </tspan><tspan font-weight="700" fill="#FFFFFF">superlore</tspan>
+    </text>
+  </g>
+  <rect x="0.5" y="0.5" width="171" height="27" rx="5" fill="none" stroke="#2a2b30" />
+</svg>

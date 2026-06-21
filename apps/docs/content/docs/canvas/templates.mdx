@@ -1,0 +1,209 @@
+---
+title: Templates
+icon: LayoutPanelLeft
+description: Start from a ready, designed structure. Set `template:` and drop your content into named frames — a beautiful, correct board with zero layout work. Built for agents to reproduce reliably.
+summary: superlore Canvas ships ready templates (SWOT, Business Model Canvas, Lean Canvas, Impact/Effort, OKR tree, User journey, System architecture, RCA, Org chart, Mind map). Each is a real board with frame icons and a colour story — set template and fill the named frames. Component-shaped templates (kanban, RICE) use the Board and Comparison components.
+tags: [canvas, templates, frameworks]
+---
+
+A template is a ready, **designed** structure you fill in. Set **`template`** and the frames, icons,
+colours and layout appear; you add nodes into the **named frames** (`group: "strengths"`). No
+coordinates, no styling — beautiful and correct out of the box, and **an agent reproduces it
+reliably every time.**
+
+## SWOT
+
+`strengths` · `weaknesses` · `opportunities` · `threats`.
+
+```superlore-canvas
+{
+  "template": "swot",
+  "nodes": [
+    { "id": "s1", "kind": "sticky", "intent": "green", "group": "strengths", "label": "Agent-native MCP from day one" },
+    { "id": "s2", "kind": "sticky", "intent": "green", "group": "strengths", "label": "Dual representation — one source" },
+    { "id": "s3", "kind": "sticky", "intent": "green", "group": "strengths", "label": "Lives in the repo, you own it" },
+    { "id": "w1", "kind": "sticky", "intent": "red", "group": "weaknesses", "label": "Pre-launch, no brand yet" },
+    { "id": "w2", "kind": "sticky", "intent": "red", "group": "weaknesses", "label": "Small template library so far" },
+    { "id": "o1", "kind": "sticky", "intent": "blue", "group": "opportunities", "label": "AI is generating oceans of docs" },
+    { "id": "o2", "kind": "sticky", "intent": "blue", "group": "opportunities", "label": "MCP is becoming a standard" },
+    { "id": "o3", "kind": "sticky", "intent": "blue", "group": "opportunities", "label": "Every team is wiring up agents" },
+    { "id": "t1", "kind": "sticky", "intent": "orange", "group": "threats", "label": "Incumbents bolt on an MCP" },
+    { "id": "t2", "kind": "sticky", "intent": "orange", "group": "threats", "label": "MCP spec churn" }
+  ]
+}
+```
+
+## Business Model Canvas
+
+The canonical nine blocks, each iconed and placed — `partners`, `activities`, `resources`, `value`,
+`relationships`, `channels`, `segments`, `costs`, `revenue`.
+
+```superlore-canvas
+{
+  "template": "business-model-canvas",
+  "nodes": [
+    { "id": "p1", "kind": "sticky", "intent": "blue", "group": "partners", "label": "Vercel" },
+    { "id": "p2", "kind": "sticky", "intent": "blue", "group": "partners", "label": "Model providers" },
+    { "id": "a1", "kind": "sticky", "intent": "teal", "group": "activities", "label": "Build the corpus engine + MCP" },
+    { "id": "rs1", "kind": "sticky", "intent": "teal", "group": "resources", "label": "OSS library + skills" },
+    { "id": "v1", "kind": "sticky", "intent": "accent", "group": "value", "label": "One corpus — humans + agents" },
+    { "id": "v2", "kind": "sticky", "intent": "accent", "group": "value", "label": "Beautiful in docs, queryable by AI" },
+    { "id": "r1", "kind": "sticky", "intent": "purple", "group": "relationships", "label": "OSS community + self-serve" },
+    { "id": "ch1", "kind": "sticky", "intent": "purple", "group": "channels", "label": "GitHub · npm · the IDE plugin" },
+    { "id": "seg1", "kind": "sticky", "intent": "green", "group": "segments", "label": "AI-forward eng teams" },
+    { "id": "seg2", "kind": "sticky", "intent": "green", "group": "segments", "label": "Docs-as-code shops" },
+    { "id": "c1", "kind": "sticky", "intent": "red", "group": "costs", "label": "Hosting · inference · R&D" },
+    { "id": "rev1", "kind": "sticky", "intent": "green", "group": "revenue", "label": "Cloud + managed MCP + enterprise" }
+  ]
+}
+```
+
+## Lean Canvas
+
+`problem` · `solution` · `metrics` · `uvp` · `advantage` · `lc-channels` · `lc-segments` ·
+`lc-costs` · `lc-revenue`.
+
+```superlore-canvas
+{
+  "template": "lean-canvas",
+  "nodes": [
+    { "id": "pr1", "kind": "sticky", "intent": "red", "group": "problem", "label": "AI docs are flat + invisible to agents" },
+    { "id": "so1", "kind": "sticky", "intent": "blue", "group": "solution", "label": "Author once → visual KB + MCP" },
+    { "id": "m1", "kind": "sticky", "intent": "teal", "group": "metrics", "label": "Stars · installs · corpora hosted" },
+    { "id": "u1", "kind": "sticky", "intent": "accent", "group": "uvp", "label": "Dual representation, in your repo" },
+    { "id": "ad1", "kind": "sticky", "intent": "purple", "group": "advantage", "label": "Architectural — hard to retrofit" },
+    { "id": "lc1", "kind": "sticky", "intent": "purple", "group": "lc-channels", "label": "OSS + IDE plugin" },
+    { "id": "ls1", "kind": "sticky", "intent": "green", "group": "lc-segments", "label": "AI-forward eng teams" },
+    { "id": "lco1", "kind": "sticky", "intent": "red", "group": "lc-costs", "label": "Hosting + inference" },
+    { "id": "lr1", "kind": "sticky", "intent": "green", "group": "lc-revenue", "label": "Cloud + enterprise" }
+  ]
+}
+```
+
+## Impact / Effort (2×2)
+
+`quick-wins` · `big-bets` · `fill-ins` · `money-pits`.
+
+```superlore-canvas
+{
+  "template": "2x2",
+  "nodes": [
+    { "id": "qw1", "kind": "sticky", "intent": "green", "group": "quick-wins", "label": "Template library" },
+    { "id": "qw2", "kind": "sticky", "intent": "green", "group": "quick-wins", "label": "superlore.json theming" },
+    { "id": "bb1", "kind": "sticky", "intent": "blue", "group": "big-bets", "label": "Tool connectors / federation" },
+    { "id": "bb2", "kind": "sticky", "intent": "blue", "group": "big-bets", "label": "superlore Cloud + managed MCP" },
+    { "id": "fi1", "kind": "sticky", "intent": "gray", "group": "fill-ins", "label": "More icon sets" },
+    { "id": "mp1", "kind": "sticky", "intent": "red", "group": "money-pits", "label": "A bespoke DSL (later)" }
+  ]
+}
+```
+
+## System architecture
+
+Ships with tiers (`client` · `edge` · `services` · `data`), iconed services, and typed `depends-on`
+edges — rename the nodes for your system.
+
+```superlore-canvas
+{
+  "template": "system-architecture",
+  "nodes": [
+    { "id": "svc-a", "label": "Shorten service" },
+    { "id": "svc-b", "label": "Redirect service" },
+    { "id": "db", "label": "DynamoDB" }
+  ]
+}
+```
+
+## User journey
+
+A row of stages (`awareness` · `consideration` · `decision` · `onboarding` · `retention`) — drop an
+action + a feeling into each.
+
+```superlore-canvas
+{
+  "template": "user-journey",
+  "nodes": [
+    { "id": "aw1", "kind": "card", "intent": "blue", "group": "awareness", "label": "Sees a superlore board on X" },
+    { "id": "aw2", "kind": "sticky", "intent": "yellow", "group": "awareness", "label": "😀 curious" },
+    { "id": "co1", "kind": "card", "intent": "teal", "group": "consideration", "label": "Reads the gallery + briefs" },
+    { "id": "co2", "kind": "sticky", "intent": "yellow", "group": "consideration", "label": "🤔 is this real?" },
+    { "id": "de1", "kind": "card", "intent": "purple", "group": "decision", "label": "npm create superlore" },
+    { "id": "de2", "kind": "sticky", "intent": "yellow", "group": "decision", "label": "😮 first board in 60s" },
+    { "id": "on1", "kind": "card", "intent": "green", "group": "onboarding", "label": "Points it at the repo, deploys" },
+    { "id": "re1", "kind": "card", "intent": "green", "group": "retention", "label": "Agents query the corpus daily" }
+  ]
+}
+```
+
+## Root cause analysis
+
+`symptoms` → `hypotheses` → `cause` → `fix`. Drop in evidence; the structure tells the story.
+
+```superlore-canvas
+{
+  "template": "rca",
+  "nodes": [
+    { "id": "sy1", "kind": "note", "intent": "red", "group": "symptoms", "body": "p99 checkout 2.4s vs 800ms SLO — breached at the 20:00 peak." },
+    { "id": "sy2", "kind": "note", "intent": "red", "group": "symptoms", "body": "DB CPU flat; app-tier latency spiking." },
+    { "id": "sy3", "kind": "note", "intent": "red", "group": "symptoms", "body": "Only the cart → order path." },
+    { "id": "h1", "kind": "sticky", "group": "hypotheses", "label": "N+1 on line-items?" },
+    { "id": "h2", "kind": "sticky", "group": "hypotheses", "label": "Connection-pool exhaustion?" },
+    { "id": "h3", "kind": "sticky", "group": "hypotheses", "label": "Lock contention?" },
+    { "id": "rc", "kind": "card", "intent": "accent", "group": "cause", "label": "Pool capped at 10 — 8pm peak queues connections → tail latency." },
+    { "id": "fx1", "kind": "rect", "intent": "green", "group": "fix", "label": "Raise pool 10 → 40" },
+    { "id": "fx2", "kind": "rect", "intent": "green", "group": "fix", "label": "Bulkhead the order path" },
+    { "id": "fx3", "kind": "rect", "intent": "green", "group": "fix", "label": "Alert on pool saturation" }
+  ]
+}
+```
+
+## OKR tree & Org chart
+
+Two ready hierarchies — rename the nodes.
+
+```superlore-canvas
+{
+  "template": "okr-tree",
+  "nodes": [
+    { "id": "objective", "label": "Become the default agent-native KB" },
+    { "id": "kr1", "label": "1,000 GitHub stars" },
+    { "id": "kr2", "label": "20 teams on superlore" },
+    { "id": "kr3", "label": "5 paying design partners" }
+  ]
+}
+```
+
+```superlore-canvas
+{ "template": "org-chart" }
+```
+
+## Mind map
+
+A hand-drawn central idea with branches — rename and extend.
+
+```superlore-canvas
+{
+  "template": "mind-map",
+  "nodes": [
+    { "id": "center", "label": "superlore" },
+    { "id": "b1", "label": "Canvas" },
+    { "id": "b2", "label": "MCP" },
+    { "id": "b3", "label": "Templates" },
+    { "id": "b4", "label": "Connectors" }
+  ]
+}
+```
+
+## Component-shaped templates
+
+Some "templates" aren't whiteboards — they're a superlore **component** with a preset. Use the
+component directly:
+
+- **Sprint board · sales pipeline · hiring pipeline · retro** → the
+  **[Board](/docs/components/board)** (columns of typed cards).
+- **RICE · ICE · weighted decision matrix · RACI** → the **[Comparison](/docs/components/comparison)**
+  (options × criteria, every cell typed and queryable).
+- **Roadmap · release timeline** → the **[Timeline](/docs/components/timeline)**.
+
+Pick the surface that fits — Canvas for spatial/structural thinking, a component for tabular data.
+Everything serialises to the same typed knowledge graph for the MCP.

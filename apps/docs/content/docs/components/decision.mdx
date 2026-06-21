@@ -1,0 +1,99 @@
+---
+title: Decision
+icon: GitPullRequestArrow
+description: An architecture decision record (ADR) — status, context, the decision, consequences, and supersedes links.
+summary: Decision renders an ADR and serializes to a decision knowledge node whose supersedes / superseded-by links ride the shared refs graph.
+tags: [components, knowledge-structures, dual-representation, decision, adr]
+---
+
+A `Decision` is an architecture decision record (ADR) — a titled decision with a `status`, the
+`context` that forced it, the `decision` itself, its `consequences`, and `supersedes` /
+`superseded-by` links. Humans read the rationale; the agent gets `{ kind:"decision", status,
+context, decision, consequences, refs }`, and the supersession links ride the shared `refs[]` graph,
+so an agent can follow a decision chain with `navigate`.
+
+<Example
+  code={`<Decision
+  title="Adopt MCP as the agent surface"
+  status="accepted"
+  identifier="ADR-007"
+  date="2026-06-01"
+  context="Agents need structured access to the corpus, not scraped HTML pages."
+  decision="Ship a first-class MCP over the same structured index humans read."
+  consequences={[
+    "Every component must implement a knowledge face.",
+    "The MCP route is gated by the same auth as the site.",
+  ]}
+  supersedes={{ target: "/docs/adr/006", label: "ADR-006" }}
+  refs={[{ rel: "related", target: "/docs/agents/mcp", label: "MCP docs" }]}
+/>`}
+>
+  <Decision
+    title="Adopt MCP as the agent surface"
+    status="accepted"
+    identifier="ADR-007"
+    date="2026-06-01"
+    context="Agents need structured access to the corpus, not scraped HTML pages."
+    decision="Ship a first-class MCP over the same structured index humans read."
+    consequences={[
+      "Every component must implement a knowledge face.",
+      "The MCP route is gated by the same auth as the site.",
+    ]}
+    supersedes={{ target: "/docs/adr/006", label: "ADR-006" }}
+    refs={[{ rel: "related", target: "/docs/agents/mcp", label: "MCP docs" }]}
+  />
+</Example>
+
+## When to use it
+
+ADRs, RFCs, design decisions, policy records — any decision worth recording with its rationale and
+its place in a chain. Because the supersession is a typed, directed edge, "what superseded ADR-006?"
+is a graph walk, not a text search.
+
+## Props
+
+**`Decision`**
+
+| Prop           | Type                                          | Default | Description                       |
+| -------------- | --------------------------------------------- | ------- | --------------------------------- |
+| `title`        | `string`                                      | —       | The decision title                |
+| `status`       | `proposed · accepted · rejected · superseded` | —       | Lifecycle status                  |
+| `identifier`   | `string`                                      | —       | Author-facing id, e.g. `ADR-007`  |
+| `date`         | `string`                                      | —       | Precision is inferred             |
+| `context`      | `ReactNode`                                   | —       | Why the decision was needed       |
+| `decision`     | `ReactNode`                                   | —       | The decision itself               |
+| `consequences` | `ReactNode[]`                                 | —       | What follows from it              |
+| `supersedes`   | `{ rel?, target, label? }`                    | —       | A decision this one replaces      |
+| `supersededBy` | `{ rel?, target, label? }`                    | —       | A decision that replaces this one |
+| `refs`         | `{ rel?, target, label? }[]`                  | —       | Other typed links                 |
+
+## What the agent sees
+
+The status is intact, the date is parsed, and `supersedes` is a typed `supersedes` edge in the same
+`refs[]` graph every other component uses:
+
+```json
+{
+  "kind": "decision",
+  "id": "adr-007",
+  "title": "Adopt MCP as the agent surface",
+  "status": "accepted",
+  "identifier": "ADR-007",
+  "date": { "iso": "2026-06-01", "precision": "day" },
+  "context": "Agents need structured access to the corpus, not scraped HTML pages.",
+  "decision": "Ship a first-class MCP over the same structured index humans read.",
+  "consequences": [
+    "Every component must implement a knowledge face.",
+    "The MCP route is gated by the same auth as the site."
+  ],
+  "refs": [
+    { "rel": "supersedes", "target": "/docs/adr/006", "label": "ADR-006", "internal": true },
+    { "rel": "related", "target": "/docs/agents/mcp", "label": "MCP docs", "internal": true }
+  ]
+}
+```
+
+<Note title="Decisions form a graph">
+  Because `supersedes` is a real edge, an agent can walk a decision chain end-to-end — "show me the
+  current decision that replaced ADR-006" — without ever parsing the page body.
+</Note>

@@ -1,0 +1,7 @@
+{
+  "title": "MCP",
+  "icon": "Plug",
+  "collapsible": true,
+  "defaultOpen": false,
+  "pages": ["index", "tools", "connect"]
+}

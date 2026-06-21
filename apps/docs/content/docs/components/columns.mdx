@@ -1,0 +1,31 @@
+---
+title: Columns
+icon: Columns3
+description: Place content side by side — a before/after, two screenshots, or paired explanations.
+summary: Columns takes a cols count; each child Column is one cell and collapses to a single column on mobile.
+tags: [components, primitives, layout]
+---
+
+Place content side by side — two screenshots, a before/after, paired explanations. `Columns`
+takes a `cols` count; each child `<Column>` is one cell and collapses to a single column on
+mobile.
+
+## When to use it
+
+Reach for columns when two (or more) pieces of content are best read in parallel — humans-vs-agents,
+before-vs-after, a snippet next to its result. For navigation grids use [Cards](/docs/components/cards)
+instead; columns are for free-form content cells.
+
+## Props
+
+| Component   | Prop       | Type               | Default | Description              |
+| ----------- | ---------- | ------------------ | ------- | ------------------------ |
+| `<Columns>` | `cols`     | `1 \| 2 \| 3 \| 4` | `2`     | Columns at desktop width |
+| `<Column>`  | `children` | `ReactNode`        | —       | The cell content         |
+
+## Live example
+
+<Columns cols={2}>
+  <Column>**Humans** get a clean, interactive, visual KB.</Column>
+  <Column>**Agents** get a first-class MCP over the same structured content.</Column>
+</Columns>

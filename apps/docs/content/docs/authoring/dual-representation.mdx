@@ -1,0 +1,74 @@
+---
+title: Dual representation
+icon: Braces
+description: The core invariant — every superlore component renders for humans and serializes a typed knowledge face for the MCP, from one authored instance.
+summary: Dual representation is superlore's moat — every component has a render face for the human site and a knowledge face the MCP serves to agents, produced from one source so they can never drift.
+tags: [concepts, authoring, dual-representation]
+---
+
+This is the **core invariant** of superlore, and the reason it isn't just another docs generator:
+every component has **two faces**, produced from one authored instance.
+
+<CardGroup cols={2}>
+  <Card title="Render face" icon="eye">
+    A polished React component for the human site — tokens only, light and dark co-equal,
+    accessible.
+  </Card>
+  <Card title="Knowledge face" icon="braces">
+    A typed serialization the MCP exposes to agents — the records and relations behind the visual,
+    never a description of a picture.
+  </Card>
+</CardGroup>
+
+## Why it matters
+
+Existing tools render pages for people and **retrofit** an MCP over the scraped output. Their
+components are render-only; the agent gets HTML it has to interpret. superlore inverts this: the
+[structured index](/docs/architecture) is the source of truth, and both faces are projections of
+it. A `Timeline` is never a picture an agent must squint at — the agent gets the items behind it.
+
+<Check title="Author the data">
+  `<Timeline items={[...]} />`, `<EntityCard fields={[...]} />`, `<DataTable rows={[...]} />`.
+  The agent reading your KB later gets clean, typed records.
+</Check>
+<Danger title="Not a picture">
+  Don't paste a screenshot of a roadmap or describe a table in prose. That data becomes invisible
+  to agents and unsearchable.
+</Danger>
+
+## The contract for component authors
+
+<Steps>
+  <Step title="Implement both faces">
+    If you add a component, you implement the render face **and** the knowledge face. A component
+    that can't serialize to the MCP isn't done.
+  </Step>
+  <Step title="One source, no duplication">
+    Both faces come from the same props. You never write the data twice; there's nothing to keep
+    in sync.
+  </Step>
+  <Step title="Type the knowledge face">
+    The serialization is typed (`{ kind: "timeline", items: [...] }`, and so on) so `get_component_data`
+    returns a stable shape an agent can rely on.
+  </Step>
+</Steps>
+
+## See it end to end
+
+The full component catalog shows each knowledge face alongside its render. The structural
+differentiators each carry a typed face you can query over the MCP:
+
+<CardGroup cols={2}>
+  <Card title="Timeline" icon="clock" href="/docs/components/timeline">
+    Dated events with status — serialized as ordered items.
+  </Card>
+  <Card title="EntityCard" icon="box" href="/docs/components/entity-card">
+    A typed thing with fields and relations — makes the KB a graph.
+  </Card>
+  <Card title="DataTable" icon="table" href="/docs/components/data-table">
+    Sortable, typed rows and columns.
+  </Card>
+  <Card title="The MCP" icon="plug" href="/docs/agents/mcp">
+    How agents read those knowledge faces.
+  </Card>
+</CardGroup>

@@ -1,0 +1,16 @@
+{
+  "title": "superlore",
+  "root": true,
+  "icon": "BookOpen",
+  "pages": [
+    "---[Compass]Start here---",
+    "index",
+    "getting-started",
+    "---[Layers]Concepts---",
+    "architecture",
+    "authoring",
+    "---[Settings2]Operations---",
+    "auth",
+    "built-with-superlore"
+  ]
+}

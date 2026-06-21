@@ -1,0 +1,75 @@
+---
+title: Tools
+icon: Wrench
+description: The five MCP tools superlore exposes — search, get_page, list, navigate, get_component_data — with their arguments and what each returns.
+summary: Reference for the five superlore MCP tools — search (ranked page hits), get_page (full structured page), list (filtered knowledge nodes), navigate (refs + backlinks), and get_component_data (a component's knowledge face).
+tags: [mcp, agents, reference]
+---
+
+The superlore MCP server (`/api/mcp` on this deploy) exposes **five tools** over the structured
+index. Each returns JSON — the typed knowledge behind the pages, never scraped HTML.
+
+<DataTable
+  columns={[
+    { key: "tool", label: "Tool" },
+    { key: "args", label: "Arguments" },
+    { key: "returns", label: "Returns" },
+  ]}
+  rows={[
+    { tool: "search", args: "query, limit?", returns: "Ranked page hits across the corpus" },
+    {
+      tool: "get_page",
+      args: "path",
+      returns: "Frontmatter + ordered knowledge nodes for one page",
+    },
+    {
+      tool: "list",
+      args: "kind?, tag?, entityType?",
+      returns: "Filtered knowledge nodes across the corpus",
+    },
+    {
+      tool: "navigate",
+      args: "target",
+      returns: "Outgoing refs + backlinks for a path / node id / ref",
+    },
+    {
+      tool: "get_component_data",
+      args: "id",
+      returns: "A single component's knowledge face by id",
+    },
+  ]}
+/>
+
+## Each tool
+
+<Steps>
+  <Step title="search(query, limit?)">
+    Full-text search across the documentation. Returns ranked page hits — `summary` weighs heavily
+    in ranking, which is why every page should carry one.
+  </Step>
+  <Step title="get_page(path)">
+    Fetch a page's full structured content by path (e.g. `/docs/architecture`): its frontmatter
+    plus the ordered list of knowledge nodes — prose sections and the serialized knowledge faces of
+    every component on the page. Returns `{ error: "not_found", path }` for an unknown path.
+  </Step>
+  <Step title="list({ kind?, tag?, entityType? })">
+    List knowledge nodes across the whole corpus, filtered by node `kind`, by frontmatter `tag`, or
+    by `entityType`. Use it to enumerate, say, every `timeline` or every page tagged `roadmap`.
+  </Step>
+  <Step title="navigate(target)">
+    Follow relations from a page path, a node id, or an entity ref. Returns the outgoing refs
+    (`depends-on`, `part-of`, `related`, …) **and** the backlinks — the corpus as a graph.
+  </Step>
+  <Step title="get_component_data(id)">
+    Get the typed data behind a single rendered component (its [knowledge
+    face](/docs/authoring/dual-representation)) by id — e.g. the node/edge graph behind a Canvas,
+    or the items behind a Timeline. Returns `{ error: "not_found", id }` for an unknown id.
+  </Step>
+</Steps>
+
+<Note title="The same index the site renders">
+  Every tool reads the structured index superlore builds from your MDX. There is no separate agent
+  content to maintain — the tools and the pages are two projections of one source.
+</Note>
+
+To wire a client up to these tools, see [Connect a client](/docs/agents/mcp/connect).

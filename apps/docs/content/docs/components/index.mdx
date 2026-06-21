@@ -1,0 +1,151 @@
+---
+title: Overview
+icon: Blocks
+description: The superlore component library — what each one is, when to use it, and how it looks.
+summary: The Mintlify-compatible primitives, the editorial pieces, and the dual-representation structural components — each with when-to-use guidance, a props table, and a live example.
+tags: [components, reference]
+---
+
+Every component renders for humans **and** serializes to the MCP. Author once in MDX — every name
+below is registered in superlore's MDX component map, so you drop it into any `.mdx` and it renders.
+Components are tokens-only and light/dark co-equal — you never pick a colour or a size.
+
+The **primitives** and **editorial** pieces give a page its shape and scannable spine. The
+**structural** components carry a typed **knowledge face** — an agent reads the data behind the
+picture, never the picture. Each one has its own page below.
+
+## Primitives
+
+The Mintlify-compatible building blocks — emphasis, navigation, and layout. Inline and layout
+primitives are presentational by design and emit no knowledge node; callouts serialize a severity.
+
+<CardGroup cols={3}>
+  <Card title="Callouts" icon="bell" href="/docs/components/callouts">
+    Info, Tip, Check, Warning, Danger — interrupt the flow by intent.
+  </Card>
+  <Card title="Cards" icon="square-mouse-pointer" href="/docs/components/cards">
+    Navigation tiles, grouped into a 1–4 column grid.
+  </Card>
+  <Card title="Columns" icon="columns-3" href="/docs/components/columns">
+    Place content side by side; collapses on mobile.
+  </Card>
+  <Card title="Steps" icon="list-ordered" href="/docs/components/steps">
+    An ordered procedure or runbook, top to bottom.
+  </Card>
+  <Card title="Tabs" icon="folder" href="/docs/components/tabs">
+    Alternative views of one thing — OS, language, package manager.
+  </Card>
+  <Card title="Accordions" icon="chevron-down" href="/docs/components/accordions">
+    Collapsible detail and FAQ-style content.
+  </Card>
+  <Card title="Tree" icon="folder-tree" href="/docs/components/tree">
+    A file or hierarchy structure.
+  </Card>
+  <Card title="Frames" icon="frame" href="/docs/components/frames">
+    A bordered, captioned figure for screenshots.
+  </Card>
+  <Card title="Tiles" icon="layout-grid" href="/docs/components/tiles">
+    A preview tile with a hatched media area.
+  </Card>
+  <Card title="Icons" icon="sparkle" href="/docs/components/icons">
+    Inline lucide icons, with Font Awesome aliases.
+  </Card>
+  <Card title="Badge" icon="tag" href="/docs/components/badge">
+    Inline status chips with a broad colour set.
+  </Card>
+  <Card title="Pill" icon="circle" href="/docs/components/pill">
+    The editorial chip used across superlore pages.
+  </Card>
+  <Card title="Tooltips" icon="message-square" href="/docs/components/tooltips">
+    A hover gloss on a term.
+  </Card>
+</CardGroup>
+
+## Editorial
+
+The pieces that give a reference page its scannable spine. **KeyFacts**, **StatGrid**, and
+**FeatureList** also serialize to the knowledge face, so the facts at the top of a page are
+queryable, not just decorative.
+
+<CardGroup cols={2}>
+  <Card title="KeyFacts" icon="list" href="/docs/components/key-facts">
+    Label→value facts at the top of a reference.
+  </Card>
+  <Card title="StatGrid" icon="layout-dashboard" href="/docs/components/stat-grid">
+    Headline metrics in a card grid.
+  </Card>
+  <Card title="MetaBar" icon="info" href="/docs/components/meta-bar">
+    A thin inline strip of page metadata.
+  </Card>
+  <Card title="FeatureList" icon="list-checks" href="/docs/components/feature-list">
+    An itemized feature or link list.
+  </Card>
+</CardGroup>
+
+## Structural
+
+The dual-representation differentiators — each renders a polished visual for humans **and** hands
+an agent the typed knowledge node behind it. This is the moat: one authored source, two faces.
+
+<CardGroup cols={2}>
+  <Card title="Timeline" icon="clock" href="/docs/components/timeline">
+    Dated, ordered events with status and typed refs.
+  </Card>
+  <Card title="EntityCard" icon="box" href="/docs/components/entity-card">
+    A typed thing with fields and relations — the graph face.
+  </Card>
+  <Card title="DataTable" icon="table" href="/docs/components/data-table">
+    Typed columns and rows an agent can sort and compare.
+  </Card>
+  <Card title="Diagram" icon="workflow" href="/docs/components/diagram">
+    A theme-aware Mermaid flow, with lossless source.
+  </Card>
+</CardGroup>
+
+<Note title="Two faces, one source">
+  The structural components carry a typed knowledge face — an agent reads the data behind the
+  picture over the MCP. The primitives render for humans; callouts and the editorial pieces
+  (KeyFacts, StatGrid, MetaBar, FeatureList) also serialize, but the inline and layout-only
+  primitives intentionally emit no knowledge node, keeping the index free of presentational noise.
+</Note>
+
+## The full catalog
+
+<DataTable
+  caption="Every component, by category and when to reach for it."
+  columns={[
+    { key: "name", label: "Component" },
+    { key: "category", label: "Category" },
+    { key: "use", label: "When to use" },
+  ]}
+  rows={[
+    { name: "Callout", category: "Emphasis", use: "Call out a caveat, tip, or warning" },
+    { name: "Card / CardGroup", category: "Navigation", use: "Link to related pages as a grid" },
+    { name: "Columns", category: "Layout", use: "Place content side by side" },
+    { name: "Steps", category: "Layout", use: "An ordered procedure or runbook" },
+    { name: "Tabs", category: "Layout", use: "Alternative views of one thing (OS, language)" },
+    { name: "Accordion", category: "Layout", use: "Collapsible detail or FAQ-style content" },
+    { name: "Tree", category: "Layout", use: "Show a file or hierarchy structure" },
+    { name: "Frame", category: "Media", use: "Frame an image or a preview tile" },
+    { name: "Tile", category: "Media", use: "A preview tile with a hatched backdrop" },
+    { name: "Icon", category: "Inline", use: "An inline lucide icon" },
+    { name: "Badge", category: "Inline", use: "A Mintlify-compatible status chip" },
+    { name: "Pill", category: "Inline", use: "The editorial status chip" },
+    { name: "Tooltip", category: "Inline", use: "A hover gloss on a term" },
+    { name: "KeyFacts", category: "Editorial", use: "Label→value facts at the top of a reference" },
+    { name: "StatGrid", category: "Editorial", use: "Headline metrics" },
+    { name: "MetaBar", category: "Editorial", use: "An inline strip of page metadata" },
+    { name: "FeatureList", category: "Editorial", use: "An itemized feature or link list" },
+    { name: "Timeline", category: "Structural", use: "Dated, ordered events with status" },
+    { name: "EntityCard", category: "Structural", use: "A typed thing with fields + relations" },
+    { name: "DataTable", category: "Structural", use: "Typed columns + rows an agent can sort" },
+    { name: "Diagram", category: "Structural", use: "A flow/sequence/graph from Mermaid" },
+    { name: "Canvas", category: "Rich viz", use: "A FigJam-style whiteboard from a spec" },
+  ]}
+/>
+
+<Note title="Canvas lives on its own">
+  **Canvas** — the interactive, FigJam-style whiteboard — is a structural component too, but it's
+  large enough to warrant its own top-level section. See [Canvas](/docs/canvas) for the shape
+  library, sections, typed edges, and the agent-native `superlore-canvas` authoring block.
+</Note>

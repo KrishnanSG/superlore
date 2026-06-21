@@ -1,0 +1,52 @@
+---
+title: Connect
+icon: Cable
+description: Point Claude or any MCP-capable client at this superlore deploy over Streamable HTTP.
+summary: Add the superlore MCP server to an MCP client with an http entry pointing at /api/mcp. This docs deploy is public and unauthenticated; gated deploys make the MCP inherit the site's auth policy.
+tags: [mcp, agents, integration, setup]
+---
+
+superlore mounts its MCP over **Streamable HTTP** at:
+
+```
+/api/mcp
+```
+
+On this docs deploy it is **public — no auth** — so any MCP-capable client can connect.
+
+## Add the server
+
+Point your client at the endpoint. For a Claude-style `mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "superlore-docs": {
+      "type": "http",
+      "url": "https://YOUR-DEPLOY/api/mcp"
+    }
+  }
+}
+```
+
+Replace `YOUR-DEPLOY` with the host this KB is deployed at (for these docs, the site's own
+origin). Then ask your agent things like:
+
+- _"search the superlore docs for the dual-representation contract"_
+- _"get_page /docs/architecture"_
+- _"list every node tagged canvas"_
+
+and it reads this knowledge base directly — through the [five tools](/docs/agents/mcp/tools), not
+by scraping pages.
+
+<Tip title="Inheriting auth">
+  If a deploy gates the site (Auth.js / SSO — see [Auth](/docs/auth)), the MCP inherits the same
+  policy. This docs deploy is intentionally open so anyone can connect; your own KB can stay public,
+  gate just the MCP, or gate everything.
+</Tip>
+
+<Note title="Verify your own pages">
+  After authoring, point an agent at the MCP and confirm `search` finds your page and `get_page`
+  returns the structure you intended. If the data isn't there, you wrote a picture, not a [knowledge
+  face](/docs/authoring/dual-representation).
+</Note>

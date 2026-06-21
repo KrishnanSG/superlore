@@ -1,0 +1,171 @@
+---
+title: Board
+icon: Columns3
+description: A kanban of cards grouped into columns by status or stage — each card carries a title, assignee, tags, and typed refs.
+summary: Board renders a kanban for humans and serializes to a board knowledge node with typed columns and cards an agent can query by status.
+tags: [components, knowledge-structures, dual-representation, board, kanban]
+---
+
+A `Board` is a kanban — cards grouped into columns by status or stage. Each card has a title, an
+optional body, an assignee, tags, and typed references. It renders polished lanes for humans **and**
+hands an agent the structured board behind it: every card's status, owner, and refs as data, never a
+screenshot of a board to interpret. `Kanban` is an alias for the same component.
+
+<Example
+  code={`<Board
+  label="Extraction board"
+  columns={[
+    {
+      title: "Todo",
+      status: "planned",
+      cards: [
+        { title: "Draft knowledge schema", tags: ["mcp"] },
+        { title: "Token audit", tags: ["design"] },
+      ],
+    },
+    {
+      title: "In progress",
+      status: "in-progress",
+      cards: [
+        {
+          title: "Build the extractor",
+          assignee: "Krishnan",
+          status: "in-progress",
+          refs: [{ rel: "related", target: "/docs/agents/mcp", label: "MCP" }],
+        },
+      ],
+    },
+    {
+      title: "Done",
+      status: "done",
+      cards: [{ title: "Lock the brand", assignee: "Krishnan", status: "done" }],
+    },
+  ]}
+/>`}
+>
+  <Board
+    label="Extraction board"
+    columns={[
+      {
+        title: "Todo",
+        status: "planned",
+        cards: [
+          { title: "Draft knowledge schema", tags: ["mcp"] },
+          { title: "Token audit", tags: ["design"] },
+        ],
+      },
+      {
+        title: "In progress",
+        status: "in-progress",
+        cards: [
+          {
+            title: "Build the extractor",
+            assignee: "Krishnan",
+            status: "in-progress",
+            refs: [{ rel: "related", target: "/docs/agents/mcp", label: "MCP" }],
+          },
+        ],
+      },
+      {
+        title: "Done",
+        status: "done",
+        cards: [{ title: "Lock the brand", assignee: "Krishnan", status: "done" }],
+      },
+    ]}
+  />
+</Example>
+
+## When to use it
+
+Pipelines, sprint boards, intake queues, review states — anything where items move through
+**stages** and the question is "what's in each column, and who owns it?" The agent gets the columns
+and cards directly, so it can answer "everything blocked" or "Krishnan's in-progress cards" without
+reading a picture.
+
+## Props
+
+**`Board`** (alias `Kanban`)
+
+| Prop      | Type                 | Default   | Description                   |
+| --------- | -------------------- | --------- | ----------------------------- |
+| `columns` | `BoardColumnInput[]` | —         | The lanes, in display order   |
+| `label`   | `string`             | `"Board"` | Accessible name for the board |
+
+**`BoardColumnInput`**
+
+| Field    | Type               | Description                            |
+| -------- | ------------------ | -------------------------------------- |
+| `title`  | `string`           | Column header                          |
+| `status` | `Status`           | Optional lane status — colours the dot |
+| `cards`  | `BoardCardInput[]` | The cards in this column, in order     |
+
+**`BoardCardInput`**
+
+| Field      | Type                         | Description                        |
+| ---------- | ---------------------------- | ---------------------------------- |
+| `title`    | `string`                     | Card title                         |
+| `body`     | `ReactNode`                  | Optional detail under the title    |
+| `status`   | `Status`                     | Optional per-card status           |
+| `assignee` | `string`                     | Owner chip                         |
+| `tags`     | `string[]`                   | Chips                              |
+| `refs`     | `{ rel?, target, label? }[]` | Typed links rendered as pill-links |
+
+`Status` is one of `planned · in-progress · blocked · done · deprecated · proposed · accepted · rejected · superseded`.
+
+## What the agent sees
+
+`get_component_data` returns the columns and cards as data — statuses are the shared enum, the
+assignee and tags are intact, and the ref resolves as internal:
+
+```json
+{
+  "kind": "board",
+  "id": "extraction-board",
+  "title": "Extraction board",
+  "columns": [
+    {
+      "id": "todo",
+      "title": "Todo",
+      "status": "planned",
+      "cards": [
+        { "id": "draft-knowledge-schema", "title": "Draft knowledge schema", "tags": ["mcp"] },
+        { "id": "token-audit", "title": "Token audit", "tags": ["design"] }
+      ]
+    },
+    {
+      "id": "in-progress",
+      "title": "In progress",
+      "status": "in-progress",
+      "cards": [
+        {
+          "id": "build-the-extractor",
+          "title": "Build the extractor",
+          "status": "in-progress",
+          "assignee": "Krishnan",
+          "refs": [
+            { "rel": "related", "target": "/docs/agents/mcp", "label": "MCP", "internal": true }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "done",
+      "title": "Done",
+      "status": "done",
+      "cards": [
+        {
+          "id": "lock-the-brand",
+          "title": "Lock the brand",
+          "status": "done",
+          "assignee": "Krishnan"
+        }
+      ]
+    }
+  ]
+}
+```
+
+<Tip title="Status is shared across components">
+  Because a card's `status` uses the same `Status` enum as Timeline, Decision, and Release, a single
+  query — "everything `in-progress`" — works across the whole KB, not just this board.
+</Tip>

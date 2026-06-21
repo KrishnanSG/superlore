@@ -1,0 +1,48 @@
+{
+  "name": "superlore-docs",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "superlore's own documentation — built with superlore. The canonical, MCP-enabled, public reference.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:static": "STATIC_EXPORT=1 next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "fumadocs-mdx && next typegen && tsc --noEmit",
+    "postinstall": "fumadocs-mdx"
+  },
+  "dependencies": {
+    "@mdx-js/mdx": "^3.1.1",
+    "@mdx-js/react": "^3.1.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "fumadocs-core": "16.8.2",
+    "fumadocs-mdx": "14.3.1",
+    "fumadocs-ui": "16.8.2",
+    "superlore": "workspace:*",
+    "lucide-react": "^1.21.0",
+    "mcp-handler": "^1.1.0",
+    "mermaid": "^11.15.0",
+    "next": "16.2.4",
+    "next-themes": "^0.4.6",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "rehype-slug": "^6.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-mdx-frontmatter": "^5.2.0",
+    "unist-util-visit": "^5.1.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^4.2.2",
+    "typescript": "6.0.3"
+  }
+}

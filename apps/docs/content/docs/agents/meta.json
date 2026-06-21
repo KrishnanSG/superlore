@@ -1,0 +1,6 @@
+{
+  "title": "Agents & MCP",
+  "root": true,
+  "icon": "Bot",
+  "pages": ["---[Bot]For agents---", "index", "authoring-for-agents", "---[Plug]MCP---", "mcp"]
+}

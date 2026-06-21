@@ -1,0 +1,60 @@
+---
+title: MCP
+icon: Plug
+description: Connect an agent to this knowledge base over the Model Context Protocol.
+summary: This deploy is public and MCP-enabled at /api/mcp — the tools, what they return, and how to connect.
+tags: [mcp, agents, integration]
+---
+
+superlore ships a first-class **MCP server** over the _same_ structured content the site renders. On
+this deploy it is **public — no auth** — and mounted at:
+
+```
+/api/mcp
+```
+
+<Note title="Same source, two faces">
+  The MCP is not a scrape of these pages. It serves the structured index the site is built from, so
+  what an agent reads and what a human sees can never drift.
+</Note>
+
+## Tools
+
+<DataTable
+  columns={[
+    { key: "tool", label: "Tool" },
+    { key: "args", label: "Arguments" },
+    { key: "returns", label: "Returns" },
+  ]}
+  rows={[
+    { tool: "search", args: "query, limit?", returns: "Ranked page hits" },
+    { tool: "get_page", args: "path", returns: "Frontmatter + ordered knowledge nodes" },
+    { tool: "get_section", args: "id", returns: "A single node by ${path}#${id}" },
+    { tool: "list", args: "kind?, tag?, entityType?", returns: "Filtered knowledge nodes" },
+    { tool: "navigate", args: "target", returns: "Outgoing refs + backlinks" },
+    { tool: "get_component_data", args: "id", returns: "A component's knowledge face" },
+  ]}
+/>
+
+## Connecting
+
+Point any MCP-capable client at the endpoint. For Claude-style config:
+
+```json
+{
+  "mcpServers": {
+    "superlore-docs": {
+      "type": "http",
+      "url": "https://YOUR-DEPLOY/api/mcp"
+    }
+  }
+}
+```
+
+Then ask your agent things like _"search the superlore docs for the dual-representation contract"_ or
+_"get_page /docs/architecture"_ and it will read this knowledge base directly.
+
+<Tip title="Inheriting auth">
+  If a deploy gates the site (Auth.js / SSO), the MCP inherits the same policy. This docs deploy is
+  intentionally open so anyone can connect.
+</Tip>

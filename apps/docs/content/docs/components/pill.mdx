@@ -1,0 +1,42 @@
+---
+title: Pill
+icon: Circle
+description: The editorial status chip used across superlore pages — five intent colours, grouped via PillGroup.
+summary: Pill is the editorial chip with intent colours (violet, neutral, success, warning, danger); inline-only, no knowledge face.
+tags: [components, primitives, inline, pill]
+---
+
+`Pill` is the editorial chip used across superlore pages — a rounded, intent-coloured token. Where
+[Badge](/docs/components/badge) is the broad Mintlify-compatible primitive, `Pill` is the smaller,
+opinionated chip the superlore pages reach for. Both are inline-only and carry **no knowledge face**
+by design. Wrap a row in `PillGroup` to space them.
+
+## When to use it
+
+Use a pill for a small inline status or tag inside superlore editorial content — a status next to a
+feature, a label in a group. The five colours map to intent: `violet` (accent), `neutral`,
+`success`, `warning`, `danger`.
+
+## Props
+
+**`Pill`**
+
+| Prop       | Type                                                | Default  | Description           |
+| ---------- | --------------------------------------------------- | -------- | --------------------- |
+| `color`    | `violet \| neutral \| success \| warning \| danger` | `violet` | Chip colour by intent |
+| `icon`     | `string`                                            | —        | Optional leading icon |
+| `children` | `ReactNode`                                         | —        | The chip label        |
+
+**`PillGroup`** wraps one or more `<Pill>` elements and spaces them in a wrapping row.
+
+## Live example
+
+<PillGroup>
+  <Pill color="violet">violet</Pill>
+  <Pill color="success" icon="check">
+    success
+  </Pill>
+  <Pill color="warning">warning</Pill>
+  <Pill color="danger">danger</Pill>
+  <Pill color="neutral">neutral</Pill>
+</PillGroup>

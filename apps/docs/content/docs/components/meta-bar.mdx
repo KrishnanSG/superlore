@@ -1,0 +1,49 @@
+---
+title: MetaBar
+icon: Info
+description: A thin inline strip of page metadata — status, updated date, owner — under a heading.
+summary: MetaBar renders a horizontal strip of icon · label · value items and serializes to a keyfacts knowledge node.
+tags: [components, editorial, metabar, metadata]
+---
+
+`MetaBar` renders a thin, bordered strip of page metadata — a row of `icon · label: value` items.
+It serializes to the knowledge face as a `keyfacts` node, the same typed-field shape as
+[KeyFacts](/docs/components/key-facts), so the metadata is queryable.
+
+## When to use it
+
+Reach for a MetaBar to carry a page's housekeeping inline — status, last-updated, owner — without
+the weight of a card grid. For the headline facts of a reference, use a
+[KeyFacts](/docs/components/key-facts) block.
+
+## Props
+
+| Prop    | Type                                                      | Default | Description        |
+| ------- | --------------------------------------------------------- | ------- | ------------------ |
+| `items` | `{ icon?: string; label: ReactNode; value: ReactNode }[]` | —       | The metadata items |
+
+## Live example
+
+<MetaBar
+  items={[
+    { icon: "git-branch", label: "Status", value: "Stable" },
+    { icon: "clock", label: "Updated", value: "2026-06" },
+    { icon: "user", label: "Owner", value: "Core" },
+  ]}
+/>
+
+## What the agent sees
+
+Each item becomes a typed `field` under a `keyfacts` node:
+
+```json
+{
+  "kind": "keyfacts",
+  "id": "meta",
+  "fields": [
+    { "key": "Status", "value": "Stable" },
+    { "key": "Updated", "value": "2026-06" },
+    { "key": "Owner", "value": "Core" }
+  ]
+}
+```

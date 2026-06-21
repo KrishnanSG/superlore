@@ -1,0 +1,119 @@
+---
+title: Schedule
+icon: CalendarDays
+description: Dated events in a readable agenda — each with a date, title, optional time, owner, and tag.
+summary: Schedule renders an agenda grouped by day and serializes to a schedule knowledge node with parsed, range-queryable dates.
+tags: [components, knowledge-structures, dual-representation, schedule, calendar]
+---
+
+A `Schedule` is dated events laid out as a readable agenda, grouped by day. Each event has a date, a
+title, and optionally a time, an owner, tags, and typed refs. Humans scan the agenda; the agent gets
+`{ kind:"schedule", events:[{ date, title, time, owner }] }` with the date parsed to a
+range-queryable `KDate` — never a picture of a calendar to read.
+
+<Example
+  code={`<Schedule
+  label="Launch week"
+  events={[
+    { date: "2026-06-15", time: "09:00", title: "Kickoff standup", owner: "Krishnan" },
+    { date: "2026-06-15", time: "14:00", title: "MCP demo", tags: ["demo"] },
+    {
+      date: "2026-06-17",
+      title: "GA cutover",
+      owner: "Krishnan",
+      refs: [{ rel: "related", target: "/docs/components/releases", label: "Changelog" }],
+    },
+  ]}
+/>`}
+>
+  <Schedule
+    label="Launch week"
+    events={[
+      { date: "2026-06-15", time: "09:00", title: "Kickoff standup", owner: "Krishnan" },
+      { date: "2026-06-15", time: "14:00", title: "MCP demo", tags: ["demo"] },
+      {
+        date: "2026-06-17",
+        title: "GA cutover",
+        owner: "Krishnan",
+        refs: [{ rel: "related", target: "/docs/components/releases", label: "Changelog" }],
+      },
+    ]}
+  />
+</Example>
+
+## When to use it
+
+Event schedules, meeting agendas, launch plans, on-call calendars — anything that is a list of
+**dated things to attend or do**. Because each date keeps its precision, "what's on the 15th?" is a
+date range query, not OCR over a grid.
+
+## Props
+
+**`Schedule`**
+
+| Prop     | Type                   | Default      | Description                      |
+| -------- | ---------------------- | ------------ | -------------------------------- |
+| `events` | `ScheduleEventInput[]` | —            | The events, in display order     |
+| `label`  | `string`               | `"Schedule"` | Accessible name for the schedule |
+
+**`ScheduleEventInput`**
+
+| Field   | Type                         | Description                                   |
+| ------- | ---------------------------- | --------------------------------------------- |
+| `date`  | `string`                     | `2026`, `2026-Q3`, `2026-06`, or `2026-06-15` |
+| `title` | `string`                     | The event title                               |
+| `time`  | `string`                     | Optional time of day, e.g. `09:00`            |
+| `owner` | `string`                     | Optional owner chip                           |
+| `tags`  | `string[]`                   | Chips                                         |
+| `body`  | `ReactNode`                  | Optional detail                               |
+| `refs`  | `{ rel?, target, label? }[]` | Typed links                                   |
+
+Consecutive events on the same `date` are grouped under one day heading.
+
+## What the agent sees
+
+Dates are parsed to `{ iso, precision }`, the time and owner are intact, and refs resolve as
+internal — so the agenda is data the agent can sort and range-query:
+
+```json
+{
+  "kind": "schedule",
+  "id": "launch-week",
+  "title": "Launch week",
+  "events": [
+    {
+      "id": "kickoff-standup",
+      "date": { "iso": "2026-06-15", "precision": "day" },
+      "title": "Kickoff standup",
+      "time": "09:00",
+      "owner": "Krishnan"
+    },
+    {
+      "id": "mcp-demo",
+      "date": { "iso": "2026-06-15", "precision": "day" },
+      "title": "MCP demo",
+      "time": "14:00",
+      "tags": ["demo"]
+    },
+    {
+      "id": "ga-cutover",
+      "date": { "iso": "2026-06-17", "precision": "day" },
+      "title": "GA cutover",
+      "owner": "Krishnan",
+      "refs": [
+        {
+          "rel": "related",
+          "target": "/docs/components/releases",
+          "label": "Changelog",
+          "internal": true
+        }
+      ]
+    }
+  ]
+}
+```
+
+<Tip title="Same date model as Timeline">
+  `Schedule` shares the `KDate` precision model with `Timeline`, so "everything dated in June" spans
+  both — the corpus answers it once, across components.
+</Tip>

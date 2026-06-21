@@ -1,0 +1,50 @@
+---
+title: KeyFacts
+icon: List
+description: Label→value facts at the top of a reference — scannable, and queryable over the MCP.
+summary: KeyFacts renders label→value pairs as a card grid and serializes to a keyfacts knowledge node.
+tags: [components, editorial, keyfacts]
+---
+
+`KeyFacts` renders a grid of label→value pairs — the at-a-glance facts at the top of a reference
+page. It also serializes to the knowledge face as a `keyfacts` node, so the facts are queryable,
+not just decorative.
+
+## When to use it
+
+Put a KeyFacts block at the top of a reference page to answer the reader's first questions before
+they read a word — license, stack, status, version. For headline _metrics_ (numbers with hints),
+reach for [StatGrid](/docs/components/stat-grid); for a one-line strip of metadata, use
+[MetaBar](/docs/components/meta-bar).
+
+## Props
+
+| Prop    | Type                                    | Default | Description           |
+| ------- | --------------------------------------- | ------- | --------------------- |
+| `items` | `{ label: string; value: ReactNode }[]` | —       | The label→value facts |
+
+## Live example
+
+<KeyFacts
+  items={[
+    { label: "License", value: "Apache-2.0" },
+    { label: "Stack", value: "Next 16 · React 19 · Tailwind v4" },
+    { label: "Theme", value: "Light + dark, co-equal" },
+  ]}
+/>
+
+## What the agent sees
+
+Each pair becomes a typed `field`, so an agent reads the facts as structured data:
+
+```json
+{
+  "kind": "keyfacts",
+  "id": "facts",
+  "fields": [
+    { "key": "License", "value": "Apache-2.0" },
+    { "key": "Stack", "value": "Next 16 · React 19 · Tailwind v4" },
+    { "key": "Theme", "value": "Light + dark, co-equal" }
+  ]
+}
+```

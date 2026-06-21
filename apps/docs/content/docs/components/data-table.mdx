@@ -1,0 +1,75 @@
+---
+title: DataTable
+icon: Table
+description: A bordered, typed table — columns declare a type, and numeric columns stay numeric for agents.
+summary: DataTable renders rows of comparable data and serializes to a table knowledge node with typed columns and rows.
+tags: [components, structural, dual-representation, table]
+---
+
+A `DataTable` is a bordered, typed table — columns declare a `type`, and numeric columns render
+right-aligned `mono`/tabular for humans. It renders a clean grid **and** serializes to a typed
+`table` knowledge node, so the values stay comparable rather than becoming a picture an agent has
+to OCR. `Table` is an alias for the same component.
+
+## When to use it
+
+Any time the content is rows of comparable data — a pricing matrix, a tool list, a capability
+comparison. Because numeric columns stay numeric in the knowledge face, an agent can answer "which
+plan has the highest limit?" without reading a rendered grid.
+
+## Props
+
+**`DataTable`** (alias `Table`)
+
+| Prop      | Type                          | Default | Description                                     |
+| --------- | ----------------------------- | ------- | ----------------------------------------------- |
+| `columns` | `DataTableColumn[]`           | —       | Column definitions, in display order            |
+| `rows`    | `Record<string, ReactNode>[]` | —       | One object per row, keyed by column `key`       |
+| `caption` | `string`                      | —       | Optional caption; also becomes the node `title` |
+
+**`DataTableColumn`**
+
+| Field   | Type        | Description                                                                                                           |
+| ------- | ----------- | --------------------------------------------------------------------------------------------------------------------- |
+| `key`   | `string`    | Matches the key used in each row object                                                                               |
+| `label` | `string`    | Column header text                                                                                                    |
+| `type`  | `FieldType` | One of `text · number · bool · date · enum · code · ref`; `number` right-aligns + keeps the value numeric in the face |
+
+## Live example
+
+<DataTable
+  caption="MCP tools"
+  columns={[
+    { key: "tool", label: "MCP tool" },
+    { key: "purpose", label: "Purpose" },
+    { key: "args", label: "Args", type: "number" },
+  ]}
+  rows={[
+    { tool: "search", purpose: "Rank pages by query", args: 2 },
+    { tool: "get_page", purpose: "Full structured page", args: 1 },
+    { tool: "navigate", purpose: "Follow relations + backlinks", args: 1 },
+  ]}
+/>
+
+## What the agent sees
+
+Columns keep their types and rows stay typed — `args` is a `number`, not the string `"2"`, so the
+agent can sort and compare directly:
+
+```json
+{
+  "kind": "table",
+  "id": "mcp-tools",
+  "title": "MCP tools",
+  "columns": [
+    { "key": "tool", "label": "MCP tool" },
+    { "key": "purpose", "label": "Purpose" },
+    { "key": "args", "label": "Args", "type": "number" }
+  ],
+  "rows": [
+    { "tool": "search", "purpose": "Rank pages by query", "args": 2 },
+    { "tool": "get_page", "purpose": "Full structured page", "args": 1 },
+    { "tool": "navigate", "purpose": "Follow relations + backlinks", "args": 1 }
+  ]
+}
+```

@@ -1,0 +1,52 @@
+---
+title: Authoring
+icon: PenLine
+description: What a superlore document is — MDX, a typed frontmatter envelope, and dual-representation components — and how to write one.
+summary: A superlore doc is MDX with a typed frontmatter block and dual-representation components. Author the data, not a picture, and both the human site and the agent MCP fall out of one source.
+tags: [guide, authoring]
+---
+
+A superlore document is **MDX**: a typed frontmatter block, then Markdown prose enriched with
+superlore components. You write it once, and the same file becomes two things — a polished page for
+humans and a structured node in the corpus the [MCP](/docs/agents/mcp) serves to agents.
+
+<Note title="One file, two faces">
+  You never author the human page and the agent data separately. The frontmatter and the components
+  carry both. Get the source right and the two faces can't drift.
+</Note>
+
+## The three parts of a page
+
+<Steps>
+  <Step title="Frontmatter — the knowledge envelope">
+    A YAML block at the top: `title`, plus optional `summary`, `tags`, `icon`, and `description`.
+    It's what `search` ranks on and what `get_page` returns as the page's header. See
+    [Frontmatter](/docs/authoring/frontmatter).
+  </Step>
+  <Step title="Prose — the connective tissue">
+    Plain Markdown between components. Headings become stable section ids the MCP can address as `$
+    {path}#${id}`, so keep them meaningful.
+  </Step>
+  <Step title="Components — the structured knowledge">
+    Reach for a [component](/docs/components) instead of a prose table or a screenshot. Each one
+    renders for humans and serializes a typed knowledge face for agents — the [dual-representation
+    contract](/docs/authoring/dual-representation).
+  </Step>
+</Steps>
+
+## Where to next
+
+<CardGroup cols={2}>
+  <Card title="Frontmatter" icon="file-text" href="/docs/authoring/frontmatter">
+    The fields every page can carry, and what each one powers.
+  </Card>
+  <Card title="Dual representation" icon="braces" href="/docs/authoring/dual-representation">
+    The render + knowledge contract every component upholds.
+  </Card>
+  <Card title="Components" icon="blocks" href="/docs/components">
+    The full library, each with a live example and its knowledge face.
+  </Card>
+  <Card title="Authoring for agents" icon="bot" href="/docs/agents/authoring-for-agents">
+    The same workflow, written for an agent producing a KB.
+  </Card>
+</CardGroup>

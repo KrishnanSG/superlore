@@ -1,0 +1,31 @@
+---
+title: Tiles
+icon: LayoutGrid
+description: A preview tile with a hatched media area, an optional title and description, and an optional link.
+summary: Tile frames a preview on a hatched backdrop; add an href to make the whole tile a link.
+tags: [components, primitives, media, tile]
+---
+
+A `Tile` frames a preview on a hatched, aspect-video backdrop, with an optional title and
+description below. Add an `href` and the whole tile becomes a link.
+
+## When to use it
+
+Reach for a tile when you want a gallery-style preview — a thumbnail or a placeholder that links
+to a fuller view. For a bordered figure with a caption (and no hatched backdrop), use a
+[Frame](/docs/components/frames); for a navigation grid of pages, use [Cards](/docs/components/cards).
+
+## Props
+
+| Prop          | Type        | Description                                  |
+| ------------- | ----------- | -------------------------------------------- |
+| `href`        | `string`    | Makes the whole tile a link                  |
+| `title`       | `ReactNode` | Heading shown under the preview              |
+| `description` | `ReactNode` | A one-line gloss under the title             |
+| `children`    | `ReactNode` | The preview content, on the hatched backdrop |
+
+## Live example
+
+<Tile title="A preview tile" description="The media area uses a hatched backdrop.">
+  <div>Preview content</div>
+</Tile>

@@ -1,0 +1,32 @@
+---
+title: Steps
+icon: ListOrdered
+description: An ordered sequence a reader or agent follows top to bottom — an install runbook or setup flow.
+summary: Wrap Step elements in Steps; each step takes a title and its children.
+tags: [components, primitives, layout, steps]
+---
+
+For an ordered sequence a reader (or agent) follows top to bottom — an install runbook, a setup
+flow, a migration. Wrap `<Step>` elements in `<Steps>`; each step takes a `title`.
+
+## When to use it
+
+Use steps when order matters and each item is an action the reader performs in turn. If the items
+are alternatives rather than a sequence, reach for [Tabs](/docs/components/tabs); if they're
+collapsible detail, reach for [Accordions](/docs/components/accordions).
+
+## Props
+
+| Component | Prop       | Type        | Description             |
+| --------- | ---------- | ----------- | ----------------------- |
+| `<Step>`  | `title`    | `ReactNode` | The step heading        |
+| `<Step>`  | `children` | `ReactNode` | What to do in this step |
+
+## Live example
+
+<Steps>
+  <Step title="Install">Add the package: `npm i superlore`.</Step>
+  <Step title="Wire the MDX map">Spread `getMDXComponents()` into your app.</Step>
+  <Step title="Author a page">Write MDX and drop in components.</Step>
+  <Step title="Confirm">Build, then open the page in both themes.</Step>
+</Steps>

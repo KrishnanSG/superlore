@@ -1,0 +1,66 @@
+---
+title: Callouts
+icon: Bell
+description: Interrupt the reading flow with something the reader must not miss — by intent, not colour.
+summary: Six callout aliases over five severities — Info/Note, Tip, Check, Warning, Danger — each carrying a severity to the knowledge face.
+tags: [components, primitives, callouts]
+---
+
+Use a callout to interrupt the reading flow with something the reader must not miss. Pick the
+variant by **intent**, not colour — the severity is what serializes to the knowledge face. There
+are six aliases over five severities: `Info`/`Note` (neutral), `Tip`, `Check` (success),
+`Warning`, and `Danger`.
+
+## When to use it
+
+Reach for a callout when a single idea needs to break out of the prose — a caveat the reader will
+trip over, a shortcut worth knowing, a confirmation, or a destructive action. One per idea: don't
+stack many in a row or you flatten their signal.
+
+## Variants
+
+| Component           | Severity  | When to use                                |
+| ------------------- | --------- | ------------------------------------------ |
+| `<Info>` / `<Note>` | `info`    | Neutral context worth keeping in mind      |
+| `<Tip>`             | `tip`     | A shortcut or a better way to do something |
+| `<Check>`           | `success` | A confirmation or a passing state          |
+| `<Warning>`         | `warning` | Something that will bite you if ignored    |
+| `<Danger>`          | `danger`  | A destructive or irreversible action       |
+
+## Props
+
+Each takes an optional `title` and its `children` as the body.
+
+| Prop       | Type        | Default | Description                       |
+| ---------- | ----------- | ------- | --------------------------------- |
+| `title`    | `ReactNode` | —       | Bold heading shown above the body |
+| `children` | `ReactNode` | —       | The callout body                  |
+
+## Live example
+
+<Info title="Info">Neutral context the reader should keep in mind.</Info>
+<Tip title="Tip">A shortcut or better way to do something.</Tip>
+<Check title="Check">A confirmation that a step succeeded.</Check>
+<Warning title="Warning">Something that will bite you if ignored.</Warning>
+<Danger title="Danger">A destructive or irreversible action.</Danger>
+
+<Tip title="Best practice">
+  Don't stack many callouts in a row — it flattens their signal. One per idea.
+</Tip>
+
+## What the agent sees
+
+A callout is one of the few primitives that serializes. The body is flattened to plain text and
+the severity is preserved, so an agent can surface "every warning on this page" without parsing
+colour:
+
+```json
+{
+  "kind": "callout",
+  "id": "warning",
+  "title": "Warning",
+  "severity": "warning",
+  "body": "Something that will bite you if ignored.",
+  "summary": "Something that will bite you if ignored."
+}
+```

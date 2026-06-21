@@ -1,0 +1,435 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+@import "superlore/css";
+
+/* Tailwind v4: scan these for class names. `superlore` ships source, so scan the package too — its
+   components use `kp-*` and `fd-*` utilities that must be generated here. */
+@source "../app";
+@source "../content";
+@source "../lib";
+@source "../../../packages/superlore/src";
+@source "../node_modules/fumadocs-ui/dist";
+
+/* ── Viewer: block-level comment affordances ──────────────────────────────
+   The Viewer stamps `data-kp-block` on commentable blocks (see lib/rehype-kp-block-ids.mjs)
+   and injects a per-block "add comment" button (`data-kp-add`). These selectors style the
+   gutter affordance, hover highlight, comment marker, and the scroll-to flash. Tokens only. */
+.kp-viewer-doc [data-kp-block] {
+  scroll-margin-top: 5rem;
+}
+
+/* The injected add-comment button, sitting in the left gutter. */
+.kp-viewer-doc [data-kp-add] {
+  position: absolute;
+  top: 0.15em;
+  left: -1.9rem;
+  display: grid;
+  place-items: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--color-fd-border);
+  background: var(--color-fd-card);
+  color: var(--kp-accent-text);
+  opacity: 0;
+  transition:
+    opacity 0.12s ease,
+    border-color 0.12s ease,
+    background 0.12s ease;
+  cursor: pointer;
+  z-index: 5;
+}
+.kp-viewer-doc [data-kp-add]:hover {
+  border-color: var(--kp-accent-border);
+  background: var(--kp-accent-weak);
+}
+.kp-viewer-doc [data-kp-block][data-kp-hover] > [data-kp-add],
+.kp-viewer-doc [data-kp-block][data-kp-commented] > [data-kp-add],
+.kp-viewer-doc [data-kp-block][data-kp-active] > [data-kp-add] {
+  opacity: 1;
+}
+
+/* Hover highlight + a left rule on commented / active blocks. */
+.kp-viewer-doc [data-kp-block][data-kp-hover] {
+  background: color-mix(in oklab, var(--kp-accent) 4%, transparent);
+  border-radius: var(--radius-sm, 6px);
+}
+.kp-viewer-doc [data-kp-block][data-kp-commented]::before,
+.kp-viewer-doc [data-kp-block][data-kp-active]::before {
+  content: "";
+  position: absolute;
+  left: -0.7rem;
+  top: 0.25em;
+  bottom: 0.25em;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--kp-accent);
+}
+.kp-viewer-doc [data-kp-block][data-kp-active]::before {
+  background: var(--kp-accent-border);
+}
+
+/* Scroll-to flash — an accent-weak pulse. */
+@keyframes kp-block-flash {
+  0% {
+    background: var(--kp-accent-weak);
+    box-shadow: 0 0 0 4px var(--kp-accent-weak);
+  }
+  100% {
+    background: transparent;
+    box-shadow: 0 0 0 4px transparent;
+  }
+}
+.kp-viewer-doc [data-kp-block][data-kp-flash] {
+  border-radius: var(--radius-sm, 6px);
+  animation: kp-block-flash 1.05s ease-out;
+}
+
+/* Hide the gutter affordance where there's no room (mobile / no rail). */
+@media (max-width: 1023px) {
+  .kp-viewer-doc [data-kp-add] {
+    display: none;
+  }
+}
+
+/* ── Shell polish (UX pass) ────────────────────────────────────────────────
+   Dark + light parity and brand-consistent focus, all token-driven. */
+
+/* The Fumadocs sidebar active item uses the accent at ~10%, which is near-invisible on the
+   near-black dark surface — only the violet text reads. Strengthen it so dark matches light. */
+.dark #nd-sidebar a[data-active="true"] {
+  background-color: color-mix(in oklab, var(--kp-accent) 22%, transparent);
+}
+
+/* Branded focus ring: replace the browser-default blue rectangle with an accent ring. Modern
+   browsers round the outline to the element's border-radius, so pills/buttons stay on-brand. */
+:focus-visible {
+  outline: 2px solid var(--kp-accent);
+  outline-offset: 2px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   LANDING (/) — marketing page. Owns: the centerpiece morph animation, the hero
+   ambient, the reveal-on-scroll, and the CTA button treatment. All token-driven;
+   light + dark co-equal. (This is the only place page-level marketing CSS lives.)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Reveal-on-scroll (subtle entrance) ───────────────────────────────────── */
+.kp-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 640ms ease,
+    transform 640ms cubic-bezier(0.22, 0.7, 0.2, 1);
+  will-change: opacity, transform;
+}
+.kp-reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Hero ambient — a soft violet aurora + faint grid, masked to the top. ──── */
+.kp-hero-aurora {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.kp-hero-aurora::before {
+  content: "";
+  position: absolute;
+  top: -26%;
+  left: 50%;
+  width: 64rem;
+  max-width: 150vw;
+  height: 42rem;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(
+      ellipse 48% 50% at 50% 50%,
+      color-mix(in oklab, var(--kp-accent) 20%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 36% 40% at 66% 42%,
+      color-mix(in oklab, var(--kp-agent-to) 14%, transparent),
+      transparent 70%
+    );
+  filter: blur(6px);
+}
+html:not(.dark) .kp-hero-aurora::before {
+  background:
+    radial-gradient(
+      ellipse 48% 50% at 50% 50%,
+      color-mix(in oklab, var(--kp-accent) 12%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 36% 40% at 66% 42%,
+      color-mix(in oklab, var(--kp-agent-to) 8%, transparent),
+      transparent 70%
+    );
+}
+.kp-hero-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--color-fd-border) 65%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-fd-border) 65%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 54px 54px;
+  mask-image: radial-gradient(ellipse 72% 60% at 50% 0%, black, transparent 72%);
+  -webkit-mask-image: radial-gradient(ellipse 72% 60% at 50% 0%, black, transparent 72%);
+  opacity: 0.45;
+}
+
+/* ── CTA buttons — crisp in BOTH themes. Primary stays violet-fill / white-ink
+   even in dark (the brand-fill token carries white ink); secondary is a bordered
+   surface that lifts to the accent border on hover. ───────────────────────── */
+.kp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.875rem;
+  padding: 0 1.3rem;
+  border-radius: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.006em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease,
+    filter 140ms ease;
+}
+.kp-btn:hover {
+  transform: translateY(-1px);
+}
+.kp-btn:active {
+  transform: translateY(0);
+}
+/* Primary — violet fill, white ink, in both themes. Tokenised; the brand accent is deepened in
+   light and brightened in dark so white ink always passes contrast. */
+.kp-btn-primary {
+  background: var(--kp-accent);
+  color: var(--kp-accent-ink);
+  border: 1px solid transparent;
+  box-shadow:
+    0 1px 2px -1px color-mix(in oklab, var(--kp-accent) 40%, transparent),
+    0 10px 26px -12px color-mix(in oklab, var(--kp-accent) 70%, transparent);
+}
+.kp-btn-primary:hover {
+  background: var(--kp-accent-hover);
+  box-shadow:
+    0 2px 4px -1px color-mix(in oklab, var(--kp-accent) 45%, transparent),
+    0 14px 32px -12px color-mix(in oklab, var(--kp-accent) 80%, transparent);
+}
+/* Secondary — bordered surface, foreground ink. */
+.kp-btn-secondary {
+  background: var(--color-fd-card);
+  color: var(--color-fd-foreground);
+  border: 1px solid var(--color-fd-border);
+}
+.kp-btn-secondary:hover {
+  border-color: var(--kp-accent-border);
+  background: var(--color-fd-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kp-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .kp-btn:hover,
+  .kp-btn:active {
+    transform: none;
+  }
+}
+
+/* ── The centerpiece morph (MorphStory) ───────────────────────────────────────
+   Beat-driven layer opacity / transform / filter are applied INLINE in the React
+   component (immune to the build's CSS-layer flattening of descendant selectors).
+   Only static styling + the typing-caret keyframe live here. Single-class selectors
+   only — no descendant combinators that the CSS pipeline would mangle. */
+.kp-story-stage {
+  box-shadow:
+    0 1px 2px -1px color-mix(in oklab, var(--color-fd-foreground) 14%, transparent),
+    0 28px 64px -36px color-mix(in oklab, var(--color-fd-foreground) 40%, transparent);
+}
+.kp-story-body {
+  height: 380px;
+}
+@media (max-width: 640px) {
+  .kp-story-body {
+    height: 320px;
+  }
+}
+
+/* The Markdown wall — real source, lightly tinted by tone. */
+.kp-md-pre {
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--color-fd-muted-foreground);
+}
+@media (max-width: 640px) {
+  .kp-md-pre {
+    padding: 0.9rem 1.1rem;
+    font-size: 11px;
+  }
+}
+.kp-md-line {
+  display: block;
+  min-height: 1.65em;
+  white-space: pre;
+}
+.kp-md-line[data-tone="h1"] {
+  color: var(--color-fd-foreground);
+  font-weight: 700;
+  font-size: 1.05em;
+}
+.kp-md-line[data-tone="p"] {
+  color: var(--color-fd-muted-foreground);
+}
+.kp-md-line[data-tone="li"] {
+  color: var(--kp-text-2);
+}
+.kp-md-line[data-tone="fence"] {
+  color: var(--kp-text-3);
+}
+.kp-md-code {
+  color: var(--kp-accent-text);
+  background: color-mix(in oklab, var(--kp-accent) 9%, transparent);
+  border-radius: 4px;
+  padding: 0.05rem 0.35rem;
+}
+
+/* The AI prompt card. */
+.kp-prompt-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 92%;
+  padding: 0.7rem 1rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--kp-accent-border);
+  background: var(--color-fd-card);
+  box-shadow:
+    0 2px 6px -2px color-mix(in oklab, var(--color-fd-foreground) 18%, transparent),
+    0 18px 40px -18px color-mix(in oklab, var(--kp-accent) 55%, transparent);
+}
+.kp-prompt-avatar {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.55rem;
+  flex-shrink: 0;
+  color: var(--kp-accent-ink);
+  background: linear-gradient(120deg, var(--kp-agent-from), var(--kp-agent-to));
+}
+.kp-prompt-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-fd-foreground);
+}
+.kp-prompt-caret {
+  width: 2px;
+  height: 1.1rem;
+  border-radius: 1px;
+  background: var(--kp-accent);
+  animation: kp-caret 1.05s steps(1) infinite;
+}
+@keyframes kp-caret {
+  50% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kp-prompt-caret {
+    animation: none;
+  }
+}
+
+/* The Canvas component carries its own border + my:6 margin; neutralise both so it fills the
+   layer cleanly inside the chrome. */
+.kp-canvas-host {
+  position: absolute;
+  inset: 0;
+}
+.kp-canvas-host > div {
+  margin: 0;
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   landing — page-composition helpers for the reimagined / page (page.tsx).
+   Section components own their motion + chrome; these are only the shared
+   page-root helpers: the grain overlay (paired with the hidden #kp-grain filter)
+   and a token-derived dot-grid backdrop. All token-driven; light + dark co-equal.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Grain overlay — drops the hidden #kp-grain feTurbulence over a glow at low opacity
+   with mix-blend overlay to kill banding. Apply to a decorative, pointer-events:none
+   layer sitting above a radial glow. */
+.kp-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  filter: url(#kp-grain);
+}
+
+/* Dot-grid backdrop — a token-derived radial dot field, masked so it fades at the
+   edges. For ambient section backdrops; never a structural surface. */
+.kp-dot-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    color-mix(in oklab, var(--color-fd-border) 70%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent 75%);
+  opacity: 0.5;
+}
+
+/* ── Syntax-highlight palette for the agent / get_component_data code panes ───────────────
+   Theme layer (light + dark are co-equal peers). Keys reuse the brand accent token; strings
+   and numbers get their own calm hue so the JSON reads like a real editor, not a flat dump.
+   Punctuation/braces inherit the muted base set on the code element itself. */
+:root {
+  --kp-code-string: #1a7f4b;
+  --kp-code-number: #9a6700;
+}
+.dark {
+  --kp-code-string: #7ee0a6;
+  --kp-code-number: #e3b341;
+}

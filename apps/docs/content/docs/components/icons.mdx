@@ -1,0 +1,40 @@
+---
+title: Icons
+icon: Sparkle
+description: Inline lucide icons by name, with Font Awesome aliases for ported docs.
+summary: Icon renders a lucide glyph by name; a small alias map maps common Font Awesome names to lucide.
+tags: [components, primitives, inline, icon]
+---
+
+`Icon` renders an inline [lucide](https://lucide.dev) glyph by name. Icon names are kebab-case
+(`git-branch`, `chart-line`), and a small alias map translates common Font Awesome names — used in
+ported Mintlify docs — to their lucide equivalents, so `sparkles`, `chart-line`, and
+`diagram-project` all resolve. An unknown name renders nothing rather than throwing.
+
+## When to use it
+
+Most components take an `icon` prop directly — `Card`, `Badge`, `FeatureList`, `MetaBar` — so reach
+for `<Icon>` only for a standalone glyph inside prose or a custom layout. Icon names elsewhere
+(frontmatter, nav tabs) are the same lucide vocabulary, just PascalCase in frontmatter.
+
+## Props
+
+| Prop        | Type                  | Default | Description                                  |
+| ----------- | --------------------- | ------- | -------------------------------------------- |
+| `icon`      | `string \| ReactNode` | —       | A lucide (or aliased FA) name, or a node     |
+| `color`     | `string`              | —       | CSS colour; prefer `currentColor` for tokens |
+| `size`      | `number \| string`    | `16`    | Glyph size in px                             |
+| `className` | `string`              | —       | Extra classes on the glyph                   |
+
+## Live example
+
+<div className="not-prose flex flex-wrap items-center gap-3 text-fd-foreground">
+  <Icon icon="git-branch" size={20} color="currentColor" />
+  <Icon icon="rocket" size={20} color="currentColor" />
+  <Icon icon="plug" size={20} color="currentColor" />
+  <Icon icon="sparkles" size={20} color="currentColor" />
+  <Icon icon="diagram-project" size={20} color="currentColor" />
+</div>
+
+The last two — `sparkles` and `diagram-project` — are Font Awesome names that alias to lucide's
+`sparkle` and `workflow`.

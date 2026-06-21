@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="172" height="28" viewBox="0 0 172 28" role="img" aria-label="Built with superlore">
+  <title>Built with superlore</title>
+  <!--
+    superlore "Built with" badge — DEFAULT (auto-adapts to light/dark).
+    Embedded via <img>, the SVG responds to the viewer's prefers-color-scheme: the panel and
+    text flip between light and dark while the violet "Fold" segment stays constant. For a fixed
+    look use built-with-superlore-light.svg or built-with-superlore-dark.svg.
+    No external refs, fonts, or images — safe in any README.
+  -->
+  <style>
+    .panel { fill: #ffffff; }
+    .t-muted { fill: #3a3b40; }
+    .t-strong { fill: #0b0c0e; }
+    .frame { stroke: #e6e6ea; }
+    @media (prefers-color-scheme: dark) {
+      .panel { fill: #0b0c0e; }
+      .t-muted { fill: #c8c9ce; }
+      .t-strong { fill: #ffffff; }
+      .frame { stroke: #2a2b30; }
+    }
+  </style>
+  <defs>
+    <clipPath id="r"><rect width="172" height="28" rx="5" /></clipPath>
+  </defs>
+  <g clip-path="url(#r)">
+    <rect class="panel" width="172" height="28" />
+    <rect width="38" height="28" fill="#6D5CF0" />
+    <!-- Fold mark: brand 64x64 polygons mapped to a 22x22 box at (8,3). scale 22/64 ≈ 0.34375 -->
+    <g transform="translate(8 3) scale(0.34375)">
+      <polygon points="14,20 32,12 32,46 14,54" fill="#FFFFFF" />
+      <polygon points="32,12 50,20 50,54 32,46" fill="#FFFFFF" opacity="0.5" />
+    </g>
+    <text x="50" y="18.5"
+      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif"
+      font-size="12">
+      <tspan class="t-muted">Built with </tspan><tspan class="t-strong" font-weight="700">superlore</tspan>
+    </text>
+  </g>
+  <rect class="frame" x="0.5" y="0.5" width="171" height="27" rx="5" fill="none" />
+</svg>

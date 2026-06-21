@@ -1,0 +1,120 @@
+---
+title: Architecture
+icon: Layers
+description: How superlore serves humans and agents from one structured source.
+summary: Content-first design — MDX + a typed model derive a structured index; the human site and the MCP are both projections of it.
+tags: [architecture, concepts]
+---
+
+superlore is **content-first**. Your MDX, plus a typed frontmatter schema, is the source of truth.
+A build step derives a **structured index** (pages → sections → components, plus a relationship
+graph) — _the corpus_ — and both the human site and the agent MCP are **projections** of it. The
+board below is itself a superlore Canvas: one authored graph, rendered for you and served to agents.
+
+```superlore-canvas
+{
+  "title": "How superlore works — one corpus, two readers",
+  "direction": "right",
+  "groups": [
+    { "id": "author", "label": "Author once", "frame": true, "intent": "gray", "icon": "pen-tool", "layout": "column", "align": "stretch" },
+    { "id": "corpus", "label": "The corpus", "frame": true, "intent": "accent", "icon": "database", "layout": "column", "align": "stretch" },
+    { "id": "humans", "label": "Humans", "frame": true, "intent": "blue", "icon": "users", "layout": "column", "align": "center" },
+    { "id": "agents", "label": "Agents", "frame": true, "intent": "green", "icon": "bot", "layout": "column", "align": "center" }
+  ],
+  "nodes": [
+    { "id": "mdx", "kind": "document", "label": "MDX pages", "group": "author" },
+    { "id": "comp", "kind": "card", "intent": "accent", "label": "Dual-representation components", "group": "author" },
+    { "id": "fm", "kind": "rounded", "label": "Typed frontmatter", "group": "author" },
+    { "id": "contract", "kind": "note", "intent": "accent", "label": "One source, two faces", "body": "Every component renders for humans AND serializes to the MCP — never a picture an agent must interpret.", "group": "author" },
+
+    { "id": "build", "kind": "process", "intent": "purple", "label": "Build step", "group": "corpus" },
+    { "id": "index", "kind": "cylinder", "intent": "accent", "label": "Structured index", "group": "corpus" },
+    { "id": "graph", "kind": "card", "intent": "purple", "label": "Relationship graph", "group": "corpus" },
+
+    { "id": "site", "kind": "icon", "icon": "monitor", "label": "Rendered docs site", "group": "humans" },
+    { "id": "sitef", "kind": "note", "intent": "blue", "label": "What humans get", "body": "Visual, interactive KB\nCanvas whiteboards\nLight + dark, fully themed", "group": "humans" },
+
+    { "id": "mcp", "kind": "icon", "icon": "plug", "label": "MCP server", "group": "agents" },
+    { "id": "mcpf", "kind": "note", "intent": "green", "label": "What agents get", "body": "search · get_page · get_section\nlist · navigate\nget_component_data", "group": "agents" }
+  ],
+  "edges": [
+    { "from": "mdx", "to": "build", "label": "feeds", "fromSide": "right", "toSide": "left" },
+    { "from": "build", "to": "index", "label": "derives", "rel": "defines" },
+    { "from": "index", "to": "graph", "label": "+ relations", "rel": "part-of" },
+    { "from": "index", "to": "site", "label": "render face", "intent": "blue", "rel": "links", "fromSide": "right", "toSide": "left" },
+    { "from": "index", "to": "mcp", "label": "knowledge face", "intent": "green", "rel": "links", "fromSide": "right", "toSide": "left" }
+  ]
+}
+```
+
+## The dual-representation contract
+
+This is the core invariant. Every component has two faces, produced from one authored instance:
+
+<CardGroup cols={2}>
+  <Card title="Render face" icon="eye">
+    A polished React component for the human site — tokens only, light and dark co-equal.
+  </Card>
+  <Card title="Knowledge face" icon="braces">
+    A typed serialization the MCP exposes to agents — the records and relations behind the visual,
+    never a description of a picture.
+  </Card>
+</CardGroup>
+
+If you add a component, you implement **both** faces. A component that can't serialize to the MCP
+isn't done. This is what existing tools can't cross: their components are render-only, and the
+MCP was retrofitted over the output.
+
+## Building blocks
+
+<FeatureList
+  items={[
+    {
+      icon: "file-text",
+      title: "Content model",
+      description:
+        "MDX + a typed frontmatter schema; a build step derives the structured index + relation graph.",
+    },
+    {
+      icon: "component",
+      title: "Component library",
+      description:
+        "Opinionated dual-representation components — cards, steps, tabs, timelines, boards, entities, tables, diagrams.",
+    },
+    {
+      icon: "plug",
+      title: "MCP server",
+      description:
+        "Serves the index: search, get_page/get_section, list, navigate, get_component_data. Public or token-gated.",
+    },
+    {
+      icon: "palette",
+      title: "Theme system",
+      description:
+        "Tailwind v4 @theme over live CSS tokens; light and dark from one set; one palette re-skins everything.",
+    },
+    {
+      icon: "shield",
+      title: "Pluggable auth",
+      description:
+        "Optional Auth.js v5 + Google SSO; off by default. The MCP inherits the site's policy.",
+    },
+  ]}
+/>
+
+## Principles
+
+<KeyFacts
+  items={[
+    { label: "Source of truth", value: "Content, not render output" },
+    { label: "Two faces", value: "Render + knowledge, never drifting" },
+    { label: "Tokens", value: "No raw hex; never branch on theme in JS" },
+    { label: "Reuse", value: "Lives in the superlore package, not copy-pasted" },
+    { label: "Deploy", value: "Yours — Vercel or any Next host" },
+  ]}
+/>
+
+For the full component catalog and the knowledge-face shapes, see [Components](/docs/components) —
+the structural differentiators ([Timeline](/docs/components/timeline),
+[EntityCard](/docs/components/entity-card), [DataTable](/docs/components/data-table),
+[Diagram](/docs/components/diagram)) each carry a typed knowledge face.

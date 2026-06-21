@@ -1,0 +1,32 @@
+---
+title: Tabs
+icon: Folder
+description: Alternative views of the same concept — one command per package manager, one snippet per language.
+summary: Tab labels come from each Tab's title; keep panels parallel so switching swaps one variable.
+tags: [components, primitives, layout, tabs]
+---
+
+For **alternative views of the same concept** — an install command per package manager, a snippet
+per language, a config per OS. Keep the panels parallel so switching tabs swaps one variable. The
+tab labels come from each `<Tab>`'s `title`.
+
+## When to use it
+
+Reach for tabs when the reader needs exactly one of several parallel options and the rest are
+noise to them. If every item is relevant in sequence, use [Steps](/docs/components/steps); if the
+extra options are optional depth, use [Accordions](/docs/components/accordions).
+
+## Props
+
+| Component | Prop       | Type        | Description                            |
+| --------- | ---------- | ----------- | -------------------------------------- |
+| `<Tab>`   | `title`    | `string`    | The tab label (also usable as `value`) |
+| `<Tab>`   | `children` | `ReactNode` | The panel content                      |
+
+## Live example
+
+<Tabs>
+  <Tab title="npm">`npm i superlore`</Tab>
+  <Tab title="pnpm">`pnpm add superlore`</Tab>
+  <Tab title="bun">`bun add superlore`</Tab>
+</Tabs>

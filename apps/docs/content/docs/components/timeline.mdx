@@ -1,0 +1,116 @@
+---
+title: Timeline
+icon: Clock
+description: A vertical, dated rail — events with a date, status, body, tags, and typed references.
+summary: Timeline renders dated, ordered events and serializes to a timeline knowledge node with parsed, range-queryable dates and statuses.
+tags: [components, structural, dual-representation, timeline]
+---
+
+A `Timeline` is a vertical, dated rail — each item is an event with a date, a title, an optional
+body, a status dot, tags, and typed references. It's one of the **dual-representation** components:
+it renders a polished rail for humans **and** hands an agent the parsed, range-queryable data
+behind it — never a picture to interpret.
+
+<Note title="The shared knowledge envelope">
+  Every structural knowledge face extends one shape — `kind` discriminates the node, `id` is a
+  stable slug addressable as `${pageId}#${id}`, and `refs[]` is the universal graph edge that powers
+  `navigate`. Shared enums (`Status`, date precision) let a single query — "everything
+  `in-progress`", "everything dated in Q3" — work across Timeline, EntityCard, and the rest with no
+  per-component logic.
+</Note>
+
+## When to use it
+
+Roadmaps, project histories, release sequences, incident timelines — anything that is
+fundamentally _ordered by time with state_. The agent gets parsed dates and statuses, never a
+description of a rail.
+
+## Props
+
+**`Timeline`**
+
+| Prop    | Type                  | Default      | Description                  |
+| ------- | --------------------- | ------------ | ---------------------------- |
+| `items` | `TimelineItemInput[]` | —            | The events, in order         |
+| `label` | `string`              | `"Timeline"` | Accessible name for the list |
+
+**`TimelineItemInput`**
+
+| Field    | Type                         | Default | Description                                                                                                |
+| -------- | ---------------------------- | ------- | ---------------------------------------------------------------------------------------------------------- |
+| `date`   | `string`                     | —       | `2026`, `2026-Q3`, `2026-08`, or `2026-07-01` — precision is inferred                                      |
+| `title`  | `string`                     | —       | The event title                                                                                            |
+| `body`   | `ReactNode`                  | —       | Optional detail under the title                                                                            |
+| `status` | `Status`                     | —       | One of `planned · in-progress · blocked · done · deprecated · proposed · accepted · rejected · superseded` |
+| `tags`   | `string[]`                   | —       | Chips rendered after the body                                                                              |
+| `refs`   | `{ rel?, target, label? }[]` | —       | Typed links rendered as pill-links                                                                         |
+
+## Live example
+
+<Timeline
+  items={[
+    {
+      date: "2026-07-01",
+      title: "Project kickoff",
+      status: "done",
+      body: "Repo, brand, and thesis locked.",
+    },
+    {
+      date: "2026-08",
+      title: "Core extraction",
+      status: "in-progress",
+      body: "Components, theme, MCP.",
+      tags: ["phase-2"],
+    },
+    {
+      date: "2026-Q3",
+      title: "GA launch",
+      status: "planned",
+      tags: ["milestone"],
+      refs: [{ rel: "related", target: "/docs/agents/mcp", label: "MCP" }],
+    },
+  ]}
+/>
+
+## What the agent sees
+
+`get_component_data` returns the data, not the rail — dates parsed to `{ iso, precision }`, the
+status enum intact, and the ref resolved as internal:
+
+```json
+{
+  "kind": "timeline",
+  "id": "timeline",
+  "items": [
+    {
+      "id": "project-kickoff",
+      "date": { "iso": "2026-07-01", "precision": "day" },
+      "title": "Project kickoff",
+      "body": "Repo, brand, and thesis locked.",
+      "status": "done"
+    },
+    {
+      "id": "core-extraction",
+      "date": { "iso": "2026-08", "precision": "month" },
+      "title": "Core extraction",
+      "body": "Components, theme, MCP.",
+      "status": "in-progress",
+      "tags": ["phase-2"]
+    },
+    {
+      "id": "ga-launch",
+      "date": { "iso": "2026-Q3", "precision": "quarter" },
+      "title": "GA launch",
+      "status": "planned",
+      "tags": ["milestone"],
+      "refs": [{ "rel": "related", "target": "/docs/agents/mcp", "label": "MCP", "internal": true }]
+    }
+  ]
+}
+```
+
+<Tip title="Why precision matters">
+  Because each date keeps its precision, the MCP can answer "what shipped in Q3?" — matching the
+  `quarter`-precision `2026-Q3` and any `2026-07`/`2026-08-12` that fall inside it — without you
+  normalizing dates by hand.
+</Tip>

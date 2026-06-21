@@ -1,0 +1,79 @@
+---
+title: FeatureList
+icon: ListChecks
+description: An itemized feature or link list — icon, title, description, and an optional link per row.
+summary: FeatureList renders an itemized list and serializes to a featurelist node; items with an href contribute resolved links refs.
+tags: [components, editorial, featurelist]
+---
+
+`FeatureList` renders an itemized list — each row a title with an optional icon, description, and
+link. It serializes to the knowledge face as a `featurelist` node, and rows with an `href` also
+contribute resolved `links` refs, so the list's outgoing links are part of the graph.
+
+## When to use it
+
+Reach for a FeatureList to enumerate features, principles, or a set of related destinations as a
+clean vertical list. When the rows are navigation targets you want laid out as a grid, use
+[Cards](/docs/components/cards) instead.
+
+## Props
+
+| Prop    | Type                                                                            | Default | Description   |
+| ------- | ------------------------------------------------------------------------------- | ------- | ------------- |
+| `items` | `{ icon?: string; title: ReactNode; description?: ReactNode; href?: string }[]` | —       | The list rows |
+
+Rows with an `href` render as links and contribute a `links` ref to the knowledge face.
+
+## Live example
+
+<FeatureList
+  items={[
+    { icon: "search", title: "Search-first", description: "⌘K over the whole corpus." },
+    {
+      icon: "plug",
+      title: "MCP built in",
+      description: "Agents read the same content.",
+      href: "/docs/agents/mcp",
+    },
+    {
+      icon: "layout-grid",
+      title: "Structural components",
+      description: "Dual-representation, by design.",
+      href: "/docs/components/timeline",
+    },
+  ]}
+/>
+
+## What the agent sees
+
+The items keep their title and description; each `href` resolves to a `links` ref, marked
+`internal` because it points inside the corpus:
+
+```json
+{
+  "kind": "featurelist",
+  "id": "features",
+  "items": [
+    { "title": "Search-first", "description": "⌘K over the whole corpus." },
+    {
+      "title": "MCP built in",
+      "description": "Agents read the same content.",
+      "href": "/docs/agents/mcp"
+    },
+    {
+      "title": "Structural components",
+      "description": "Dual-representation, by design.",
+      "href": "/docs/components/timeline"
+    }
+  ],
+  "refs": [
+    { "rel": "links", "target": "/docs/agents/mcp", "label": "MCP built in", "internal": true },
+    {
+      "rel": "links",
+      "target": "/docs/components/timeline",
+      "label": "Structural components",
+      "internal": true
+    }
+  ]
+}
+```

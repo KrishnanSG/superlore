@@ -1,0 +1,30 @@
+---
+title: Tooltips
+icon: MessageSquare
+description: A hover gloss on a term — an inline definition without leaving the sentence.
+summary: Tooltip shows tip text on hover, with an optional headline lead and an optional trailing cta/href link.
+tags: [components, primitives, inline, tooltip]
+---
+
+A hover gloss on a term — `tip` is the text shown, with an optional `headline` and an optional
+`cta`/`href` link. The wrapped term renders with a dotted underline so the reader knows there's
+more.
+
+## When to use it
+
+Reach for a tooltip to gloss a term inline — an acronym, a jargon word — without breaking the
+sentence or sending the reader to a glossary. Keep the tip to a sentence; for a fuller definition,
+link out with `cta`/`href`.
+
+## Props
+
+| Prop           | Type        | Description                       |
+| -------------- | ----------- | --------------------------------- |
+| `tip`          | `string`    | The gloss text (required)         |
+| `headline`     | `string`    | Optional bold lead before the tip |
+| `cta` / `href` | `string`    | Optional trailing link            |
+| `children`     | `ReactNode` | The underlined term               |
+
+## Live example
+
+superlore is <Tooltip tip="Model Context Protocol — the open standard agents speak.">MCP</Tooltip>-native.

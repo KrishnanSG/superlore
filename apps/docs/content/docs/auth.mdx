@@ -1,0 +1,138 @@
+---
+title: Enabling auth
+icon: Shield
+description: Gate the site and the MCP with Auth.js v5 + Google SSO — optional, off by default, self-disabling without config.
+summary: superlore ships pluggable Auth.js v5 + Google SSO. It is off unless AUTH_GOOGLE_ID is set; configure env, build the auth instance, and wrap proxy.ts. The MCP inherits the same policy.
+tags: [guide, auth, sso, security]
+---
+
+superlore ships **pluggable, optional auth** — Auth.js v5 with Google SSO out of the box. It is **off
+by default**: with no `AUTH_GOOGLE_ID` set, every request passes through, so local dev and fully
+public deploys need no configuration at all. Turn it on with environment variables — no code change
+to flip it.
+
+<Note title="The MCP inherits the site's policy">
+  Auth is enforced in `proxy.ts` (Next.js 16's middleware), which sits in front of every route —
+  including `/api/mcp`. So gating the site automatically gates the agent surface; the two can never
+  drift out of sync.
+</Note>
+
+## Environment variables
+
+<DataTable
+  caption="Auth env"
+  columns={[
+    { key: "name", label: "Variable" },
+    { key: "req", label: "Required" },
+    { key: "use", label: "Purpose" },
+  ]}
+  rows={[
+    {
+      name: "AUTH_GOOGLE_ID",
+      req: "to enable",
+      use: "Google OAuth client id — its presence turns auth ON",
+    },
+    { name: "AUTH_GOOGLE_SECRET", req: "to enable", use: "Google OAuth client secret" },
+    { name: "AUTH_SECRET", req: "yes", use: "Secret used to encrypt the session (JWT)" },
+    { name: "AUTH_URL", req: "yes", use: "The deploy's canonical URL" },
+    { name: "AUTH_TRUST_HOST", req: "yes", use: "Set to true behind a proxy / on Vercel" },
+    {
+      name: "AUTH_ALLOWED_DOMAIN",
+      req: "no",
+      use: "Workspace domain allowed to sign in, e.g. example.com",
+    },
+    {
+      name: "AUTH_ALLOWED_EMAILS",
+      req: "no",
+      use: "Comma-separated email allowlist that bypasses the domain check",
+    },
+    { name: "LOCAL", req: "no", use: "Set to true to force auth OFF locally even when configured" },
+  ]}
+/>
+
+With **no** `AUTH_ALLOWED_DOMAIN`, any Google account can sign in. Set it to your workspace domain
+to restrict sign-in to that org; `AUTH_ALLOWED_EMAILS` lets specific addresses in regardless.
+
+## Wiring it up
+
+<Steps>
+  <Step title="Build the auth instance">
+    `createSuperloreAuth` returns the Auth.js v5 handlers. Domain / email allowlists can come from env
+    or be passed explicitly:
+    ```ts
+    // auth.ts
+    import { createSuperloreAuth } from "superlore/auth";
+
+    export const { handlers, auth, signIn, signOut } = createSuperloreAuth({
+      allowedDomain: process.env.AUTH_ALLOWED_DOMAIN, // optional
+      // allowedEmails: ["you@example.com"],          // optional
+    });
+    ```
+
+  </Step>
+  <Step title="Expose the Auth.js route">
+    ```ts
+    // app/api/auth/[...nextauth]/route.ts
+    import { handlers } from "@/auth";
+    export const { GET, POST } = handlers;
+    ```
+  </Step>
+  <Step title="Gate every route with proxy.ts">
+    `createAuthProxy` builds the Next 16 `proxy.ts` default export. It is **self-disabling** — with
+    no `AUTH_GOOGLE_ID` (or `LOCAL=true`) it passes everything through:
+    ```ts
+    // proxy.ts
+    import { auth } from "@/auth";
+    import { createAuthProxy } from "superlore/auth";
+
+    export default createAuthProxy(auth);
+
+    export const config = {
+      // Run on everything except static assets (the helper also skips the auth dance + icons).
+      matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+    };
+    ```
+
+  </Step>
+</Steps>
+
+<Warning title="This is Next.js 16">
+  Middleware is `proxy.ts` (not `middleware.ts`), and request APIs like `cookies()` / `headers()`
+  are async. superlore's helpers are written for 16 — don't port a 15-era snippet.
+</Warning>
+
+## How the gate behaves
+
+<FeatureList
+  items={[
+    {
+      icon: "toggle-left",
+      title: "Off by default",
+      description:
+        "No AUTH_GOOGLE_ID → createAuthProxy passes every request through. Public deploys need nothing.",
+    },
+    {
+      icon: "log-in",
+      title: "Redirect to sign-in",
+      description:
+        "An unauthenticated request to a gated path is redirected to /auth/signin with a callbackUrl.",
+    },
+    {
+      icon: "users",
+      title: "Domain + email allowlists",
+      description: "Restrict to a workspace domain, or allow specific emails through, all via env.",
+    },
+    {
+      icon: "plug",
+      title: "MCP inherits it",
+      description:
+        "Because the gate is in proxy.ts, /api/mcp is protected by the same policy as the site.",
+    },
+  ]}
+/>
+
+<Tip title="Public on purpose">
+  This docs deploy ships **no** `AUTH_GOOGLE_ID`, so it's open — anyone can read it and connect an
+  agent to [the MCP](/docs/agents/mcp). Your own KB can stay public, gate just the MCP, or gate
+  everything, with the same code and a few env vars.
+</Tip>

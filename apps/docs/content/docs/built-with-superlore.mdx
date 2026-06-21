@@ -1,0 +1,63 @@
+---
+title: Built with superlore
+icon: BadgeCheck
+description: Add the "Built with superlore" badge to your README or docs — copy a Markdown, HTML, or React snippet in one click.
+summary: A public, embeddable "Built with superlore" badge. Copy the Markdown, HTML, or React (BuiltWithSuperlore component) snippet to attribute your knowledge base. Self-host the SVG at your own deploy URL if you prefer.
+tags: [guide, badge, attribution]
+---
+
+Shipped a knowledge base with superlore? Add the badge to your README. The default badge
+**auto-adapts to light and dark** — embedded as an image, it follows the viewer's color scheme.
+
+![Built with superlore](/built-with-superlore.svg)
+
+### Pick a theme
+
+Prefer a fixed look? Use a dedicated variant instead of the auto badge.
+
+- **Auto** (default) — follows the viewer's theme: `/built-with-superlore.svg`
+- **Light** — for light backgrounds: `/built-with-superlore-light.svg` &nbsp; ![Light](/built-with-superlore-light.svg)
+- **Dark** — for dark backgrounds: `/built-with-superlore-dark.svg` &nbsp; ![Dark](/built-with-superlore-dark.svg)
+
+## Markdown
+
+For a README or any Markdown file. Each block below has a copy button — grab one and paste.
+
+```md
+[![Built with superlore](https://superlore.vercel.app/built-with-superlore.svg)](https://superlore.vercel.app)
+```
+
+<Note title="Self-host the SVG">
+  The badge lives at `/built-with-superlore.svg` on your own deploy too — swap the URL for your
+  site's origin (e.g. `https://your-kb.com/built-with-superlore.svg`) so the image is served from
+  the same place as your KB.
+</Note>
+
+## HTML
+
+For a docs page, a website footer, or anywhere Markdown isn't an option.
+
+```html
+<a href="https://superlore.vercel.app" target="_blank" rel="noreferrer">
+  <img
+    src="https://superlore.vercel.app/built-with-superlore.svg"
+    alt="Built with superlore"
+    height="28"
+  />
+</a>
+```
+
+## React (superlore)
+
+Already inside a superlore app? The package ships the badge as a token-driven component — it tracks
+your theme (light and dark are co-equal) instead of loading a static image.
+
+```tsx
+import { BuiltWithSuperlore } from "superlore";
+
+export function Footer() {
+  return <BuiltWithSuperlore />;
+}
+```
+
+`BuiltWithSuperlore` links to the superlore project by default; pass `href` to point it elsewhere.

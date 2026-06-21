@@ -1,0 +1,117 @@
+---
+title: Checklist
+icon: ListChecks
+description: Actionable items with a real done-state, optionally grouped and owned — for runbooks and onboarding.
+summary: Checklist renders a runbook with a progress count and serializes to a checklist knowledge node where done is a boolean an agent can count.
+tags: [components, knowledge-structures, dual-representation, checklist, runbook]
+---
+
+A `Checklist` is a list of actionable items, each with a real `done` boolean, optionally grouped and
+owned. Humans read (and mentally tick) a runbook with a progress count; the agent gets
+`{ kind:"checklist", items:[{ text, done, owner, group }] }` — `done` is a boolean it can **count**
+("3 of 8 done"), not a styled strike-through it has to infer. `Runbook` is an alias.
+
+<Example
+  code={`<Checklist
+  label="Deploy runbook"
+  items={[
+    { text: "Set GOOGLE_CLIENT_ID + SECRET", done: true, group: "Auth" },
+    { text: "Restrict the allowed email domain", done: true, group: "Auth" },
+    { text: "Set the MCP token", done: false, group: "MCP", owner: "Krishnan" },
+    {
+      text: "Deploy to Vercel",
+      done: false,
+      group: "Ship",
+      refs: [{ rel: "related", target: "/docs/deploy", label: "Deploy" }],
+    },
+  ]}
+/>`}
+>
+  <Checklist
+    label="Deploy runbook"
+    items={[
+      { text: "Set GOOGLE_CLIENT_ID + SECRET", done: true, group: "Auth" },
+      { text: "Restrict the allowed email domain", done: true, group: "Auth" },
+      { text: "Set the MCP token", done: false, group: "MCP", owner: "Krishnan" },
+      {
+        text: "Deploy to Vercel",
+        done: false,
+        group: "Ship",
+        refs: [{ rel: "related", target: "/docs/deploy", label: "Deploy" }],
+      },
+    ]}
+  />
+</Example>
+
+## When to use it
+
+Deploy runbooks, onboarding checklists, release gates, pre-flight lists — anything where the question
+is "what's left to do, and who owns it?" The agent reads completion as data, so it can report
+progress or surface the unchecked items directly.
+
+## Props
+
+**`Checklist`** (alias `Runbook`)
+
+| Prop    | Type                   | Default       | Description                     |
+| ------- | ---------------------- | ------------- | ------------------------------- |
+| `items` | `ChecklistItemInput[]` | —             | The items, in order             |
+| `label` | `string`               | `"Checklist"` | Accessible name; shown as title |
+
+**`ChecklistItemInput`**
+
+| Field   | Type                         | Description                            |
+| ------- | ---------------------------- | -------------------------------------- |
+| `text`  | `string`                     | The action                             |
+| `done`  | `boolean`                    | Completion state (defaults to `false`) |
+| `owner` | `string`                     | Optional owner chip                    |
+| `group` | `string`                     | Optional grouping heading              |
+| `refs`  | `{ rel?, target, label? }[]` | Typed links                            |
+
+Items with the same `group` are rendered under one heading, in first-seen order.
+
+## What the agent sees
+
+`done` is a real boolean per item, with the owner and group intact — so the agent can count progress
+and list what's outstanding:
+
+```json
+{
+  "kind": "checklist",
+  "id": "deploy-runbook",
+  "title": "Deploy runbook",
+  "items": [
+    {
+      "id": "set-google-client-id-secret",
+      "text": "Set GOOGLE_CLIENT_ID + SECRET",
+      "done": true,
+      "group": "Auth"
+    },
+    {
+      "id": "restrict-the-allowed-email-domain",
+      "text": "Restrict the allowed email domain",
+      "done": true,
+      "group": "Auth"
+    },
+    {
+      "id": "set-the-mcp-token",
+      "text": "Set the MCP token",
+      "done": false,
+      "owner": "Krishnan",
+      "group": "MCP"
+    },
+    {
+      "id": "deploy-to-vercel",
+      "text": "Deploy to Vercel",
+      "done": false,
+      "group": "Ship",
+      "refs": [{ "rel": "related", "target": "/docs/deploy", "label": "Deploy", "internal": true }]
+    }
+  ]
+}
+```
+
+<Tip title="Done is countable">
+  Because `done` is a boolean, an agent answers "how far along is the deploy runbook?" with a count
+  — `2 of 4` — and can return the two unchecked items, without parsing a rendered strike-through.
+</Tip>

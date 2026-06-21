@@ -1,0 +1,59 @@
+---
+title: Agents & MCP
+icon: Bot
+description: The agent surface of superlore — a first-class MCP server over the same content, plus guidance for agents authoring KBs.
+summary: superlore is MCP-native. Agents read the same structured corpus the site renders over a first-class MCP server, and agents authoring docs follow the dual-representation contract. This section covers both.
+tags: [agents, mcp, overview]
+---
+
+superlore is **MCP-native from the ground up** — agents are a first-class audience, not an
+afterthought. The same structured corpus the human site renders is served to agents over a
+first-class **MCP server**, and superlore ships guidance (and skills) so agents can _author_ KBs
+that read cleanly back over that same MCP.
+
+<Note title="One corpus, two readers">
+  The MCP is not a scrape of these pages. It serves the structured index the site is built from, so
+  what an agent reads and what a human sees can never drift. See [Architecture](/docs/architecture).
+</Note>
+
+## The agent surface
+
+<FeatureList
+  items={[
+    {
+      icon: "plug",
+      title: "MCP server",
+      description:
+        "search, get_page, list, navigate, get_component_data — over the same content the site renders. Public or token-gated.",
+    },
+    {
+      icon: "bot",
+      title: "Authoring for agents",
+      description:
+        "How an agent should write superlore docs — the format, the dual-representation contract, and which component to reach for.",
+    },
+    {
+      icon: "sparkles",
+      title: "Agent skills",
+      description:
+        'Shipped skills so an agent can scaffold, author ("vibe"), and deploy a KB without knowing how superlore works internally.',
+    },
+  ]}
+/>
+
+## Where to next
+
+<CardGroup cols={2}>
+  <Card title="Authoring for agents" icon="bot" href="/docs/agents/authoring-for-agents">
+    The guide for an agent producing superlore content.
+  </Card>
+  <Card title="MCP" icon="plug" href="/docs/agents/mcp">
+    The server, its tools, and how to connect a client.
+  </Card>
+  <Card title="MCP tools" icon="wrench" href="/docs/agents/mcp/tools">
+    The five tools and exactly what each returns.
+  </Card>
+  <Card title="Connect a client" icon="cable" href="/docs/agents/mcp/connect">
+    Point Claude (or any MCP client) at this deploy.
+  </Card>
+</CardGroup>

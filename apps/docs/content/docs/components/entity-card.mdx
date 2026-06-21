@@ -1,0 +1,90 @@
+---
+title: EntityCard
+icon: Box
+description: A card for a typed thing — a person, service, dataset, or concept — with fields and typed relations.
+summary: EntityCard is the highest-leverage knowledge face — an addressable graph entity an agent can list, get, and navigate.
+tags: [components, structural, dual-representation, entity, graph]
+---
+
+An `EntityCard` is a card for a typed _thing_ — a person, service, dataset, or concept — with a
+type chip, a summary, a `dl` of fields, and a row of typed relations. It renders a clean card for
+humans **and** serializes to a first-class graph entity for agents.
+
+## When to use it
+
+This is the highest-leverage knowledge face: it turns a superlore KB into a **knowledge graph**. Use
+it whenever a page describes an addressable entity an agent should be able to `list` (by type),
+`get` (by `entity:type/slug`), and `navigate` (by relation).
+
+## Props
+
+**`EntityCard`**
+
+| Prop      | Type                         | Default | Description                                                                                                      |
+| --------- | ---------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------- |
+| `type`    | `string`                     | —       | The entity type (`service`, `person`, `dataset`, …) — shown as a chip and used in the `entity:type/slug` address |
+| `slug`    | `string`                     | —       | Stable id within its type; combines with `type` to address the entity                                            |
+| `title`   | `string`                     | —       | Display name                                                                                                     |
+| `summary` | `string`                     | —       | One-line gloss under the title                                                                                   |
+| `icon`    | `string`                     | —       | A lucide icon name shown in the header                                                                           |
+| `fields`  | `{ key, value, type? }[]`    | —       | The `dl` rows; numeric fields render `mono`/tabular                                                              |
+| `refs`    | `{ rel?, target, label? }[]` | —       | Typed relations — `entity:` targets link in-page                                                                 |
+
+A field's `type` is one of `text · number · bool · date · enum · code · ref`, and it is preserved
+in the knowledge face so an agent knows how to compare it.
+
+## Live example
+
+<EntityCard
+  type="service"
+  slug="mcp-server"
+  title="superlore MCP Server"
+  summary="Serves the structured index to agents."
+  icon="plug"
+  fields={[
+    { key: "transport", value: "Streamable HTTP" },
+    { key: "auth", value: "public (this deploy)" },
+    { key: "tools", value: "6", type: "number" },
+  ]}
+  refs={[
+    { rel: "part-of", target: "entity:product/superlore", label: "superlore" },
+    { rel: "related", target: "/docs/agents/mcp", label: "MCP docs" },
+  ]}
+/>
+
+## What the agent sees
+
+A first-class graph entity — `entityType` + `slug` make it addressable, `fields` keep their
+types, and `refs` are the edges `navigate` follows. The `entity:` ref is internal; so is the
+`/docs/agents/mcp` path:
+
+```json
+{
+  "kind": "entity",
+  "id": "mcp-server",
+  "title": "superlore MCP Server",
+  "summary": "Serves the structured index to agents.",
+  "entityType": "service",
+  "slug": "mcp-server",
+  "fields": [
+    { "key": "transport", "value": "Streamable HTTP" },
+    { "key": "auth", "value": "public (this deploy)" },
+    { "key": "tools", "value": "6", "type": "number" }
+  ],
+  "refs": [
+    {
+      "rel": "part-of",
+      "target": "entity:product/superlore",
+      "label": "superlore",
+      "internal": true
+    },
+    { "rel": "related", "target": "/docs/agents/mcp", "label": "MCP docs", "internal": true }
+  ]
+}
+```
+
+<Note title="From card to graph">
+  Because the entity is addressable as `entity:service/mcp-server`, an agent can call
+  `list(entityType: "service")` to enumerate every service in the KB, then `navigate` the `part-of`
+  edge to reach the product. No page text is parsed — the edges are declared.
+</Note>

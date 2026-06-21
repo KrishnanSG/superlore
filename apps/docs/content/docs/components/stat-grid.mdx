@@ -1,0 +1,48 @@
+---
+title: StatGrid
+icon: LayoutDashboard
+description: Headline metrics in a card grid — a big value, a label, and an optional hint.
+summary: StatGrid renders headline metrics and serializes to a statgrid knowledge node with typed values.
+tags: [components, editorial, statgrid, metrics]
+---
+
+`StatGrid` renders headline metrics as a row of cards — each a big value with a label and an
+optional hint. It serializes to the knowledge face as a `statgrid` node, so the numbers stay
+numbers an agent can read.
+
+## When to use it
+
+Reach for a StatGrid to lead a page with the metrics that matter — counts, splits, sizes. For
+flat label→value facts (no emphasis on the value), use [KeyFacts](/docs/components/key-facts).
+
+## Props
+
+| Prop    | Type                                                      | Default | Description      |
+| ------- | --------------------------------------------------------- | ------- | ---------------- |
+| `stats` | `{ label: string; value: ReactNode; hint?: ReactNode }[]` | —       | The metric cards |
+
+## Live example
+
+<StatGrid
+  stats={[
+    { label: "MCP tools", value: "6", hint: "search · get_page · …" },
+    { label: "Shape kinds", value: "28", hint: "Canvas vocabulary" },
+    { label: "Knowledge faces", value: "1 envelope" },
+  ]}
+/>
+
+## What the agent sees
+
+Each stat keeps its label, value, and hint:
+
+```json
+{
+  "kind": "statgrid",
+  "id": "stats",
+  "stats": [
+    { "label": "MCP tools", "value": "6", "hint": "search · get_page · …" },
+    { "label": "Shape kinds", "value": "28", "hint": "Canvas vocabulary" },
+    { "label": "Knowledge faces", "value": "1 envelope" }
+  ]
+}
+```

@@ -1,0 +1,37 @@
+---
+title: Tree
+icon: FolderTree
+description: Show a file or hierarchy structure — directories and leaves, nestable.
+summary: Tree.Folder for directories (nestable, defaultOpen), Tree.File for leaves.
+tags: [components, primitives, layout, tree]
+---
+
+Show a file or hierarchy structure. Use `Tree.Folder` for directories (nestable) and `Tree.File`
+for leaves.
+
+## When to use it
+
+Reach for a tree whenever you're describing a layout on disk — a repo structure, a config
+directory, where files land after scaffolding. Mark the folders the reader cares about with
+`defaultOpen` so the relevant branch is expanded on load.
+
+## Props
+
+| Component       | Prop          | Type      | Description    |
+| --------------- | ------------- | --------- | -------------- |
+| `<Tree.Folder>` | `name`        | `string`  | Folder name    |
+| `<Tree.Folder>` | `defaultOpen` | `boolean` | Start expanded |
+| `<Tree.File>`   | `name`        | `string`  | File name      |
+
+## Live example
+
+<Tree>
+  <Tree.Folder name="packages" defaultOpen>
+    <Tree.Folder name="superlore">
+      <Tree.File name="src" />
+    </Tree.Folder>
+  </Tree.Folder>
+  <Tree.Folder name="apps">
+    <Tree.File name="docs" />
+  </Tree.Folder>
+</Tree>
