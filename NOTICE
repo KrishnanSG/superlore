@@ -1,0 +1,21 @@
+superlore
+Copyright 2026 Krishnan S G
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Distributed builds of the published packages bundle third-party components,
+which retain their own licenses:
+
+superlore
+  - elkjs (https://github.com/kieler/elkjs) — Eclipse Public License 2.0
+  - @xyflow/react (https://github.com/xyflow/xyflow) — MIT
+  - roughjs — MIT
+  - clsx, tailwind-merge, zod — MIT
+  - lucide-react — ISC
+  - class-variance-authority — Apache-2.0
+
+superlore-cli
+  - cac — MIT
+  - @clack/prompts — MIT
+
+Each component's full license text is available from its respective repository.
