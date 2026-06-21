@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="superlore">
+  <!-- superlore "Fold" mark — one flat source folded into a structured body; the lit face is the human
+       view, the half-tone face the machine's. Recolour by swapping the fill, or set
+       fill="currentColor" to inherit text colour. -->
+  <polygon points="14,20 32,12 32,46 14,54" fill="#6D5CF0" />
+  <polygon points="32,12 50,20 50,54 32,46" fill="#6D5CF0" opacity="0.5" />
+</svg>

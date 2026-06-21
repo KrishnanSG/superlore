@@ -1,0 +1,596 @@
+/* ================================================================================
+   superlore/css — the superlore theme preset.
+
+   Consume it AFTER Tailwind + the Fumadocs presets:
+
+     @import "tailwindcss";
+     @import "fumadocs-ui/css/neutral.css";
+     @import "fumadocs-ui/css/preset.css";
+     @import "superlore/css";
+
+   Single accent — superlore Violet. Light and dark are CO-EQUAL: both fully specified from one
+   token set, default to the reader's system preference (next-themes `defaultTheme: "system"`),
+   never branched on in JS. Hierarchy comes from layered surfaces + 1px borders, not shadows.
+   Tokens trace DESIGN.md.
+   ================================================================================ */
+
+/* Bind the `dark:` variant to next-themes' `.dark` class (not prefers-color-scheme), so
+   theme-aware UI tracks the toggled theme. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Expose the brand tokens as Tailwind utilities (text-kp-accent-text, bg-kp-accent-weak,
+   border-kp-accent-border, from-kp-agent-from …). The neutral/surface scale rides Fumadocs'
+   own `--color-fd-*` utilities, which we re-skin below. */
+@theme inline {
+  --color-kp-accent: var(--kp-accent);
+  --color-kp-accent-hover: var(--kp-accent-hover);
+  --color-kp-accent-text: var(--kp-accent-text);
+  --color-kp-accent-weak: var(--kp-accent-weak);
+  --color-kp-accent-border: var(--kp-accent-border);
+  --color-kp-agent-from: var(--kp-agent-from);
+  --color-kp-agent-to: var(--kp-agent-to);
+  --color-kp-success: var(--kp-success);
+  --color-kp-warning: var(--kp-warning);
+  --color-kp-danger: var(--kp-danger);
+}
+
+/* ---------------------------------------------------------------- LIGHT (co-equal) */
+:root,
+:root.light,
+html:not(.dark) {
+  --color-fd-background: #fcfcfd;
+  --color-fd-foreground: #14161a;
+  --color-fd-card: #ffffff;
+  --color-fd-card-foreground: #14161a;
+  --color-fd-popover: #ffffff;
+  --color-fd-popover-foreground: #14161a;
+  --color-fd-muted: #f3f4f7;
+  --color-fd-muted-foreground: #565e68;
+  --color-fd-secondary: #f3f4f7;
+  --color-fd-secondary-foreground: #14161a;
+  --color-fd-border: #e3e5ea;
+  /* Fumadocs `accent` = hover/selected surface (not the brand accent). */
+  --color-fd-accent: #eeebfe;
+  --color-fd-accent-foreground: #14161a;
+  /* Brand accent: deepened in light so white ink still passes contrast on the fill. */
+  --color-fd-primary: #5a47e0;
+  --color-fd-primary-foreground: #ffffff;
+  --color-fd-ring: #5a47e0;
+
+  --kp-bg-elev: #f7f8fa;
+  --kp-surface: #ffffff;
+  --kp-surface-2: #f3f4f7;
+  --kp-border-subtle: #eeeff3;
+  --kp-border: #e3e5ea;
+  --kp-border-strong: #ccd0d8;
+  --kp-text-2: #565e68;
+  --kp-text-3: #8a909a;
+  --kp-accent: #5a47e0;
+  --kp-accent-hover: #4b3dc4;
+  --kp-accent-ink: #ffffff;
+  --kp-accent-text: #5a47e0;
+  --kp-accent-weak: #eeebfe;
+  --kp-accent-border: #d6cffa;
+  --kp-agent-from: #6d5cf0;
+  --kp-agent-to: #8b5cf0;
+  --kp-success: #1f9d5e;
+  --kp-warning: #c9921a;
+  --kp-danger: #dc3a4d;
+
+  /* Canvas (FigJam) — dots clearly visible but quiet (FigJam dot-grid), connectors a
+     confident mid-gray, node depth tuned for a light surface. */
+  --kp-canvas-dot: color-mix(in oklab, var(--color-fd-foreground) 22%, var(--color-fd-background));
+  --kp-canvas-edge: #9aa1ac;
+  --kp-canvas-minimap-node: color-mix(in oklab, var(--kp-accent) 24%, var(--color-fd-border));
+  --kp-canvas-shadow: 0 1px 2px -1px rgb(15 23 42 / 0.16), 0 4px 12px -6px rgb(15 23 42 / 0.18);
+  --kp-canvas-shadow-hover:
+    0 2px 4px -1px rgb(15 23 42 / 0.18), 0 12px 28px -10px rgb(15 23 42 / 0.28);
+
+  /* Section (frame/group) tint strengths — how much of the content hue mixes into the fill +
+     border. Theme-aware *amounts* (not colours) so frames read equally in light + dark without
+     branching on theme in JS. The renderer mixes these with the section's content hue. */
+  --kp-frame-fill: 12%;
+  --kp-frame-fill-nested: 19%;
+  --kp-frame-border: 46%;
+  --kp-frame-border-nested: 62%;
+  --kp-group-fill: 9%;
+  --kp-group-border: 48%;
+}
+
+/* ----------------------------------------------------------------- DARK (co-equal) */
+html.dark {
+  --color-fd-background: #0b0c0e;
+  --color-fd-foreground: #e7e9ed;
+  --color-fd-card: #131519;
+  --color-fd-card-foreground: #e7e9ed;
+  --color-fd-popover: #131519;
+  --color-fd-popover-foreground: #e7e9ed;
+  --color-fd-muted: #181b21;
+  --color-fd-muted-foreground: #aeb4be;
+  --color-fd-secondary: #181b21;
+  --color-fd-secondary-foreground: #e7e9ed;
+  --color-fd-border: #262a31;
+  --color-fd-accent: #181333;
+  --color-fd-accent-foreground: #e7e9ed;
+  /* Lighter violet for link/active text so it stays legible on near-black. */
+  --color-fd-primary: #9a8cff;
+  --color-fd-primary-foreground: #0b0c0e;
+  --color-fd-ring: #6d5cf0;
+
+  --kp-bg-elev: #0f1013;
+  --kp-surface: #131519;
+  --kp-surface-2: #181b21;
+  --kp-border-subtle: #1b1e24;
+  --kp-border: #262a31;
+  --kp-border-strong: #383f49;
+  --kp-text-2: #aeb4be;
+  --kp-text-3: #6e747e;
+  --kp-accent: #6d5cf0;
+  --kp-accent-hover: #8877f5;
+  --kp-accent-ink: #ffffff;
+  --kp-accent-text: #9a8cff;
+  --kp-accent-weak: #181333;
+  --kp-accent-border: #342a6b;
+  --kp-agent-from: #6d5cf0;
+  --kp-agent-to: #8b5cf0;
+  --kp-success: #46c46a;
+  --kp-warning: #f2c94c;
+  --kp-danger: #f2495c;
+
+  /* Canvas (FigJam) — on near-black the dots and connectors need to lift off the
+     background; shadows go deeper/darker to read as elevation. */
+  --kp-canvas-dot: color-mix(in oklab, var(--color-fd-foreground) 16%, var(--color-fd-background));
+  --kp-canvas-edge: #5a626e;
+  --kp-canvas-minimap-node: color-mix(in oklab, var(--kp-accent) 34%, var(--color-fd-border));
+  --kp-canvas-shadow: 0 1px 2px -1px rgb(0 0 0 / 0.5), 0 6px 16px -8px rgb(0 0 0 / 0.6);
+  --kp-canvas-shadow-hover: 0 2px 6px -1px rgb(0 0 0 / 0.55), 0 14px 32px -10px rgb(0 0 0 / 0.7);
+
+  /* Section tints, dark — a touch more fill/border so a region reads on near-black. */
+  --kp-frame-fill: 14%;
+  --kp-frame-fill-nested: 22%;
+  --kp-frame-border: 52%;
+  --kp-frame-border-nested: 66%;
+  --kp-group-fill: 12%;
+  --kp-group-border: 54%;
+}
+
+/* FigJam-style hue anchors for Canvas/whiteboard intents — vivid but consistent. Theme-independent;
+   color-mix with the card/background tints each into soft fills that adapt to light + dark. */
+:root {
+  --kp-hue-gray: #8a9099;
+  --kp-hue-red: #e8553f;
+  --kp-hue-orange: #f2a24e;
+  --kp-hue-yellow: #f4c752;
+  --kp-hue-green: #7dc68a;
+  --kp-hue-teal: #6bcdbe;
+  --kp-hue-blue: #6ba4f0;
+  --kp-hue-purple: #9b7df2;
+  --kp-hue-pink: #e865b5;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--kp-accent) 28%, transparent);
+  color: var(--color-fd-foreground);
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--kp-accent) 28%, transparent);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--kp-accent) 45%, transparent);
+}
+
+/* ============================================================ Polish components ====
+   Class-driven primitives used by the superlore polish components (PageHero, StatGrid…).
+   Calm, editorial, flat — 1px borders over layered surfaces, single violet accent. */
+
+.kp-page-hero {
+  margin: 0 0 2rem;
+  padding: 1.75rem 1.875rem 2rem;
+  border-radius: 1.25rem;
+  border: 1px solid var(--color-fd-border);
+  background:
+    radial-gradient(
+      ellipse 90% 70% at 0% 0%,
+      color-mix(in oklab, var(--kp-accent) 12%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 80% 70% at 100% 100%,
+      color-mix(in oklab, var(--kp-agent-to) 9%, transparent),
+      transparent 55%
+    ),
+    var(--color-fd-card);
+  position: relative;
+  overflow: hidden;
+}
+.kp-page-hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--kp-accent) 50%, transparent),
+    transparent
+  );
+}
+.kp-page-hero__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.7rem;
+  margin-bottom: 1rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--kp-accent) 12%, transparent);
+  color: var(--kp-accent-text);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.kp-page-hero__title {
+  font-size: 2rem;
+  font-weight: 680;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin: 0 0 0.5rem;
+  color: var(--color-fd-foreground);
+}
+.kp-page-hero__description {
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--color-fd-muted-foreground);
+  margin: 0;
+  max-width: 68ch;
+}
+
+.kp-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+.kp-stat-card {
+  padding: 1rem 1.125rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--color-fd-border);
+  background: var(--color-fd-card);
+  position: relative;
+  overflow: hidden;
+}
+.kp-stat-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--kp-agent-from), var(--kp-agent-to));
+  opacity: 0.85;
+}
+.kp-stat-card__label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-fd-muted-foreground);
+  margin-bottom: 0.25rem;
+}
+.kp-stat-card__value {
+  font-size: 1.375rem;
+  font-weight: 660;
+  color: var(--color-fd-foreground);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The agent-readability gradient — the one place the brand gradient appears (DESIGN.md). */
+.kp-agent-gradient {
+  background: linear-gradient(100deg, var(--kp-agent-from), var(--kp-agent-to));
+}
+
+/* ============================================================ Canvas (React Flow) ==
+   Token-skin React Flow so the whiteboard chrome is theme-equal, and neutralise RF's default
+   node chrome so superlore's custom node renderers fully own their appearance. */
+.react-flow {
+  --xy-background-color: var(--color-fd-background);
+  --xy-edge-stroke: var(--kp-canvas-edge);
+  --xy-attribution-background-color-default: transparent;
+}
+.react-flow__node {
+  font-family: inherit;
+  font-size: 14px;
+}
+/* Crisp text inside nodes regardless of zoom. */
+.react-flow__node,
+.react-flow__edge-text {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+/* Reset RF's built-in node box; our renderers draw their own surfaces/borders. */
+.react-flow__node-kshape,
+.react-flow__node-ksticky,
+.react-flow__node-ktext,
+.react-flow__node-kgroup,
+.react-flow__node-kframe {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  width: 100%;
+  height: 100%;
+}
+.react-flow__handle {
+  border: none;
+}
+.react-flow .react-flow__controls {
+  background: var(--color-fd-card);
+  border: 1px solid var(--color-fd-border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--kp-canvas-shadow);
+}
+.react-flow .react-flow__controls-button {
+  width: 28px;
+  height: 28px;
+  background: var(--color-fd-card);
+  border-bottom: 1px solid var(--color-fd-border);
+  color: var(--color-fd-muted-foreground);
+  fill: currentColor;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+.react-flow .react-flow__controls-button:last-child {
+  border-bottom: none;
+}
+.react-flow .react-flow__controls-button:hover {
+  background: var(--color-fd-muted);
+  color: var(--color-fd-foreground);
+}
+.react-flow .react-flow__controls-button svg {
+  fill: currentColor;
+  max-width: 14px;
+  max-height: 14px;
+}
+/* Minimap: small, tucked in the corner, never clipped — a faint overview, not a panel. */
+.react-flow__minimap {
+  width: 152px;
+  height: 104px;
+  margin: 12px;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--kp-canvas-shadow);
+}
+.react-flow__minimap-svg {
+  background: color-mix(in oklab, var(--color-fd-card) 88%, transparent);
+  border-radius: 10px;
+}
+.react-flow__attribution {
+  display: none;
+}
+/* Edge labels must sit ABOVE nodes so a short connector's chip is never clipped by the
+   box it points at. The renderer layer is otherwise painted under the nodes. */
+.react-flow__edgelabel-renderer {
+  z-index: 6;
+}
+
+/* Node depth — a soft resting shadow + crisp border (from the renderer), and a clear lift
+   on hover. Applied to the renderer's own box via a shared utility class. */
+.kp-canvas-node {
+  /* A slightly heavier border than the 1px default — crisper, closer to a FigJam shape, but
+     still restrained. The per-shape border-COLOUR comes from the intent classes. */
+  border-width: 1.5px;
+  box-shadow: var(--kp-canvas-shadow);
+  transition:
+    box-shadow 0.14s ease,
+    border-color 0.14s ease,
+    transform 0.14s ease;
+}
+.react-flow__node:hover .kp-canvas-node {
+  box-shadow: var(--kp-canvas-shadow-hover);
+  border-color: var(--kp-accent-border);
+}
+/* Selection — the DESIGN.md focus ring (1px bg gap + 3px accent halo), takes precedence. */
+.kp-canvas-selected,
+.react-flow__node.selected .kp-canvas-node,
+.react-flow__node:hover .kp-canvas-selected {
+  border-color: var(--kp-accent) !important;
+  box-shadow:
+    0 0 0 1px var(--color-fd-background),
+    0 0 0 3px color-mix(in oklab, var(--kp-accent) 55%, transparent),
+    var(--kp-canvas-shadow-hover);
+}
+
+/* ============================================================ Walkthrough =========
+   A stepped, auto-playing concept animation — each step is a Canvas state. Calm chrome
+   (1px border, layered surface), a thin accent progress bar, crossfading boards, and a
+   tab strip. Light + dark co-equal via tokens. */
+
+.kp-walk {
+  border: 1px solid var(--color-fd-border);
+  border-radius: 1rem;
+  background: var(--color-fd-card);
+  overflow: hidden;
+  box-shadow: var(--kp-canvas-shadow);
+}
+.kp-walk-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--color-fd-border);
+}
+.kp-walk-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-fd-foreground);
+}
+.kp-walk-spacer {
+  flex: 1 1 auto;
+}
+.kp-walk-count {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-fd-muted-foreground);
+}
+.kp-walk-play {
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 0.55rem;
+  border: 1px solid var(--color-fd-border);
+  background: var(--color-fd-background);
+  color: var(--color-fd-muted-foreground);
+  cursor: pointer;
+  transition:
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+.kp-walk-play:hover {
+  color: var(--kp-accent-text);
+  border-color: var(--kp-accent-border);
+}
+
+/* Progress bar — fills over one step's interval. */
+.kp-walk-progress {
+  height: 2px;
+  background: color-mix(in oklab, var(--color-fd-foreground) 9%, transparent);
+}
+.kp-walk-progress-fill {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  background: var(--kp-accent);
+  animation: kp-walk-fill linear forwards;
+}
+.kp-walk-progress[data-playing="false"] .kp-walk-progress-fill {
+  /* parked — show a faint baseline rather than a frozen full bar */
+  animation: none;
+  transform: scaleX(0);
+  background: color-mix(in oklab, var(--kp-accent) 35%, transparent);
+}
+@keyframes kp-walk-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Stage — boards are grid-stacked and crossfaded. */
+.kp-walk-stage {
+  position: relative;
+  display: grid;
+  background:
+    radial-gradient(
+      120% 120% at 0% 0%,
+      color-mix(in oklab, var(--kp-accent) 4%, transparent),
+      transparent 60%
+    ),
+    var(--color-fd-background);
+}
+.kp-walk-pane {
+  grid-area: 1 / 1;
+  min-width: 0;
+  opacity: 0;
+  transform: scale(0.992);
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease;
+  pointer-events: none;
+}
+.kp-walk-pane[data-active="true"] {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* Caption — crossfaded under the board, grid-stacked so there's no layout shift. */
+.kp-walk-caption-wrap {
+  display: grid;
+  padding: 0.7rem 1rem;
+  border-top: 1px solid var(--color-fd-border);
+  min-height: 2.6rem;
+}
+.kp-walk-caption {
+  grid-area: 1 / 1;
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--color-fd-muted-foreground);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.kp-walk-caption[data-active="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Footer — prev/next + step tabs. */
+.kp-walk-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  border-top: 1px solid var(--color-fd-border);
+}
+.kp-walk-nav {
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid var(--color-fd-border);
+  background: var(--color-fd-background);
+  color: var(--color-fd-muted-foreground);
+  cursor: pointer;
+  transition:
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+.kp-walk-nav:hover {
+  color: var(--kp-accent-text);
+  border-color: var(--kp-accent-border);
+}
+.kp-walk-tabs {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem;
+}
+.kp-walk-tab {
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--color-fd-muted-foreground);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.kp-walk-tab:hover {
+  color: var(--color-fd-foreground);
+  background: color-mix(in oklab, var(--color-fd-muted-foreground) 10%, transparent);
+}
+.kp-walk-tab[data-active="true"] {
+  color: var(--kp-accent-ink);
+  background: var(--kp-accent);
+  border-color: var(--kp-accent);
+}
