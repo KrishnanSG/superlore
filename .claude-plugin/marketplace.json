@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "superlore",
+  "owner": {
+    "name": "superlore",
+    "url": "https://github.com/KrishnanSG/superlore"
+  },
+  "description": "The superlore knowledge-base toolkit for Claude — scaffold, author, deploy, and connect a superlore KB.",
+  "plugins": [
+    {
+      "name": "superlore",
+      "source": "./skills",
+      "description": "Scaffold, author, deploy, and connect a superlore knowledge base. Say \"Make me a docs using superlore\" to start.",
+      "category": "Documentation",
+      "keywords": ["superlore", "knowledge-base", "docs", "mdx", "mcp", "agent"]
+    }
+  ]
+}
