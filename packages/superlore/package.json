@@ -1,6 +1,6 @@
 {
   "name": "superlore",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The agent-native knowledge base — dual-representation components, theme, MCP, and auth. One corpus. Humans and agents.",
   "license": "Apache-2.0",
   "author": "Krishnan S G",
@@ -51,6 +51,22 @@
       "types": "./src/knowledge/frontmatter.ts",
       "import": "./src/knowledge/frontmatter.ts"
     },
+    "./ui": {
+      "types": "./src/ui.tsx",
+      "import": "./src/ui.tsx"
+    },
+    "./source": {
+      "types": "./src/source.ts",
+      "import": "./src/source.ts"
+    },
+    "./config": {
+      "types": "./src/config.ts",
+      "import": "./src/config.ts"
+    },
+    "./next": {
+      "types": "./src/next.ts",
+      "import": "./src/next.ts"
+    },
     "./css": "./src/theme/superlore.css"
   },
   "publishConfig": {
@@ -71,6 +87,22 @@
       "./frontmatter": {
         "types": "./dist/frontmatter.d.ts",
         "import": "./dist/frontmatter.js"
+      },
+      "./ui": {
+        "types": "./dist/ui.d.ts",
+        "import": "./dist/ui.js"
+      },
+      "./source": {
+        "types": "./dist/source.d.ts",
+        "import": "./dist/source.js"
+      },
+      "./config": {
+        "types": "./dist/config.d.ts",
+        "import": "./dist/config.js"
+      },
+      "./next": {
+        "types": "./dist/next.d.ts",
+        "import": "./dist/next.js"
       },
       "./css": "./dist/css/superlore.css"
     }
@@ -96,6 +128,7 @@
     "@modelcontextprotocol/sdk": "^1",
     "fumadocs-core": "^16",
     "fumadocs-ui": "^16",
+    "fumadocs-mdx": "^14",
     "mermaid": "^11",
     "next": "^16",
     "next-auth": "^5",
@@ -106,6 +139,9 @@
   },
   "peerDependenciesMeta": {
     "@modelcontextprotocol/sdk": {
+      "optional": true
+    },
+    "fumadocs-mdx": {
       "optional": true
     },
     "mermaid": {
@@ -134,6 +170,7 @@
     "esbuild-plugin-preserve-directives": "^0.0.11",
     "fumadocs-core": "16.8.2",
     "fumadocs-ui": "16.8.2",
+    "fumadocs-mdx": "^14.3.1",
     "jsdom": "^29.1.1",
     "mermaid": "^11.15.0",
     "next": "16.2.4",

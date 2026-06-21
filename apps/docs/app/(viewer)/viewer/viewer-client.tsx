@@ -7,7 +7,7 @@ import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import rehypeSlug from "rehype-slug";
-import { DocsBody } from "fumadocs-ui/page";
+import { DocsBody } from "superlore/ui";
 import { getMDXComponents, cn } from "superlore";
 import { AlertTriangle, Code2, Download, Eye, FileText, Upload } from "lucide-react";
 import { remarkSuperloreCanvas } from "@/lib/remark-superlore-canvas.mjs";

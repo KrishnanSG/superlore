@@ -54,7 +54,10 @@ export function TopBar() {
             <span className="hidden sm:inline">Star on GitHub</span>
           </a>
           <ThemeToggle />
-          <Link href="/docs/getting-started" className="kp-btn kp-btn-primary h-9 px-3.5 text-sm">
+          <Link
+            href="/docs/getting-started"
+            className="kp-btn kp-btn-primary h-8 px-3 text-[13px] font-medium"
+          >
             Get started
           </Link>
         </nav>

@@ -1,4 +1,4 @@
-import { RootProvider } from "fumadocs-ui/provider/next";
+import { RootProvider } from "superlore/ui";
 import "./global.css";
 import { Inter, JetBrains_Mono, Caveat } from "next/font/google";
 import type { Metadata } from "next";

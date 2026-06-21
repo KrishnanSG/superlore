@@ -132,7 +132,7 @@ you'd rather not use the plugin, set it up manually.
     In `source.config.ts`, base your page schema on superlore's — it carries Fumadocs' defaults plus
     the knowledge-envelope fields (`summary`, `tags`). Add your own fields with `.extend({...})`:
     ```ts
-    import { defineDocs } from "fumadocs-mdx/config";
+    import { defineDocs } from "superlore/config";
     import { superloreFrontmatterSchema } from "superlore/frontmatter";
 
     export const docs = defineDocs({

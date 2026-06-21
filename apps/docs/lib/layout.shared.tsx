@@ -1,5 +1,5 @@
-import type { BaseLayoutProps, LinkItemType, LayoutTab } from "fumadocs-ui/layouts/shared";
-import type * as PageTree from "fumadocs-core/page-tree";
+import type { BaseLayoutProps, LinkItemType, LayoutTab } from "superlore/ui";
+import type { PageTree } from "superlore/source";
 import { DynamicIcon, type IconName } from "lucide-react/dynamic";
 import { superlore } from "@/superlore.config";
 import { source } from "@/lib/source";

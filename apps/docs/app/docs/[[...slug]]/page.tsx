@@ -1,8 +1,8 @@
 import { source } from "@/lib/source";
-import { DocsBody, DocsPage } from "fumadocs-ui/page";
+import { DocsBody, DocsPage } from "superlore/ui";
 import { notFound } from "next/navigation";
 import { getMDXComponents, PageHero, BuiltWithSuperlore } from "superlore";
-import { createRelativeLink } from "fumadocs-ui/mdx";
+import { createRelativeLink } from "superlore/ui";
 import { superlore } from "@/superlore.config";
 import type { Metadata } from "next";
 
