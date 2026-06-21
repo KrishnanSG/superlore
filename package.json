@@ -1,0 +1,73 @@
+{
+  "name": "superlore-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The company knowledge base your agents run on. Author rich, structured docs once — canvases, boards, timelines — and every agent reads the same corpus over MCP.",
+  "license": "Apache-2.0",
+  "author": "Krishnan S G",
+  "homepage": "https://github.com/KrishnanSG/superlore#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KrishnanSG/superlore.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KrishnanSG/superlore/issues"
+  },
+  "keywords": [
+    "superlore",
+    "documentation",
+    "knowledge-base",
+    "wiki",
+    "mdx",
+    "fumadocs",
+    "mcp",
+    "agent",
+    "nextjs"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.13.1",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,css,md,mdx,json,mjs,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,css,md,mdx,json,mjs,yaml,yml}\"",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build --filter=superlore && changeset publish",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,md,mdx,json,mjs,yaml,yml}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.0",
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
+    "playwright": "^1.61.0",
+    "prettier": "^3.8.4",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "turbo": "^2.9.18",
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.61.1"
+  }
+}

@@ -1,0 +1,14 @@
+node_modules
+dist
+.next
+out
+.turbo
+coverage
+storybook-static
+pnpm-lock.yaml
+*.tsbuildinfo
+.source
+.changeset/*.md
+
+# The VS Code extension is a self-contained sub-project with its own build/typecheck.
+extensions

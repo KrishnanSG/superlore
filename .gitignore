@@ -1,0 +1,39 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+out/
+.next/
+.turbo/
+build/
+*.tsbuildinfo
+
+# generated
+.source/
+next-env.d.ts
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# deploy
+.vercel/
+
+# test / coverage
+coverage/
+playwright-report/
+test-results/
+
+# editor / os
+.DS_Store
+*.log
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.vercel
+
+# Private strategy / research / planning — never published
+internal/

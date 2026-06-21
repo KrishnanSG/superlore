@@ -1,0 +1,36 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+
+# id-token: write enables npm Trusted Publishing (OIDC) — no NPM_TOKEN, auto-provenance.
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run build --filter=superlore
+      # Opens/updates a "Version Packages" PR; on merge, publishes accumulated changesets.
+      - uses: changesets/action@v1
+        with:
+          publish: pnpm changeset publish
+          version: pnpm changeset version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

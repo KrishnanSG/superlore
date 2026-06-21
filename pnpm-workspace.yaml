@@ -1,0 +1,14 @@
+packages:
+  - "packages/*"
+  - "templates/*"
+  - "apps/*"
+  - "extensions/*"
+
+# pnpm 10 blocks postinstall build scripts by default. These native deps must build (download
+# their platform binary) or the toolchain breaks: esbuild powers tsup; oxide is Tailwind v4's
+# native engine. The rest are allowed/ignored to keep installs quiet and non-interactive (CI).
+onlyBuiltDependencies:
+  - esbuild
+  - "@tailwindcss/oxide"
+  - sharp
+  - unrs-resolver
