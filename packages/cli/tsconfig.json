@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node", "vitest/globals"],
+    "lib": ["esnext"],
+    "outDir": "dist"
+  },
+  "include": ["src", "*.config.ts"],
+  "exclude": ["dist", "node_modules"]
+}

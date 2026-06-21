@@ -1,0 +1,12 @@
+superlore-cli
+Copyright 2026 Krishnan S G
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This package's distributed build bundles third-party components, which retain
+their own licenses:
+
+  - cac — MIT
+  - @clack/prompts — MIT
+
+Each component's full license text is available from its respective repository.
