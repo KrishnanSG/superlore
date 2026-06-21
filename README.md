@@ -25,7 +25,7 @@ can read over **MCP**.
 <br />
 <br />
 
-<img src="https://raw.githubusercontent.com/KrishnanSG/superlore/main/.github/assets/hero.png" alt="superlore — one .mdx source rendering as a live Canvas, Timeline, Board, and EntityCard" width="100%" />
+<img src="https://superlore.vercel.app/hero.png" alt="superlore — one .mdx source rendering as a live Canvas, Timeline, Board, and EntityCard" width="100%" />
 
 </div>
 
@@ -118,7 +118,7 @@ whiteboard. No colours, sizes, or positions to pick. Drag nodes, drop stickies, 
 to round-trip your edits back to JSON.
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/KrishnanSG/superlore/main/.github/assets/dual-representation.png" alt="The same superlore-canvas block forking into a rendered board for humans and a typed node/edge graph for agents" width="100%" />
+  <img src="https://superlore.vercel.app/dual-representation.png" alt="A superlore canvas rendered as a polished, interactive architecture whiteboard — the human surface of one authored block" width="100%" />
 </div>
 
 **Face 2 — the agent surface.** The exact same block is a typed graph the MCP serves. An agent
