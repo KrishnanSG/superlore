@@ -1,0 +1,17 @@
+# Source — only the built output ships in the .vsix.
+.vscode/**
+src/**
+webview/**
+node_modules/**
+vite.config.ts
+tsconfig.json
+**/tsconfig.json
+**/*.map
+.gitignore
+verify/**
+scratch/**
+
+# Keep: dist/** (extension.js + webview/), README.md, package.json, LICENSE
+!dist/**
+!README.md
+!package.json

@@ -1,0 +1,5 @@
+dist/
+*.vsix
+node_modules/
+verify/*.png
+webview/superlore-scan/

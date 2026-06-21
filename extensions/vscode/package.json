@@ -1,0 +1,85 @@
+{
+  "name": "superlore-preview",
+  "displayName": "superlore Preview",
+  "version": "0.1.5",
+  "description": "Live preview for superlore .mdx files — renders every superlore component (Canvas/whiteboard, Timeline, Board, …) the way Markdown Preview renders Markdown.",
+  "license": "Apache-2.0",
+  "author": "Krishnan S G",
+  "private": true,
+  "publisher": "superlore",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KrishnanSG/superlore.git",
+    "directory": "extensions/vscode"
+  },
+  "type": "module",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": ["Visualization", "Other"],
+  "keywords": ["superlore", "mdx", "preview", "whiteboard", "canvas"],
+  "main": "./dist/extension.cjs",
+  "activationEvents": [
+    "onLanguage:mdx",
+    "onLanguage:markdown"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "superlore.openPreview",
+        "title": "superlore: Open Preview",
+        "category": "superlore",
+        "icon": "$(open-preview)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "superlore.openPreview",
+          "when": "resourceExtname == .mdx || resourceExtname == .superlore || resourceFilename =~ /\\.superlore\\.mdx$/",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "superlore.openPreview",
+          "when": "resourceExtname == .mdx || resourceExtname == .superlore || resourceFilename =~ /\\.superlore\\.mdx$/ || editorLangId == mdx"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "pnpm run build:webview && pnpm run build:extension",
+    "build:webview": "node scripts/sync-superlore-src.mjs && vite build",
+    "build:extension": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=dist/extension.cjs",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p webview/tsconfig.json",
+    "watch:extension": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=dist/extension.cjs --watch",
+    "package": "pnpm run build && npx @vscode/vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@fontsource/caveat": "^5.2.5",
+    "@fontsource/inter": "^5.2.5",
+    "@fontsource/jetbrains-mono": "^5.2.5",
+    "@mdx-js/mdx": "^3.1.1",
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/vscode": "^1.90.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "esbuild": "^0.25.0",
+    "fumadocs-core": "16.8.2",
+    "fumadocs-ui": "16.8.2",
+    "superlore": "workspace:*",
+    "next-themes": "^0.4.6",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "rehype-slug": "^6.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-mdx-frontmatter": "^5.2.0",
+    "tailwindcss": "^4.2.2",
+    "typescript": "6.0.3",
+    "vite": "^6.0.0"
+  }
+}

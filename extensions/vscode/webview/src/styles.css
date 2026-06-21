@@ -1,0 +1,645 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+@import "superlore/css";
+@import "@xyflow/react/dist/style.css";
+
+/* superlore Preview webview styles. Mirrors apps/docs/app/global.css: Tailwind v4 + the Fumadocs
+   presets + the superlore theme tokens + React Flow's base styles. `@tailwindcss/vite` only scans
+   `@source` paths INSIDE the Vite root, so the build first copies the superlore package source into
+   `webview/superlore-scan` (see scripts/sync-superlore-src.mjs) and we scan that — so every superlore
+   utility (the canvas INTENT_CLASS color-mix fills, radiusClass, …) is generated here. */
+@source "../superlore-scan";
+@source "../";
+@source "../../node_modules/fumadocs-ui/dist";
+
+/* Bundled fonts (loaded via @fontsource in main.tsx) wired to the tokens the superlore theme reads.
+   Set via @theme so they ARE the Tailwind tokens the `font-mono` utility and `var(--font-mono)`
+   both resolve to (a plain :root rule loses to Tailwind's built-in --font-mono default). Mirrors
+   apps/docs/app/layout.tsx (Inter / JetBrains Mono / Caveat). */
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-hand: "Caveat", ui-rounded, "Segoe Print", cursive;
+}
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: var(--color-fd-background);
+  color: var(--color-fd-foreground);
+}
+#root {
+  min-height: 100%;
+}
+
+/* ── Document shell ──────────────────────────────────────────────────────── */
+.kp-ext-doc-wrap {
+  position: relative;
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.75rem 4rem;
+}
+.kp-ext-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.6rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--color-fd-border);
+}
+.kp-ext-toolbar-spacer {
+  flex: 1 1 auto;
+}
+.kp-ext-filename {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-fd-muted-foreground);
+}
+.kp-ext-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--color-fd-border);
+  background: var(--color-fd-card);
+  color: var(--color-fd-muted-foreground);
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.kp-ext-tool-btn:hover {
+  border-color: var(--kp-accent-border);
+  color: var(--color-fd-foreground);
+}
+.kp-ext-tool-btn-on {
+  border-color: var(--kp-accent);
+  background: var(--kp-accent);
+  color: var(--kp-accent-ink);
+}
+.kp-ext-tool-btn-on:hover {
+  color: var(--kp-accent-ink);
+}
+.kp-ext-kbd {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  line-height: 1;
+  padding: 0.15rem 0.3rem;
+  border-radius: 0.25rem;
+  border: 1px solid currentColor;
+  opacity: 0.55;
+}
+.kp-ext-tool-badge {
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--kp-accent);
+  color: var(--kp-accent-ink);
+  font-size: 0.66rem;
+  font-weight: 700;
+  display: inline-grid;
+  place-items: center;
+}
+.kp-ext-tool-btn-on .kp-ext-tool-badge {
+  background: var(--kp-accent-ink);
+  color: var(--kp-accent);
+}
+.kp-ext-title {
+  font-size: 0.75rem;
+  color: var(--kp-text-3);
+}
+.kp-ext-empty {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+  color: var(--color-fd-muted-foreground);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* ── Compile / render error surfaces ─────────────────────────────────────── */
+.kp-ext-error {
+  margin-bottom: 1rem;
+  border: 1px solid color-mix(in oklab, var(--kp-danger) 45%, var(--color-fd-border));
+  background: color-mix(in oklab, var(--kp-danger) 9%, var(--color-fd-card));
+  border-radius: 0.5rem;
+  padding: 0.75rem 0.9rem;
+}
+.kp-ext-error-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-fd-foreground);
+}
+.kp-ext-error-body {
+  margin: 0;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  white-space: pre-wrap;
+  color: var(--color-fd-muted-foreground);
+}
+.kp-ext-retry {
+  margin-top: 0.6rem;
+  font-size: 0.75rem;
+  border: 1px solid var(--color-fd-border);
+  background: var(--color-fd-card);
+  color: var(--color-fd-foreground);
+  border-radius: 0.4rem;
+  padding: 0.25rem 0.7rem;
+  cursor: pointer;
+}
+.kp-ext-retry:hover {
+  border-color: var(--kp-accent-border);
+}
+
+/* The body must never scroll horizontally; wide blocks scroll inside themselves. */
+.kp-viewer-doc {
+  max-width: 100%;
+}
+.kp-viewer-doc pre {
+  overflow-x: auto;
+}
+
+/* ══ Comments — FigJam-style pins, popovers, rail ════════════════════════════ */
+
+/* Click-catcher shown in comment mode — covers the whole doc, crosshair cursor. */
+.kp-cmt-catcher {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  cursor: crosshair;
+  background: color-mix(in oklab, var(--kp-accent) 4%, transparent);
+}
+
+/* Overlay that hosts the pins; transparent to pointer events except the pins themselves. */
+.kp-cmt-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 41;
+  pointer-events: none;
+}
+.kp-cmt-pin-wrap {
+  position: absolute;
+  pointer-events: auto;
+}
+
+/* The pin: an avatar in a FigJam teardrop (sharp bottom-left corner = the anchor tip). */
+.kp-cmt-pin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translateY(-100%);
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  background: var(--color-fd-card);
+  border-radius: 999px 999px 999px 4px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.18),
+    0 4px 12px -2px rgba(0, 0, 0, 0.22),
+    0 0 0 1px color-mix(in oklab, var(--color-fd-border) 70%, transparent);
+  cursor: pointer;
+  transition:
+    transform 0.12s cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 0.12s ease;
+}
+.kp-cmt-pin:hover {
+  transform: translateY(-100%) scale(1.08);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 8px 20px -4px rgba(0, 0, 0, 0.28);
+}
+.kp-cmt-pin-sel {
+  box-shadow:
+    0 4px 12px -2px rgba(0, 0, 0, 0.3),
+    0 0 0 2px var(--kp-accent);
+}
+.kp-cmt-pin-done {
+  opacity: 0.45;
+}
+.kp-cmt-pin-new {
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--kp-accent) 55%, transparent);
+}
+
+/* Popover — shadcn card: soft border, layered shadow, generous radius. */
+.kp-cmt-popover {
+  position: absolute;
+  left: 2rem;
+  top: -0.5rem;
+  z-index: 50;
+  width: 18.5rem;
+  background: var(--color-fd-popover, var(--color-fd-card));
+  border: 1px solid var(--color-fd-border);
+  border-radius: 0.85rem;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 12px 28px -8px rgba(0, 0, 0, 0.28),
+    0 2px 6px -2px rgba(0, 0, 0, 0.12);
+  padding: 0.85rem;
+  animation: kp-cmt-pop 0.13s cubic-bezier(0.2, 0, 0, 1);
+}
+@keyframes kp-cmt-pop {
+  from {
+    opacity: 0;
+    transform: translateY(2px) scale(0.985);
+  }
+}
+.kp-cmt-popover-hover {
+  pointer-events: none;
+  width: 17rem;
+}
+
+/* The "on node X · line N" context line on a new comment — a calm badge, not mono noise. */
+.kp-cmt-place-ctx {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
+  margin-bottom: 0.6rem;
+  padding: 0.2rem 0.5rem 0.2rem 0.45rem;
+  border: 1px solid var(--kp-accent-border);
+  border-radius: 999px;
+  background: var(--kp-accent-weak, color-mix(in oklab, var(--kp-accent) 10%, var(--color-fd-card)));
+  color: var(--kp-accent-text);
+  font-size: 0.68rem;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kp-cmt-place-ctx::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  background: var(--kp-accent);
+  flex-shrink: 0;
+}
+
+/* Thread head: avatar + author + time + actions. */
+.kp-cmt-head {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.kp-cmt-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.kp-cmt-author {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-fd-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kp-cmt-time {
+  font-size: 0.6875rem;
+  color: var(--color-fd-muted-foreground);
+  white-space: nowrap;
+}
+.kp-cmt-actions {
+  display: flex;
+  gap: 0.15rem;
+  margin-right: -0.25rem;
+}
+/* shadcn ghost icon button */
+.kp-cmt-ic {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: transparent;
+  color: var(--color-fd-muted-foreground);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+.kp-cmt-ic:hover {
+  background: color-mix(in oklab, var(--color-fd-muted-foreground) 12%, transparent);
+  color: var(--color-fd-foreground);
+}
+.kp-cmt-ic-on {
+  color: #16a34a;
+  background: color-mix(in oklab, #16a34a 12%, transparent);
+}
+.dark .kp-cmt-ic-on {
+  color: #4ade80;
+}
+.kp-cmt-body {
+  margin: 0.45rem 0 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--color-fd-foreground);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Replies — an indented thread with a connector rail, so they're unmistakably visible. */
+.kp-cmt-replies {
+  margin-top: 0.7rem;
+  padding-left: 0.7rem;
+  border-left: 2px solid var(--color-fd-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.kp-cmt-reply {
+  display: flex;
+  gap: 0.5rem;
+}
+.kp-cmt-reply-main {
+  min-width: 0;
+}
+.kp-cmt-reply .kp-cmt-body {
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+}
+.kp-cmt-reply-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
+  padding: 0.3rem 0.55rem 0.3rem 0.45rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-fd-muted-foreground);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+.kp-cmt-reply-btn:hover {
+  background: color-mix(in oklab, var(--color-fd-muted-foreground) 12%, transparent);
+  color: var(--color-fd-foreground);
+}
+
+/* Composer. */
+.kp-cmt-composer {
+  margin-top: 0.55rem;
+}
+.kp-cmt-composer textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 0.6rem;
+  background: var(--color-fd-background);
+  color: var(--color-fd-foreground);
+  font: inherit;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  padding: 0.55rem 0.65rem;
+  outline: none;
+  transition:
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+.kp-cmt-composer textarea::placeholder {
+  color: var(--color-fd-muted-foreground);
+}
+.kp-cmt-composer textarea:focus {
+  border-color: var(--kp-accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--kp-accent) 28%, transparent);
+}
+.kp-cmt-composer-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+.kp-cmt-hint {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--color-fd-muted-foreground);
+}
+.kp-cmt-hint kbd {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  line-height: 1;
+  padding: 0.18rem 0.32rem;
+  border-radius: 0.3rem;
+  border: 1px solid var(--color-fd-border);
+  background: var(--color-fd-muted);
+  color: var(--color-fd-muted-foreground);
+}
+/* shadcn primary + ghost buttons */
+.kp-cmt-btn {
+  height: 1.85rem;
+  padding: 0 0.8rem;
+  border: none;
+  background: var(--kp-accent);
+  color: var(--kp-accent-ink);
+  border-radius: 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    opacity 0.12s ease;
+}
+.kp-cmt-btn:hover {
+  background: var(--kp-accent-hover);
+}
+.kp-cmt-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.kp-cmt-btn-ghost {
+  height: 1.85rem;
+  padding: 0 0.7rem;
+  border: none;
+  background: transparent;
+  color: var(--color-fd-muted-foreground);
+  border-radius: 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+.kp-cmt-btn-ghost:hover {
+  background: color-mix(in oklab, var(--color-fd-muted-foreground) 12%, transparent);
+  color: var(--color-fd-foreground);
+}
+
+/* When the rail is open, reserve its width so the document reflows beside it (no overlap). On a
+   narrow webview there isn't room to split, so the rail overlays instead. */
+body {
+  transition: padding-right 0.18s ease;
+}
+@media (min-width: 880px) {
+  body.kp-rail-open {
+    padding-right: 21rem;
+  }
+}
+
+/* The rail — a right drawer. */
+.kp-cmt-rail {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  width: 21rem;
+  max-width: 92vw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.8rem;
+  background: var(--color-fd-card);
+  border-left: 1px solid var(--color-fd-border);
+  box-shadow: -12px 0 30px rgba(0, 0, 0, 0.16);
+}
+.kp-cmt-rail-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.kp-cmt-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 0.5rem;
+  background: var(--color-fd-background);
+  color: var(--color-fd-foreground);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.6rem;
+  outline: none;
+}
+.kp-cmt-search:focus {
+  border-color: var(--kp-accent-border);
+}
+.kp-cmt-copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  border: 1px solid var(--kp-accent-border);
+  background: var(--kp-accent-weak, color-mix(in oklab, var(--kp-accent) 12%, var(--color-fd-card)));
+  color: var(--kp-accent-text);
+  border-radius: 0.5rem;
+  padding: 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.kp-cmt-copy:hover:not(:disabled) {
+  background: var(--kp-accent);
+  color: var(--kp-accent-ink);
+  border-color: var(--kp-accent);
+}
+.kp-cmt-copy:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.kp-cmt-copy-n {
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--kp-accent);
+  color: var(--kp-accent-ink);
+  font-size: 0.66rem;
+  font-weight: 700;
+  display: inline-grid;
+  place-items: center;
+}
+.kp-cmt-rail-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding-top: 0.2rem;
+}
+.kp-cmt-empty {
+  display: flex;
+  gap: 0.55rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-fd-muted-foreground);
+  padding: 0.5rem 0.3rem;
+}
+.kp-cmt-empty kbd {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.05rem 0.3rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--color-fd-border);
+  background: var(--color-fd-background);
+}
+.kp-cmt-card {
+  text-align: left;
+  border: 1px solid var(--color-fd-border);
+  background: var(--color-fd-background);
+  border-radius: 0.6rem;
+  padding: 0.6rem 0.65rem;
+  cursor: pointer;
+  transition: border-color 0.1s ease;
+}
+.kp-cmt-card:hover {
+  border-color: var(--kp-accent-border);
+}
+.kp-cmt-card-sel {
+  border-color: var(--kp-accent);
+  box-shadow: 0 0 0 1px var(--kp-accent);
+}
+.kp-cmt-card-done {
+  opacity: 0.6;
+}
+.kp-cmt-card-top {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+.kp-cmt-seq {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--kp-accent-text);
+}
+.kp-cmt-card-ctx {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.7rem;
+  color: var(--color-fd-muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kp-cmt-replies-n {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.68rem;
+  color: var(--color-fd-muted-foreground);
+}
