@@ -194,15 +194,18 @@ export function KeyFacts({ items }: { items: { label: string; value: React.React
 
 export function SectionHead({
   eyebrow,
+  number,
   title,
   description,
 }: {
   eyebrow?: string;
+  /** An optional sequence marker (e.g. `"01"`) shown to the left — for genuinely ordered sections. */
+  number?: string | number;
   title: React.ReactNode;
   description?: React.ReactNode;
 }) {
-  return (
-    <div className="not-prose my-8 first:mt-0">
+  const body = (
+    <div className="min-w-0 flex-1">
       {eyebrow && (
         <div className="mb-1 text-xs font-bold tracking-[0.12em] text-kp-accent-text uppercase">
           {eyebrow}
@@ -210,6 +213,20 @@ export function SectionHead({
       )}
       <h2 className="text-2xl font-semibold tracking-tight text-fd-foreground">{title}</h2>
       {description && <p className="mt-1 text-fd-muted-foreground">{description}</p>}
+    </div>
+  );
+  return (
+    <div className="not-prose my-8 first:mt-0">
+      {number != null ? (
+        <div className="flex items-baseline gap-3.5">
+          <span className="font-mono text-sm font-semibold text-kp-accent-text tabular-nums">
+            {number}
+          </span>
+          {body}
+        </div>
+      ) : (
+        body
+      )}
     </div>
   );
 }

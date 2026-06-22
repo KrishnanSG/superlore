@@ -1,0 +1,156 @@
+---
+title: Preview
+icon: AppWindow
+description: A UI mockup as a dual-representation component — a styled browser/app window for humans, the interface as structured data for agents.
+summary: Preview renders a browser/app mockup (chrome, tabs, sidebar) and serializes to an interface knowledge node so an agent reads the nav as data, never a picture. Skeleton and Menu ship alongside as presentational primitives.
+tags: [components, ui-mockups, dual-representation, preview, interface]
+---
+
+`Preview` draws an interface — a browser or app window with a product topbar, tabs, and a contextual
+sidebar — wrapping live content. The human sees a clean mockup; the agent gets
+`{ kind:"interface", url, tabs, sidebar, content }` — the nav as **data**, never a screenshot to
+interpret. So "what tabs does the docs site have?" becomes a query, not OCR.
+
+It ships with two presentational building blocks for the content area: `Skeleton` (faux text lines)
+and `Menu` (a dropdown / command-menu mock).
+
+## The two faces
+
+The same authored block renders for a human and serializes for an agent.
+
+<Example
+  code={`<Preview
+  url="acme.dev/docs/canvas"
+  brand="Acme KB"
+  search
+  title="The whiteboard, in MDX"
+  tabs={[
+    { label: "Guide" },
+    { label: "Canvas", active: true },
+    { label: "Agents & MCP" },
+    { label: "API Reference" },
+  ]}
+  sidebar={[
+    { group: "Canvas", items: [
+      { label: "Overview", active: true },
+      { label: "Gallery" },
+      { label: "Templates" },
+    ] },
+    { group: "Region model", items: [
+      { label: "Region model", children: [{ label: "Concepts" }, { label: "Live demo" }] },
+    ] },
+    { group: "Reference", items: [{ label: "Components", collapsed: true }] },
+  ]}
+>
+  <Skeleton lines={3} />
+</Preview>`}
+>
+  <Preview
+    url="acme.dev/docs/canvas"
+    brand="Acme KB"
+    search
+    title="The whiteboard, in MDX"
+    tabs={[
+      { label: "Guide" },
+      { label: "Canvas", active: true },
+      { label: "Agents & MCP" },
+      { label: "API Reference" },
+    ]}
+    sidebar={[
+      {
+        group: "Canvas",
+        items: [
+          { label: "Overview", active: true },
+          { label: "Gallery" },
+          { label: "Templates" },
+        ],
+      },
+      {
+        group: "Region model",
+        items: [
+          { label: "Region model", children: [{ label: "Concepts" }, { label: "Live demo" }] },
+        ],
+      },
+      { group: "Reference", items: [{ label: "Components", collapsed: true }] },
+    ]}
+  >
+    <Skeleton lines={3} />
+  </Preview>
+</Example>
+
+### What the agent reads
+
+Over the MCP, `get_component_data` returns the interface as structure — no markup, no pixels:
+
+```json
+{
+  "kind": "interface",
+  "id": "the-whiteboard-in-mdx",
+  "title": "The whiteboard, in MDX",
+  "chrome": "app",
+  "url": "acme.dev/docs/canvas",
+  "tabs": [
+    { "label": "Guide" },
+    { "label": "Canvas", "active": true },
+    { "label": "Agents & MCP" },
+    { "label": "API Reference" }
+  ],
+  "sidebar": [
+    { "group": "Canvas", "items": [
+      { "label": "Overview", "active": true }, { "label": "Gallery" }, { "label": "Templates" }
+    ] },
+    { "group": "Region model", "items": [
+      { "label": "Region model", "children": [{ "label": "Concepts" }, { "label": "Live demo" }] }
+    ] },
+    { "group": "Reference", "items": [{ "label": "Components", "collapsed": true }] }
+  ]
+}
+```
+
+## Skeleton
+
+Faux content lines for a mockup's body. Presentational and decorative — no knowledge face.
+
+<Example code={`<Skeleton lines={4} />`}>
+  <Skeleton lines={4} />
+</Example>
+
+## Menu
+
+A dropdown / command-menu mock — items with a label, an optional sub-label, and a shortcut hint.
+Presentational.
+
+<Example
+  code={`<Menu
+  label="Get started — copy a prompt"
+  items={[
+    { label: "Copy for Claude", hint: "claude.ai / Claude Code", shortcut: "⌘C", active: true },
+    { label: "Copy for Codex", hint: "OpenAI", shortcut: "↵" },
+    { label: "Copy raw prompt", hint: "any agent", shortcut: "↵" },
+  ]}
+/>`}
+>
+  <Menu
+    label="Get started — copy a prompt"
+    items={[
+      { label: "Copy for Claude", hint: "claude.ai / Claude Code", shortcut: "⌘C", active: true },
+      { label: "Copy for Codex", hint: "OpenAI", shortcut: "↵" },
+      { label: "Copy raw prompt", hint: "any agent", shortcut: "↵" },
+    ]}
+  />
+</Example>
+
+## Props
+
+### Preview
+
+| Prop | Type | Notes |
+| --- | --- | --- |
+| `url` | `string` | Address shown in the window's URL pill. |
+| `title` | `string` | Page title at the top of the content area. |
+| `brand` | `string` | Brand name beside a mark in the topbar. |
+| `tabs` | `{ label, active? }[]` | Top-level tabs; set `active` on the current one. |
+| `sidebar` | `{ group?, items }[]` | Groups of nav items with `active` / `collapsed` / nested `children`. |
+| `search` | `boolean` | Show a faux ⌘K search pill. |
+| `actions` | `ReactNode` | Right-aligned topbar slot. |
+| `children` | `ReactNode` | Content area — drop in `Skeleton`, `Menu`, or real components. |

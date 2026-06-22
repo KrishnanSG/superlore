@@ -42,7 +42,8 @@ export type KKind =
   | "params"
   | "endpoint"
   | "process"
-  | "metric";
+  | "metric"
+  | "interface";
 
 /** Lifecycle status — one enum across Timeline, Board, Roadmap, Decision, Release… */
 export type Status =
@@ -382,6 +383,42 @@ export interface ChartNode extends KnowledgeNode {
   chart: "bar" | "line" | "area";
   series: { name: string; points: { x: KValue; y: number }[] }[];
   unit?: string;
+}
+
+export interface PreviewTab {
+  label: string;
+  active?: boolean;
+}
+
+export interface PreviewNavItem {
+  label: string;
+  active?: boolean;
+  collapsed?: boolean;
+  children?: PreviewNavItem[];
+}
+
+export interface PreviewNavGroup {
+  /** Optional uppercase group label in the sidebar. */
+  group?: string;
+  items: PreviewNavItem[];
+}
+
+/**
+ * A UI mockup — a browser/app interface preview (`Preview`). The human sees a styled window; the
+ * agent gets the interface as DATA: the URL, the tab bar, and the nav tree (groups → items, with
+ * active / collapsed / nested state) — never a picture to interpret. This is the dual-representation
+ * contract applied to "what the screen looks like": an agent can answer "what tabs does the docs
+ * site have?" without OCR.
+ */
+export interface InterfaceNode extends KnowledgeNode {
+  kind: "interface";
+  /** "app" once it carries product nav (tabs/sidebar/brand); "browser" for a bare window. */
+  chrome: "browser" | "app";
+  url?: string;
+  tabs?: PreviewTab[];
+  sidebar?: PreviewNavGroup[];
+  /** Plain-text gloss of the content shown inside the frame. */
+  content?: string;
 }
 
 /* --------------------------------------------------------------------- helpers ---- */

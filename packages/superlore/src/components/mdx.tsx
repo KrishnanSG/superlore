@@ -50,6 +50,7 @@ import { Comparison } from "./comparison";
 import { Roster } from "./roster";
 import { Checklist, Runbook } from "./checklist";
 import { Example } from "./example";
+import { Menu, Preview, Skeleton } from "./preview";
 
 /**
  * Every superlore block renders inside an {@link Isolate} error boundary, so one malformed block
@@ -131,6 +132,10 @@ const superloreComponents = {
   Runbook,
   // Docs helper — preview + view-code frame (presentational, no knowledge face)
   Example,
+  // UI mockups — Preview is dual-representation (kind:"interface"); Skeleton + Menu are presentational
+  Preview,
+  Skeleton,
+  Menu,
 } satisfies MDXComponents;
 
 /** The same map, each component wrapped in a render firewall. Built once at module load. */
