@@ -1,11 +1,13 @@
-/* ================================================================================
-   superlore/css — the superlore theme preset.
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
 
-   Consume it AFTER Tailwind + the Fumadocs presets:
+/* ================================================================================
+   superlore/css — the superlore theme preset. Bundles the base styles it builds on, so a
+   consumer imports one thing.
+
+   Consume it right after Tailwind — nothing else to import:
 
      @import "tailwindcss";
-     @import "fumadocs-ui/css/neutral.css";
-     @import "fumadocs-ui/css/preset.css";
      @import "superlore/css";
 
    Single accent — superlore Violet. Light and dark are CO-EQUAL: both fully specified from one
