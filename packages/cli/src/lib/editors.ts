@@ -14,13 +14,31 @@
  * {@link Runner}.
  */
 import { execFileSync } from "node:child_process";
-import { existsSync } from "node:fs";
-import { homedir } from "node:os";
+import { existsSync, writeFileSync } from "node:fs";
+import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import process from "node:process";
 
-/** The Marketplace id of the extension we install (publisher.name). */
+/** The id of the extension (publisher.name) — used for identity / manual install hints. */
 export const EXTENSION_ID = "superlore.superlore-preview";
+
+/**
+ * superlore isn't on the VS Code Marketplace by design — distribution is CLI/curl-driven. We host
+ * the packaged extension on the public docs site and install it from the `.vsix` directly, which
+ * VS Code, Cursor, and Windsurf all accept. (Hosted on the site, not a GitHub Release, because the
+ * repo is private pre-launch and release assets aren't publicly downloadable — revisit post-launch.)
+ */
+export const DEFAULT_VSIX_URL = "https://superlore.vercel.app/superlore-preview.vsix";
+
+/** Download the published `.vsix` to a temp file and return its path. Throws on a non-OK response. */
+export async function downloadVsix(url: string = DEFAULT_VSIX_URL): Promise<string> {
+  const res = await fetch(url, { redirect: "follow" });
+  if (!res.ok) throw new Error(`couldn't fetch the extension (${res.status} ${res.statusText})`);
+  const bytes = Buffer.from(await res.arrayBuffer());
+  const path = join(tmpdir(), "superlore-preview.vsix");
+  writeFileSync(path, bytes);
+  return path;
+}
 
 /** A VS Code-family editor superlore can install its extension into. */
 export interface Editor {
@@ -157,7 +175,8 @@ export function classifyInstallOutput(editor: DetectedEditor, output: string): I
 /**
  * Install the superlore extension into one detected editor via its CLI, returning a structured
  * result rather than throwing — the caller reports a per-editor line. `--force` makes a re-run a
- * clean upgrade. A VSIX path may be supplied (offline / pre-publish); otherwise the Marketplace id.
+ * clean upgrade. Installs from a `.vsix` path — `connect` resolves one (the downloaded release
+ * asset, or a local `--vsix`) and passes it here.
  */
 export function installInto(
   editor: DetectedEditor,

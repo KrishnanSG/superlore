@@ -1,9 +1,15 @@
-import { type InstallResult, detectEditors, EDITORS, installInto } from "../lib/editors.js";
+import {
+  type InstallResult,
+  detectEditors,
+  downloadVsix,
+  EDITORS,
+  installInto,
+} from "../lib/editors.js";
 import { accent, bold, cyan, dim, log } from "../lib/log.js";
 
 /** Flags for `superlore connect`. */
 export interface ConnectFlags {
-  /** Install from a local `.vsix` instead of the Marketplace (offline / pre-publish). */
+  /** Install from a local `.vsix` instead of downloading the published release asset. */
   vsix?: string;
   /** Don't fail the process if no editor is detected (used when folded into `init`). */
   optional?: boolean;
@@ -43,7 +49,20 @@ export async function connectCommand(flags: ConnectFlags = {}): Promise<void> {
   log.step(`Found ${labels}. Installing the superlore Preview extension…`);
   log.blank();
 
-  const results = detected.map((editor) => report(installInto(editor, { vsix: flags.vsix })));
+  // superlore isn't on the Marketplace — resolve a `.vsix` (a local --vsix, else download the
+  // published release asset once) and install that file into each detected editor.
+  let vsix: string;
+  try {
+    vsix = flags.vsix ?? (await downloadVsix());
+  } catch (error) {
+    log.error(
+      `Couldn't fetch the extension: ${error instanceof Error ? error.message : String(error)}`,
+    );
+    printManualInstall();
+    process.exit(flags.optional ? 0 : 1);
+  }
+
+  const results = detected.map((editor) => report(installInto(editor, { vsix })));
 
   log.blank();
   const failed = results.filter((r) => r.status === "failed");
@@ -78,7 +97,12 @@ function report(result: InstallResult): InstallResult {
 /** The fallback path when every editor CLI install failed. */
 function printManualInstall(): void {
   log.blank();
-  log.info(`${dim("Install it by hand from the Extensions view — search")} ${cyan('"superlore Preview"')}${dim(".")}`);
+  log.info(
+    `${dim("Install it by hand: download")} ${cyan("superlore.vercel.app/superlore-preview.vsix")}${dim(",")}`,
+  );
+  log.info(
+    `${dim("then run")} ${cyan('"Extensions: Install from VSIX…"')} ${dim("in your editor (or")} ${cyan("code --install-extension <file>.vsix")}${dim(").")}`,
+  );
 }
 
 /** Point at the next step of the get-started flow: connecting the MCP to the user's agent. */
