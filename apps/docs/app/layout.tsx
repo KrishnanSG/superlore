@@ -49,8 +49,8 @@ export default function Layout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-screen flex-col">
         {/* Optional brand accent from superlore.config — derives the family for light + dark. */}
         <ThemeStyle />
-        {/* Light and dark are co-equal; default to the reader's system preference. */}
-        <RootProvider theme={{ defaultTheme: "system", enableSystem: true }}>
+        {/* superlore's own docs default to dark; the toggle still offers light + system. */}
+        <RootProvider theme={{ defaultTheme: "dark", enableSystem: true }}>
           {children}
         </RootProvider>
       </body>

@@ -8,7 +8,7 @@
    nothing — the app scans the .tsx source itself. Either way the package "just works" on
    @import "superlore/css" alone. (Keep glob patterns out of this comment: a slash-star-slash
    sequence would close it early.) */
-@source "../**/*.js";
+@source "../**/*.{js,mjs}";
 
 /* ================================================================================
    superlore/css — the superlore theme preset. Bundles the base styles it builds on, so a

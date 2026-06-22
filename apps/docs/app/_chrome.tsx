@@ -56,7 +56,7 @@ export function TopBar() {
           <ThemeToggle />
           <Link
             href="/docs/getting-started"
-            className="kp-btn kp-btn-primary h-8 px-3 text-[13px] font-medium"
+            className="kp-btn kp-btn-primary kp-btn-sm font-medium"
           >
             Get started
           </Link>

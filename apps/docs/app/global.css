@@ -246,6 +246,14 @@ html:not(.dark) .kp-hero-aurora::before {
   border-color: var(--kp-accent-border);
   background: var(--color-fd-muted);
 }
+/* Compact size — for the top-bar CTA. Declared after .kp-btn so it wins the height/padding cascade
+   (the base .kp-btn sets a tall 2.875rem for the marketing CTAs; this trims it for the nav). */
+.kp-btn-sm {
+  height: 2rem;
+  padding: 0 0.85rem;
+  font-size: 0.8125rem;
+  border-radius: 0.5rem;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .kp-reveal {
