@@ -12,8 +12,12 @@
  * validator. Keep it that way.
  */
 
-/** The two kinds of superlore KB. Drives defaults (notably the auth warning for company KBs). */
-export type SuperloreType = "company-kb" | "product-docs";
+/**
+ * The kinds of superlore KB. Drives defaults — the auth warning for company KBs, and an
+ * auth-ON-by-default, MCP-ON private posture for a `personal-kb` (a digital replica of how one
+ * person thinks, works, and writes).
+ */
+export type SuperloreType = "company-kb" | "product-docs" | "personal-kb";
 
 /** Supported SSO providers. Only Google ships today (Auth.js v5 + Google SSO). */
 export type SuperloreAuthProvider = "google";
@@ -40,7 +44,7 @@ export interface SuperloreMcpConfig {
 export interface SuperloreJson {
   /** Human-facing KB name. */
   name: string;
-  /** Whether this is a private company KB or public product docs. */
+  /** Whether this is a private company KB, public product docs, or a private personal KB. */
   type: SuperloreType;
   /** Brand accent — any CSS colour. superlore derives the rest of the family (light + dark). */
   accent?: string;
@@ -57,7 +61,11 @@ export const DEFAULT_MCP_PATH = "/api/mcp";
 export const SUPERLORE_JSON_FILENAME = "superlore.json";
 
 /** Every valid {@link SuperloreType}, for prompts and validation. */
-export const SUPERLORE_TYPES: readonly SuperloreType[] = ["company-kb", "product-docs"];
+export const SUPERLORE_TYPES: readonly SuperloreType[] = [
+  "company-kb",
+  "product-docs",
+  "personal-kb",
+];
 
 /** A validation failure, with the dotted path to the offending field. */
 export interface SuperloreJsonIssue {

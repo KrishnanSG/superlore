@@ -24,7 +24,7 @@ import { banner, log } from "./lib/log.js";
 export * from "./config.js";
 
 /** The CLI version, kept in sync with package.json at build time. */
-export const VERSION = "0.2.0";
+export const VERSION = "0.3.0";
 
 /** Build the argument parser. Exported for tests; `run()` wires it to argv. */
 export function buildCli(argv: readonly string[] = process.argv) {
@@ -33,7 +33,7 @@ export function buildCli(argv: readonly string[] = process.argv) {
   cli
     .command("init [dir]", "Scaffold a new superlore knowledge base")
     .option("--name <name>", "KB name")
-    .option("--type <type>", "KB type: company-kb | product-docs")
+    .option("--type <type>", "KB type: company-kb | product-docs | personal-kb")
     .option("--auth", "Enable the Google SSO auth gate")
     .option("--no-auth", "Disable the auth gate")
     .option("--allowed-domain <domain>", "Restrict SSO to one email domain (implies --auth)")
@@ -44,6 +44,7 @@ export function buildCli(argv: readonly string[] = process.argv) {
     .option("-y, --yes", "Skip prompts; use flags + defaults")
     .example("superlore init my-kb --type product-docs")
     .example("superlore init acme --type company-kb --auth --allowed-domain acme.com")
+    .example("superlore init me --type personal-kb")
     .action(
       async (
         dir: string | undefined,
