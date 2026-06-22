@@ -1,75 +1,77 @@
+<div align="center">
+
 # superlore-cli
 
-The command-line interface for [superlore](https://superlore.vercel.app) — **the company knowledge
-base your agents run on.** Scaffold, run, and build an agent-native KB authored in MDX, where
-humans get a clean visual site and agents read the same content over **MCP**.
+**The command companion your agents drive to build a knowledge base.**
 
-> **One corpus. Humans and agents.**
+Scaffold the project, write the config, seed pages, wire the MCP, run the build — `superlore-cli`
+is the hands your agent uses to turn _"make me a docs site"_ into a real, MCP-native KB. You can
+drive it yourself, too.
 
-## Install
+_One corpus. Humans and agents._
 
-```bash
-# one-liner (detects pnpm / bun / npm)
-curl -fsSL https://superlore.vercel.app/install.sh | sh
+</div>
 
-# or with your package manager
-npm i -g superlore-cli
+---
+
+## Let your agent do it
+
+Install the superlore Claude plugin:
+
+```text
+/plugin marketplace add KrishnanSG/superlore
+/plugin install superlore@superlore
 ```
 
-Windows (PowerShell): `irm https://superlore.vercel.app/install.ps1 | iex`. Requires Node ≥ 20.
+Then just ask:
 
-## Quick start
-
-```bash
-superlore init my-kb     # scaffold a new KB (asks 2 questions, writes superlore.json, seeds pages)
-cd my-kb
-superlore dev            # local preview at http://localhost:3000
-superlore build          # production build (Next.js — deploy anywhere)
+```text
+Make me a docs site with superlore
 ```
 
-Or skip the CLI entirely and let an agent do it: install the superlore Claude plugin and say
-_"Make me a docs site using superlore."_ See
-[Getting started](https://superlore.vercel.app/docs/getting-started).
+Your agent runs `superlore` under the hood — scaffolds the app, writes `superlore.json`, seeds a
+page or two, mounts the MCP route, and previews it. You watch it happen. Then keep talking:
+_"add an onboarding page"_, _"diagram our architecture"_, _"draft the Q3 roadmap."_
 
-## Commands
+## Or drive it yourself
 
-| Command                | What it does                                                                                                                                                               |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `superlore init [dir]` | Scaffold a new KB. Flags: `--name`, `--type <company-kb\|product-docs>`, `--auth` / `--no-auth`, `--allowed-domain <domain>`, `--accent <color>`, `--no-mcp`, `-y, --yes`. |
-| `superlore dev`        | Run the local site for preview (`--port`).                                                                                                                                 |
-| `superlore build`      | Production build of the KB.                                                                                                                                                |
-| `superlore deploy`     | Managed deploy via **superlore Cloud** — currently waitlisted; self-host free with `superlore build`.                                                                      |
+```bash
+curl -fsSL https://superlore.vercel.app/install.sh | sh    # or: npm i -g superlore-cli
+```
+
+```bash
+superlore init my-kb   # scaffold — 2 questions → superlore.json + starter pages
+superlore dev          # live preview at localhost:3000
+superlore build        # production build, deploy anywhere
+```
+
+`superlore deploy` is reserved for managed **superlore Cloud**
+([waitlisted](https://superlore.vercel.app/cloud)) — self-host free with `superlore build`.
 
 ## `superlore.json`
 
-`init` writes a `superlore.json` at your project root — the canonical config the CLI and the
-`superlore` package both read:
+`init` writes one config the CLI, the site, and your agents all read:
 
 ```json
 {
   "name": "Acme Knowledge Base",
   "type": "company-kb",
-  "accent": "#6D5CF0",
   "auth": { "enabled": true, "provider": "google", "allowedDomain": "acme.com" },
   "mcp": { "enabled": true, "path": "/api/mcp" }
 }
 ```
 
-- **`type`** — `company-kb` (internal, for your teams + agents) or `product-docs` (public, for
-  your users).
-- **`auth`** — optional Google SSO that gates the site **and** the MCP. A company KB without auth
-  is warned about before deploy.
+- **`type`** — `company-kb` (internal, for your teams + agents) or `product-docs` (public).
+- **`auth`** — optional Google SSO that gates the site **and** the MCP.
 - **`mcp`** — the agent endpoint, on by default at `/api/mcp`.
 
-The schema + loader are exported for programmatic use: `import { parseSuperloreJson } from "superlore-cli/config"`.
+Need the schema in code? `import { parseSuperloreJson } from "superlore-cli/config"`.
 
 ## Links
 
-- **Docs:** https://superlore.vercel.app/docs
-- **Core library:** [`superlore`](https://www.npmjs.com/package/superlore)
-- **Repository:** https://github.com/KrishnanSG/superlore
+**[Docs](https://superlore.vercel.app/docs)** · **[`superlore` core](https://www.npmjs.com/package/superlore)** · **[GitHub](https://github.com/KrishnanSG/superlore)**
 
 ## License
 
-[Apache-2.0](./LICENSE) © [Krishnan S G](https://github.com/KrishnanSG). See [`NOTICE`](./NOTICE)
-for bundled third-party components.
+[Apache-2.0](./LICENSE) © [Krishnan S G](https://github.com/KrishnanSG). Bundled dependencies retain
+their own licenses — see [`NOTICE`](./NOTICE).

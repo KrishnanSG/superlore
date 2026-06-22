@@ -1,6 +1,6 @@
 {
   "name": "superlore-cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The superlore CLI — scaffold, run, and build an agent-native knowledge base. One corpus. Humans and agents.",
   "license": "Apache-2.0",
   "author": "Krishnan S G",

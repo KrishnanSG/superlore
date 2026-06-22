@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./brand/superlore-mark.svg" width="76" height="76" alt="superlore" />
+<img src="https://superlore.vercel.app/superlore-mark.svg" width="76" height="76" alt="superlore" />
 
 # superlore
 
