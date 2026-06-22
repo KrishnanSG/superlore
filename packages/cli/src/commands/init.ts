@@ -67,8 +67,8 @@ export async function initCommand(dir: string | undefined, flags: InitFlags): Pr
 
   // 2. Type
   let type = flags.type as SuperloreType | undefined;
-  if (type && type !== "company-kb" && type !== "product-docs") {
-    bail(`Invalid --type "${type}". Use "company-kb" or "product-docs".`);
+  if (type && type !== "company-kb" && type !== "product-docs" && type !== "personal-kb") {
+    bail(`Invalid --type "${type}". Use "company-kb", "product-docs", or "personal-kb".`);
   }
   if (!type && interactive) {
     const answer = await select({
@@ -84,6 +84,11 @@ export async function initCommand(dir: string | undefined, flags: InitFlags): Pr
           label: "Product docs",
           hint: "public-facing documentation",
         },
+        {
+          value: "personal-kb" as const,
+          label: "Personal KB",
+          hint: "a private, queryable replica of how you think, work, and write",
+        },
       ],
     });
     if (isCancel(answer)) bail("Cancelled.");
@@ -91,7 +96,10 @@ export async function initCommand(dir: string | undefined, flags: InitFlags): Pr
   }
   if (!type) bail("A type is required (pass --type or run interactively).");
 
-  // 3. Auth — default ON for company-kb, OFF for product-docs.
+  // A private-by-default KB — both the company KB and the personal KB should be gated.
+  const wantsGate = type === "company-kb" || type === "personal-kb";
+
+  // 3. Auth — default ON for the private KBs (company / personal), OFF for product-docs.
   let authEnabled: boolean;
   if (flags.auth !== undefined) {
     authEnabled = flags.auth;
@@ -100,12 +108,12 @@ export async function initCommand(dir: string | undefined, flags: InitFlags): Pr
   } else if (interactive) {
     const answer = await confirm({
       message: "Gate the site behind Google SSO (auth)?",
-      initialValue: type === "company-kb",
+      initialValue: wantsGate,
     });
     if (isCancel(answer)) bail("Cancelled.");
     authEnabled = answer;
   } else {
-    authEnabled = type === "company-kb";
+    authEnabled = wantsGate;
   }
 
   let allowedDomain = flags.allowedDomain?.trim();
@@ -166,11 +174,13 @@ export async function initCommand(dir: string | undefined, flags: InitFlags): Pr
 
   outro(`${bold("Scaffolded")} ${config.name} ${dim(`(${source})`)}`);
 
-  // The company-KB-without-auth warning — print loudly before next steps.
-  if (config.type === "company-kb" && !config.auth?.enabled) {
+  // The private-KB-without-auth warning — print loudly before next steps. Both a company KB and a
+  // personal KB are private by design and should gate access before they ship.
+  if ((config.type === "company-kb" || config.type === "personal-kb") && !config.auth?.enabled) {
+    const kind = config.type === "personal-kb" ? "personal KB" : "company KB";
     log.blank();
     log.warn(
-      `This is a ${bold("company KB")} but auth is ${bold("not enabled")}. A company KB should gate access before you deploy — re-run with ${cyan("--auth")} or set ${cyan('"auth": { "enabled": true }')} in superlore.json.`,
+      `This is a ${bold(kind)} but auth is ${bold("not enabled")}. A ${kind} should gate access before you deploy — re-run with ${cyan("--auth")} or set ${cyan('"auth": { "enabled": true }')} in superlore.json.`,
     );
   }
 
@@ -192,7 +202,9 @@ async function maybeConnectEditor(flags: InitFlags, interactive: boolean): Promi
   if (editors.length === 0) {
     // Nothing installed — don't prompt; just mention the command exists.
     log.blank();
-    log.info(`${dim("Editor preview:")} install VS Code, Cursor, or Windsurf, then ${cyan("superlore connect")}.`);
+    log.info(
+      `${dim("Editor preview:")} install VS Code, Cursor, or Windsurf, then ${cyan("superlore connect")}.`,
+    );
     return;
   }
 
@@ -200,7 +212,9 @@ async function maybeConnectEditor(flags: InitFlags, interactive: boolean): Promi
 
   if (flags.connect !== true && !interactive) {
     log.blank();
-    log.info(`${dim(`Detected ${names}.`)} Run ${cyan("superlore connect")} to install the live-preview extension.`);
+    log.info(
+      `${dim(`Detected ${names}.`)} Run ${cyan("superlore connect")} to install the live-preview extension.`,
+    );
     return;
   }
 
