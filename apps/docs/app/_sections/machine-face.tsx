@@ -53,7 +53,7 @@ const TOOL_ICONS: readonly LucideIcon[] = [Search, FileText, ListTree, Workflow,
 export function MachineFacePanel() {
   return (
     <section className="border-t border-fd-border bg-fd-muted/40">
-      <div className="mx-auto max-w-6xl px-6 py-[clamp(80px,10vw,128px)]">
+      <div className="mx-auto max-w-6xl px-6 py-[clamp(56px,10vw,128px)]">
         <div className="grid items-start gap-x-16 gap-y-12 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
           {/* ── Left rail: editorial head, sticky on desktop so the visual scrolls beside it. ── */}
           <Reveal>

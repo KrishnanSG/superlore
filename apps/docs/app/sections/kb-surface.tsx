@@ -84,18 +84,11 @@ const SECTIONS: Record<NavSection, SectionRecord> = {
     meta: "8 services · 1 ADR",
     surface: (
       <div className="space-y-5">
-        {/* The service-map canvas is DESKTOP-ONLY (it reads cut on phones); mobile gets a one-line
-            caption in its place. The Decision ADR below stacks legibly on both. */}
-        <div className="hidden overflow-hidden rounded-xl border border-fd-border bg-fd-card lg:block">
+        {/* The service-map canvas renders on every breakpoint — on a phone it fits-to-width and is
+            the surface, not a caption. The Decision ADR below stacks legibly on both. */}
+        <div className="overflow-hidden rounded-xl border border-fd-border bg-fd-card [&_*]:max-w-full">
           <Canvas bare spec={systemSpec} height={300} />
         </div>
-        <p className="flex items-start gap-2 rounded-xl border border-fd-border bg-fd-card px-3.5 py-3 text-[13px] leading-snug text-pretty text-fd-muted-foreground lg:hidden">
-          <FoldMark size={13} className="mt-0.5 shrink-0 text-kp-accent-text" />
-          <span>
-            The URL-shortener service map renders as a live canvas — the same typed graph your agent
-            queries.
-          </span>
-        </p>
         <Decision {...kbQueueDecision} />
       </div>
     ),
@@ -157,7 +150,7 @@ export function KBSurface() {
   const showEntity = ENTITY_SECTIONS.has(activeSection);
 
   return (
-    <section className="bg-fd-muted/40 px-6 py-[clamp(80px,10vw,128px)]">
+    <section className="bg-fd-muted/40 px-6 py-[clamp(56px,10vw,128px)]">
       <style>{`
         .kb-surface-window {
           /* FIXED height (not min-height) so every section renders the same size — switching

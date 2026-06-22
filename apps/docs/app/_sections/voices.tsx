@@ -432,7 +432,7 @@ export function Voices() {
   const rowBottom = VOICES.slice(half);
 
   return (
-    <Reveal as="section" className="relative z-10 py-[clamp(80px,10vw,128px)]">
+    <Reveal as="section" className="relative z-10 py-[clamp(56px,10vw,128px)]">
       {/* scoped, self-contained marquee + reduced-motion CSS (token-only colours, no JS branch) */}
       <style>{`
         .vc-${sectionId} {

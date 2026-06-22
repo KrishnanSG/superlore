@@ -476,25 +476,14 @@ function Tile({ tile }: { tile: BreadthTile }) {
           phones, where a shrunk React-Flow board reads cut/tiny. */}
       <div className="flex flex-col px-4 py-4">
         <h3 className="mb-2 text-sm font-semibold text-fd-foreground">{tile.title}</h3>
+        {/* Every surface — including the canvas tiles — renders live on all breakpoints; the board
+            fits-to-tile, so phones get the real visual, not a caption stand-in. */}
         <div
-          className={`bs-surface min-w-0 [&_*]:max-w-full${tile.mobileCaption ? "hidden lg:block" : ""}`}
+          className="bs-surface min-w-0 [&_*]:max-w-full"
           style={{ height: `${SURFACE_HEIGHT}px` }}
         >
           {tile.surface}
         </div>
-        {tile.mobileCaption ? (
-          <div
-            className="flex flex-col justify-center gap-3 rounded-lg border border-fd-border bg-fd-muted/30 px-4 py-5 lg:hidden"
-            style={{ height: `${SURFACE_HEIGHT}px` }}
-          >
-            <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-kp-accent-border bg-kp-accent-weak px-2.5 py-0.5 font-mono text-[10px] tracking-wide text-kp-accent-text">
-              Canvas
-            </span>
-            <p className="text-[13.5px] leading-relaxed text-pretty text-fd-foreground">
-              {tile.mobileCaption}
-            </p>
-          </div>
-        ) : null}
       </div>
     </article>
   );
@@ -648,7 +637,7 @@ export function BreadthSection() {
   return (
     <section
       aria-labelledby="breadth-heading"
-      className="relative overflow-hidden border-y border-fd-border bg-fd-muted/40 py-[clamp(80px,10vw,128px)]"
+      className="relative overflow-hidden border-y border-fd-border bg-fd-muted/40 py-[clamp(56px,10vw,128px)]"
     >
       <Reveal className="mx-auto mb-12 w-full max-w-6xl px-6">
         <p className="font-mono text-[11px] font-semibold tracking-[0.16em] text-kp-accent-text uppercase">

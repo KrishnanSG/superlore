@@ -38,7 +38,7 @@ export function WhySuperlore() {
   return (
     <Reveal
       as="section"
-      className="relative z-10 mx-auto w-full max-w-6xl px-6 py-[clamp(80px,10vw,128px)]"
+      className="relative z-10 mx-auto w-full max-w-6xl px-6 py-[clamp(56px,10vw,128px)]"
     >
       {/* Editorial head — mono eyebrow + tight h2 + ≤680px deck. */}
       <header className="max-w-[680px]">

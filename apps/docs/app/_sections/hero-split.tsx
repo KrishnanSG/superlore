@@ -13,9 +13,10 @@
  * (`--kp-accent-text`, `--kp-code-string`, `--kp-code-number`); light and dark are co-equal.
  */
 
-import { Canvas } from "superlore";
+import type { ReactNode } from "react";
+import { Canvas, Roster, Timeline, type RosterProps } from "superlore";
 
-import { systemSpec, systemGraph } from "../_data";
+import { systemSpec, systemGraph, milestoneTimeline } from "../_data";
 import { FoldMark } from "../_fold-mark";
 
 const JSON_SRC = JSON.stringify(systemGraph().graph, null, 2);
@@ -43,14 +44,45 @@ function highlightLines(src: string): string[] {
 const LINES = highlightLines(JSON_SRC);
 const PANE_HEIGHT = 372;
 
+/* ── MOBILE showcase ──────────────────────────────────────────────────────────────────
+   On a phone the desktop split (board beside a wall of JSON) loses the point — the JSON dominates
+   and the board reads cut. So mobile leads with a compact shelf of REAL, legible surfaces — the
+   "rich, structured docs — canvases, boards, timelines" the headline promises — each carrying the
+   same "Readable by agents" badge that makes the dual-rep point without a JSON dump. Desktop (≥lg) is
+   untouched. */
+const heroTeam: RosterProps["people"] = [
+  { name: "Maya Chen", role: "Eng lead", slug: "maya", tags: ["platform"] },
+  { name: "Dev Patel", role: "Backend", slug: "dev", reportsTo: "Maya Chen" },
+  { name: "Ren Ito", role: "Frontend", slug: "ren", reportsTo: "Maya Chen" },
+];
+
+const MOBILE_SURFACES: { file: string; title: string; surface: ReactNode; fit?: boolean }[] = [
+  {
+    file: "architecture.mdx",
+    title: "Architecture",
+    surface: <Canvas bare spec={systemSpec} height={188} />,
+    fit: true,
+  },
+  {
+    file: "team.mdx",
+    title: "Team roster",
+    surface: <Roster people={heroTeam} label="Platform team" />,
+  },
+  {
+    file: "releases.mdx",
+    title: "Release timeline",
+    surface: <Timeline items={milestoneTimeline} label="Release timeline" />,
+  },
+];
+
 export function HeroSplit() {
   return (
     <div className="mx-auto max-w-6xl px-6">
-      <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-fd-border bg-fd-card shadow-[0_1px_0_var(--kp-border),0_30px_70px_-36px_rgba(0,0,0,0.30)] lg:grid-cols-2">
-        {/* LEFT — the human render. The live landscape board reads cut/tiny on phones, so it is
-            DESKTOP-ONLY; mobile gets a compact, legible caption card in its place (a sibling
-            lg:hidden). Desktop (≥lg) is unchanged. */}
-        <div className="hidden flex-col border-b border-fd-border lg:flex lg:border-r lg:border-b-0">
+      {/* DESKTOP — the dual-rep split (board beside the typed JSON). Hidden < lg, where a phone
+          turns it into a wall of JSON; mobile gets the surface shelf below instead. Unchanged ≥lg. */}
+      <div className="hidden overflow-hidden rounded-2xl border border-fd-border bg-fd-card shadow-[0_1px_0_var(--kp-border),0_30px_70px_-36px_rgba(0,0,0,0.30)] lg:grid lg:grid-cols-2">
+        {/* LEFT — the human render: the live board. */}
+        <div className="flex flex-col border-b border-fd-border lg:border-r lg:border-b-0">
           <div className="flex items-center gap-2.5 border-b border-fd-border bg-fd-muted/50 px-4 py-2.5">
             <FoldMark size={13} className="text-kp-accent-text" />
             <span className="font-mono text-[11px] tracking-wide text-fd-foreground">
@@ -65,35 +97,10 @@ export function HeroSplit() {
           </div>
         </div>
 
-        {/* MOBILE-ONLY stand-in for the human render — a simple, legible caption card (no cut
-            board). Reads as the human face of the same authored block; the JSON pane below it is
-            the agent face. */}
-        <div className="flex flex-col border-b border-fd-border lg:hidden">
-          <div className="flex items-center gap-2.5 border-b border-fd-border bg-fd-muted/50 px-4 py-2.5">
-            <FoldMark size={13} className="text-kp-accent-text" />
-            <span className="font-mono text-[11px] tracking-wide text-fd-foreground">
-              brainstorming.mdx
-            </span>
-            <span className="ml-auto font-mono text-[10px] tracking-[0.08em] text-fd-muted-foreground uppercase opacity-70">
-              Human · rendered
-            </span>
-          </div>
-          <div className="flex flex-col gap-2 bg-fd-background px-4 py-5">
-            <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-kp-accent-border bg-kp-accent-weak px-2.5 py-0.5 font-mono text-[10px] tracking-wide text-kp-accent-text">
-              Canvas
-            </span>
-            <p className="text-[13.5px] leading-relaxed text-pretty text-fd-foreground">
-              Your team reads an interactive architecture canvas — nodes, edges, and groups they can
-              pan and explore.
-            </p>
-            <p className="font-mono text-[11px] tracking-wide text-fd-muted-foreground">
-              The same block, serialized for agents below.
-            </p>
-          </div>
-        </div>
-
-        {/* RIGHT — the agent's context: the same doc as typed, syntax-highlighted knowledge. */}
-        <div className="relative flex flex-col bg-fd-card">
+        {/* RIGHT — the agent's context: the same doc as typed, syntax-highlighted knowledge.
+            Desktop-only — beside the board it proves "one block, two faces"; alone on a phone it is
+            just a wall of JSON, so mobile leads with the board and the caption below states the moat. */}
+        <div className="relative hidden flex-col bg-fd-card lg:flex">
           <span
             aria-hidden
             className="kp-agent-gradient absolute inset-x-0 top-0 h-0.5 opacity-90"
@@ -121,9 +128,37 @@ export function HeroSplit() {
         </div>
       </div>
 
-      <p className="mt-4 text-center font-mono text-[11px] tracking-wide text-fd-muted-foreground">
+      {/* MOBILE — a compact shelf of real, legible surfaces (canvas / roster / timeline). Each
+          carries the "Readable by agents" badge, so the dual-rep point lands without a JSON dump. */}
+      <div className="flex flex-col gap-3.5 lg:hidden">
+        {MOBILE_SURFACES.map((s) => (
+          <div
+            key={s.file}
+            className="overflow-hidden rounded-2xl border border-fd-border bg-fd-card shadow-[0_1px_0_var(--kp-border),0_18px_40px_-30px_rgba(0,0,0,0.30)]"
+          >
+            <div className="flex items-center gap-2.5 border-b border-fd-border bg-fd-muted/50 px-4 py-2.5">
+              <FoldMark size={13} className="text-kp-accent-text" />
+              <span className="font-mono text-[11px] tracking-wide text-fd-foreground">
+                {s.file}
+              </span>
+              <span className="ml-auto font-mono text-[10px] tracking-[0.08em] text-fd-muted-foreground uppercase opacity-70">
+                Readable by agents
+              </span>
+            </div>
+            <div className="px-4 py-4">
+              <h3 className="mb-2.5 text-sm font-semibold text-fd-foreground">{s.title}</h3>
+              <div className="[&_*]:max-w-full">{s.surface}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-4 hidden text-center font-mono text-[11px] tracking-wide text-fd-muted-foreground lg:block">
         One authored block. The board your team reads <span className="text-fd-foreground">is</span>{" "}
         the typed graph your agents read over MCP.
+      </p>
+      <p className="mt-5 text-center font-mono text-[11px] tracking-wide text-pretty text-fd-muted-foreground lg:hidden">
+        Every surface renders for your team — and is read by your agents over MCP.
       </p>
 
       <style>{`

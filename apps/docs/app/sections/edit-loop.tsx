@@ -279,7 +279,7 @@ export function EditLoop() {
   return (
     <Reveal as="section" className="bg-fd-background">
       <style>{SCENE_CSS}</style>
-      <div className="mx-auto w-full max-w-6xl px-6 py-[clamp(80px,10vw,128px)]">
+      <div className="mx-auto w-full max-w-6xl px-6 py-[clamp(56px,10vw,128px)]">
         {/* Editorial head — left-aligned, mono eyebrow + tight h2 + ≤640px deck. */}
         <div className="max-w-[640px]">
           <p className="flex items-center gap-2 font-mono text-[11px] font-medium tracking-[0.18em] text-kp-accent-text uppercase">

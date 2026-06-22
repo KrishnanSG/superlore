@@ -144,7 +144,7 @@ export function CloseBand() {
         }}
       />
 
-      <div className="relative z-10 mx-auto max-w-6xl px-6 py-[clamp(80px,10vw,128px)]">
+      <div className="relative z-10 mx-auto max-w-6xl px-6 py-[clamp(56px,10vw,128px)]">
         <Reveal>
           {/* Left-aligned editorial block — mono eyebrow, the folding mark, tight h2, ≤640px deck. */}
           <p className="font-mono text-[11px] font-medium tracking-[0.18em] text-kp-accent-text uppercase">

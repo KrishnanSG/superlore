@@ -160,7 +160,7 @@ export function TheTurn() {
   const edgeDraw = smooth((p - 0.68) / 0.32);
 
   return (
-    <Reveal as="section" className="mx-auto w-full max-w-6xl px-6 py-[clamp(80px,10vw,128px)]">
+    <Reveal as="section" className="mx-auto w-full max-w-6xl px-6 py-[clamp(56px,10vw,128px)]">
       {/* ── Editorial head — left-aligned mono eyebrow + tight h2 + ≤640px deck ── */}
       <header className="max-w-[640px]">
         <span className="inline-flex items-center gap-2 font-mono text-[11px] font-semibold tracking-[0.16em] text-kp-accent-text uppercase">
@@ -312,25 +312,21 @@ function MobileTurn() {
   return (
     <div className="overflow-hidden rounded-2xl border border-fd-border bg-fd-card">
       <div className="flex items-center gap-2.5 border-b border-fd-border bg-fd-muted/50 px-4 py-2.5">
-        <FoldMark size={14} className="text-fd-muted-foreground" />
-        <span className="font-mono text-[11px] tracking-wide text-fd-muted-foreground">
+        <FoldMark size={14} className="text-kp-accent-text" />
+        <span className="font-mono text-[11px] tracking-wide text-fd-foreground">
           architecture.mdx
         </span>
         <span className="ml-auto font-mono text-[10px] font-semibold tracking-[0.12em] text-fd-muted-foreground uppercase">
-          Markdown
+          Canvas · rendered
         </span>
       </div>
-      <pre className="m-0 max-h-[260px] overflow-auto px-4 py-4 font-mono text-[12px] leading-[1.7] text-fd-muted-foreground">
-        {MD_LINES.map((l, i) => (
-          <span key={i} className="block min-h-[1.7em] whitespace-pre">
-            <MdSpan line={l} />
-          </span>
-        ))}
-      </pre>
+      <div className="bg-fd-background [&_*]:max-w-full">
+        <Canvas bare spec={q3Spec} height={168} />
+      </div>
       <div className="flex items-center gap-2.5 border-t border-fd-border bg-fd-muted/50 px-4 py-3">
         <FoldMark size={13} className="shrink-0 text-kp-accent-text" />
         <p className="text-[13px] leading-snug text-pretty text-fd-foreground">
-          superlore turns this wall of Markdown into a live canvas{" "}
+          superlore turns the wall of Markdown an agent hands back into this live canvas{" "}
           <span className="text-fd-muted-foreground">inside your doc</span> — the board your team
           reads is the typed graph your agents read.
         </p>

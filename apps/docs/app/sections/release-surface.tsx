@@ -39,7 +39,7 @@ export function ReleaseSurface() {
   const { activeId, setActiveId } = useTrace(systemNodeIds, { intervalMs: 2600 });
 
   return (
-    <Reveal as="section" className="px-6 py-[clamp(80px,10vw,128px)]">
+    <Reveal as="section" className="px-6 py-[clamp(56px,10vw,128px)]">
       {/* Scoped, self-contained fade CSS — alpha-only `#000` mask (theme-irrelevant) plus a
           token-driven halo + low accent radial at the fade line so the capped body reads "more
           below," not clipped. No JS theme/motion branch. */}
@@ -104,11 +104,10 @@ export function ReleaseSurface() {
                     space. The architecture below is the same typed graph a support agent queries.
                   </p>
 
-                  {/* The architecture diagram — a real Canvas. While a node is traced, its container
-                      picks up a subtle accent ring (token-driven, no drawn line). DESKTOP-ONLY: the
-                      landscape board reads cut on phones, so it (and its live readout) is hidden
-                      < lg; mobile gets a one-line caption in its place. Desktop (≥lg) is unchanged. */}
-                  <div className="relative mt-5 hidden lg:block">
+                  {/* The architecture diagram — a real Canvas, shown on every breakpoint (on a phone
+                      the board IS the message; it fits-to-width and scrolls if needed). While a node
+                      is traced, its container picks up a subtle accent ring. Desktop (≥lg) unchanged. */}
+                  <div className="relative mt-5">
                     <h2
                       id="architecture"
                       className="font-mono text-[11px] tracking-wide text-fd-muted-foreground uppercase"
@@ -150,21 +149,6 @@ export function ReleaseSurface() {
                         </span>
                       )}
                     </div>
-                  </div>
-
-                  {/* MOBILE-ONLY stand-in for the architecture canvas above — a one-line caption so
-                      the section still reads "there's a native diagram here" without a cut board. */}
-                  <div className="mt-5 lg:hidden">
-                    <h2 className="font-mono text-[11px] tracking-wide text-fd-muted-foreground uppercase">
-                      Architecture
-                    </h2>
-                    <p className="mt-2 inline-flex items-start gap-2 rounded-lg border border-fd-border bg-fd-muted/40 px-3 py-2.5 text-[13px] leading-snug text-pretty text-fd-muted-foreground">
-                      <FoldMark size={13} className="mt-0.5 shrink-0 text-kp-accent-text" />
-                      <span>
-                        A native service-map canvas an engineer reads — the same typed graph a
-                        support agent queries.
-                      </span>
-                    </p>
                   </div>
 
                   {/* The changelog — the REAL `<Releases>`/`<Release>` over a typed

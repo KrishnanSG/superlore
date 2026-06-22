@@ -60,7 +60,7 @@ export function ContractFork() {
 
   return (
     <Reveal as="section" className="bg-fd-muted/40">
-      <div className="mx-auto w-full max-w-6xl px-6 py-[clamp(80px,10vw,128px)]">
+      <div className="mx-auto w-full max-w-6xl px-6 py-[clamp(56px,10vw,128px)]">
         {/* Editorial head — left-aligned, mono eyebrow + tight h2 + ≤640px deck. */}
         <div className="max-w-[640px]">
           <p className="flex items-center gap-2 font-mono text-[11px] font-medium tracking-[0.18em] text-kp-accent-text uppercase">
@@ -82,8 +82,10 @@ export function ContractFork() {
           onPointerLeave={onLeave}
           className="relative mt-12 grid grid-cols-1 items-stretch gap-6 lg:grid-cols-[minmax(0,0.86fr)_2.25rem_minmax(0,1.05fr)] lg:gap-0"
         >
-          {/* ── Authored source — the one superlore-canvas block both lanes come from. ── */}
-          <div className="relative z-10 self-center lg:pr-2">
+          {/* ── Authored source — the one superlore-canvas block both lanes come from. DESKTOP-ONLY:
+              on a phone this JSON source is a wall of text that buries the point, so mobile shows
+              only the rendered board below. Desktop (≥lg) is unchanged. ── */}
+          <div className="relative z-10 hidden self-center lg:block lg:pr-2">
             <div className="overflow-hidden rounded-xl border border-fd-border bg-fd-card">
               <div className="flex items-center gap-2 border-b border-fd-border bg-fd-muted/60 px-3 py-2">
                 <span className="font-mono text-[10px] font-semibold tracking-wider text-fd-muted-foreground uppercase">
@@ -142,40 +144,23 @@ export function ContractFork() {
 
           {/* ── The two faces of that one block. ── */}
           <div className="relative z-10 flex flex-col gap-6 lg:pl-2">
-            {/* HUMAN lane — live Canvas. DESKTOP-ONLY: the landscape board reads cut/tiny on phones,
-                so it is hidden < lg and a compact, legible caption card stands in (sibling lg:hidden).
-                The agent ROWS below stay on both. Desktop (≥lg) is unchanged. */}
-            <div className="hidden overflow-hidden rounded-xl border border-fd-border bg-fd-card lg:block">
+            {/* HUMAN lane — live Canvas. Shown on EVERY breakpoint: on a phone it is the section's
+                hero visual (the board IS the message). Desktop (≥lg) is unchanged. */}
+            <div className="overflow-hidden rounded-xl border border-fd-border bg-fd-card">
               <div className="flex items-center gap-2 border-b border-fd-border bg-fd-muted/60 px-3 py-2">
                 <span className="font-mono text-[10px] font-semibold tracking-wider text-fd-muted-foreground uppercase">
                   Human · rendered
                 </span>
               </div>
-              <div className="bg-fd-background p-1.5">
+              <div className="cf-human bg-fd-background p-1.5">
                 <Canvas bare spec={systemSpec} height={232} />
               </div>
             </div>
 
-            {/* MOBILE-ONLY human-lane stand-in — a simple caption card (no cut board). */}
-            <div className="overflow-hidden rounded-xl border border-fd-border bg-fd-card lg:hidden">
-              <div className="flex items-center gap-2 border-b border-fd-border bg-fd-muted/60 px-3 py-2">
-                <span className="font-mono text-[10px] font-semibold tracking-wider text-fd-muted-foreground uppercase">
-                  Human · rendered
-                </span>
-              </div>
-              <div className="flex flex-col gap-2 bg-fd-background px-3.5 py-4">
-                <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-kp-accent-border bg-kp-accent-weak px-2.5 py-0.5 font-mono text-[10px] tracking-wide text-kp-accent-text">
-                  Canvas
-                </span>
-                <p className="text-[13.5px] leading-relaxed text-pretty text-fd-foreground">
-                  A live, interactive board your team reads — the very same nodes and edges your
-                  agents read below.
-                </p>
-              </div>
-            </div>
-
-            {/* AGENT lane — the typed graph the MCP serves, agent-gradient hairline + pill. */}
-            <div className="relative overflow-hidden rounded-xl border border-fd-border bg-fd-card">
+            {/* AGENT lane — the typed graph the MCP serves. DESKTOP-ONLY: beside the board it proves
+                "one block, two faces"; alone on a phone it is just a wall of JSON, so it is hidden < lg
+                and the board above carries the section on mobile. Desktop (≥lg) is unchanged. */}
+            <div className="relative hidden overflow-hidden rounded-xl border border-fd-border bg-fd-card lg:block">
               <span
                 aria-hidden
                 className="kp-agent-gradient absolute inset-x-0 top-0 h-0.5 opacity-90"
