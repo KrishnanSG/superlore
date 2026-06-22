@@ -1,6 +1,6 @@
 # Security Policy
 
-superlore is early-stage software. We take security seriously and appreciate responsible disclosure.
+We take the security of superlore seriously and appreciate responsible disclosure.
 
 ## Reporting a vulnerability
 

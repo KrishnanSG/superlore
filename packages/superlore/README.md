@@ -43,12 +43,6 @@ can read over **MCP**.
 
 <br />
 
-> [!NOTE]
-> **Status: early.** The vision, architecture, and brand are locked, and the core already runs
-> our own docs site (`apps/docs`), the Canvas, the MCP, and a VS Code / Cursor / Windsurf
-> extension. The `superlore` package is **not yet published to npm** — it lives in this monorepo
-> while the public API settles. Star and watch to follow the first release.
-
 ---
 
 ## What is superlore
@@ -326,10 +320,11 @@ This is a pnpm + Turbo monorepo.
 
 ## Status
 
-superlore is **early but real**. The vision, architecture, and brand are locked. The core already
-powers `apps/docs` (the live reference KB), the Canvas, the MCP server, the Viewer, and the editor
-extension. The `superlore` package is `v0.1.0` in this monorepo and **not yet published to npm** while
-the public API settles — clone the repo to explore it, and star/watch to catch the first release.
+superlore is **live**. [`superlore`](https://www.npmjs.com/package/superlore) and
+[`superlore-cli`](https://www.npmjs.com/package/superlore-cli) are on npm; the docs site
+(`apps/docs`) — itself built with superlore — runs the Canvas, the MCP server, and the Viewer in
+production, alongside a VS Code / Cursor / Windsurf extension. It's pre-1.0, so the public API can
+still shift between minor versions — pin a version and watch releases.
 
 ## Contributing
 

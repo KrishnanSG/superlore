@@ -1,5 +1,8 @@
 import * as React from "react";
-import { DynamicIcon, dynamicIconImports, type IconName } from "lucide-react/dynamic";
+// lucide-react@1.x ships no `exports` map, so the bare `lucide-react/dynamic` subpath fails strict
+// ESM resolution in real consumers (bundlers were lenient with our source). Point at the actual ESM
+// file so the published, externalized import resolves everywhere.
+import { DynamicIcon, dynamicIconImports, type IconName } from "lucide-react/dynamic.mjs";
 import {
   Accordion as FumaAccordion,
   Accordions as FumaAccordions,
