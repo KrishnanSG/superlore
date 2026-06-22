@@ -193,7 +193,9 @@ Make me a docs site with superlore
 ```
 
 Your agent scaffolds the project, writes `superlore.json`, seeds pages, wires the MCP, and previews
-it. Prefer a terminal? `curl -fsSL https://superlore.vercel.app/install.sh | sh`, then `superlore init`.
+it. Prefer a terminal? `curl -fsSL https://superlore.vercel.app/install.sh | sh`, then `superlore
+init` — which scaffolds the KB **and** sets up your editor: it detects VS Code / Cursor / Windsurf
+and installs the superlore Preview extension into each (run it any time with `superlore connect`).
 
 **Or add it to an app**
 

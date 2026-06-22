@@ -10,8 +10,12 @@ tsconfig.json
 .gitignore
 verify/**
 scratch/**
+scripts/**
+# The icon source SVG — only the rendered media/icon.png ships.
+media/icon.svg
 
-# Keep: dist/** (extension.js + webview/), README.md, package.json, LICENSE
+# Keep: dist/** (extension.js + webview/), media/icon.png, README.md, package.json, LICENSE
 !dist/**
+!media/icon.png
 !README.md
 !package.json

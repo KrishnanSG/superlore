@@ -10,7 +10,9 @@ import {
   type SuperloreType,
   validateSuperloreJson,
 } from "../config.js";
+import { connectCommand } from "./connect.js";
 import { SUPERLORE_VIOLET } from "../lib/constants.js";
+import { detectEditors } from "../lib/editors.js";
 import { accent, banner, bold, cyan, dim, log } from "../lib/log.js";
 import { isEmptyDir, scaffold } from "../lib/scaffold.js";
 
@@ -26,6 +28,8 @@ export interface InitFlags {
   accent?: string;
   /** Disable the MCP endpoint (it is on by default). */
   mcp?: boolean;
+  /** Set up the editor extension after scaffolding. `--connect` / `--no-connect`; unset prompts. */
+  connect?: boolean;
   /** Skip interactive prompts; fail if required answers are missing. */
   yes?: boolean;
 }
@@ -171,6 +175,48 @@ export async function initCommand(dir: string | undefined, flags: InitFlags): Pr
   }
 
   printNextSteps(root, config);
+
+  // Part of the one get-started path: scaffold → set up the editor (extension) → wire the MCP.
+  await maybeConnectEditor(flags, interactive);
+}
+
+/**
+ * Offer to install the editor extension as the natural next step after scaffolding. Only acts when
+ * a supported editor is actually present, so we never nag a user who has none. Honours an explicit
+ * `--connect` / `--no-connect`; otherwise prompts (interactive) or prints a one-line hint (`--yes`).
+ */
+async function maybeConnectEditor(flags: InitFlags, interactive: boolean): Promise<void> {
+  if (flags.connect === false) return;
+
+  const editors = detectEditors();
+  if (editors.length === 0) {
+    // Nothing installed — don't prompt; just mention the command exists.
+    log.blank();
+    log.info(`${dim("Editor preview:")} install VS Code, Cursor, or Windsurf, then ${cyan("superlore connect")}.`);
+    return;
+  }
+
+  const names = editors.map((e) => e.label).join(", ");
+
+  if (flags.connect !== true && !interactive) {
+    log.blank();
+    log.info(`${dim(`Detected ${names}.`)} Run ${cyan("superlore connect")} to install the live-preview extension.`);
+    return;
+  }
+
+  if (flags.connect !== true) {
+    const proceed = await confirm({
+      message: `Install the superlore Preview extension into ${names}?`,
+      initialValue: true,
+    });
+    if (isCancel(proceed) || !proceed) {
+      log.info(`${dim("Skipped — run")} ${cyan("superlore connect")} ${dim("any time.")}`);
+      return;
+    }
+  }
+
+  // `connect` exits the process on its terminal states; called last so that's fine.
+  await connectCommand({ optional: true });
 }
 
 function printNextSteps(root: string, config: SuperloreJson): void {

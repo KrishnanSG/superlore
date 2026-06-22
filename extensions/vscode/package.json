@@ -1,23 +1,31 @@
 {
   "name": "superlore-preview",
   "displayName": "superlore Preview",
-  "version": "0.1.5",
-  "description": "Live preview for superlore .mdx files — renders every superlore component (Canvas/whiteboard, Timeline, Board, …) the way Markdown Preview renders Markdown.",
+  "version": "0.2.0",
+  "description": "Live, dual-representation preview for superlore .mdx — renders every component (Canvas/whiteboard, Timeline, Board, Table, …) as you type, with FigJam-style comment pins and Copy to Agent.",
   "license": "Apache-2.0",
   "author": "Krishnan S G",
   "private": true,
   "publisher": "superlore",
+  "icon": "media/icon.png",
+  "homepage": "https://superlore.vercel.app",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/KrishnanSG/superlore.git",
     "directory": "extensions/vscode"
   },
+  "bugs": "https://github.com/KrishnanSG/superlore/issues",
+  "qna": "https://github.com/KrishnanSG/superlore/issues",
   "type": "module",
   "engines": {
     "vscode": "^1.90.0"
   },
-  "categories": ["Visualization", "Other"],
-  "keywords": ["superlore", "mdx", "preview", "whiteboard", "canvas"],
+  "categories": ["Visualization", "Notebooks", "Other"],
+  "keywords": ["superlore", "mdx", "preview", "whiteboard", "canvas", "knowledge base", "mcp", "agent"],
+  "galleryBanner": {
+    "color": "#0B0C0E",
+    "theme": "dark"
+  },
   "main": "./dist/extension.cjs",
   "activationEvents": [
     "onLanguage:mdx",
@@ -27,9 +35,23 @@
     "commands": [
       {
         "command": "superlore.openPreview",
-        "title": "superlore: Open Preview",
+        "title": "Open Preview to the Side",
         "category": "superlore",
         "icon": "$(open-preview)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "superlore.openPreview",
+        "key": "ctrl+k v",
+        "mac": "cmd+k v",
+        "when": "editorTextFocus && (editorLangId == mdx || resourceExtname == .mdx || resourceExtname == .superlore || resourceFilename =~ /\\.superlore\\.mdx$/)"
+      },
+      {
+        "command": "superlore.openPreview",
+        "key": "ctrl+shift+v",
+        "mac": "cmd+shift+v",
+        "when": "editorTextFocus && (editorLangId == mdx || resourceExtname == .superlore || resourceFilename =~ /\\.superlore\\.mdx$/)"
       }
     ],
     "menus": {
