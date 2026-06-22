@@ -301,14 +301,10 @@ export function EditLoop() {
             animation; the headline and deck above carry the real, readable text. The stage has a
             FIXED height and the comment overlays are position:absolute, so NOTHING reflows as the
             loop plays — zero layout shift. ── */}
-        {/* MOBILE: the cursor cinematic + the wide live board read cramped/cut on phones, so the
-            animated stage is DESKTOP-ONLY (hidden lg:block below) and phones get a SIMPLE static
-            scene — the doc window with one clean comment-thread card (no overlapping pins/cursors,
-            no cut canvas). Desktop (≥lg) is unchanged. */}
-        <div className="mt-12 lg:hidden" aria-hidden>
-          <MobileLoop />
-        </div>
-        <div className="mt-14 hidden lg:block" aria-hidden>
+        {/* The animated stage runs on EVERY breakpoint now — the canvas + the comment cinematic are
+            the point. On a phone it is minified: the board fits-to-width at a shorter height (see the
+            mobile rule in SCENE_CSS), and the centered thread card already fits a 390px screen. */}
+        <div className="mt-12 lg:mt-14" aria-hidden>
           <div
             ref={stageRef}
             className="kp-loop-stage relative overflow-hidden rounded-xl border border-fd-border bg-fd-card"
@@ -347,7 +343,7 @@ export function EditLoop() {
 
               {/* The live deep board — the centerpiece. The spec swaps when the agent applies the
                   edit; topology is constant so React Flow keeps its layout (no re-fit, no jump). */}
-              <div className="relative mt-4 rounded-lg border border-fd-border bg-fd-background">
+              <div className="kp-loop-board relative mt-4 rounded-lg border border-fd-border bg-fd-background">
                 <Canvas bare spec={activeSpec} height={420} />
 
                 {/* ── Multiplayer cursors: two distinct faux pointers that open the scene. Each is an
@@ -541,96 +537,6 @@ export function EditLoop() {
         </div>
       </div>
     </Reveal>
-  );
-}
-
-/* ── Mobile static scene: NO cursors, NO cut board, NO overlap. The doc window (title + the
-   resolved prose line) over one clean, in-flow comment-thread card — two human comments + the
-   agent reply + a Resolved chip. Copy-forward; carries the loop's payoff without the cinematic.
-   Phones only (the desktop cinematic stays gated to lg). ── */
-function MobileLoop() {
-  return (
-    <div className="overflow-hidden rounded-xl border border-fd-border bg-fd-card">
-      {/* Window chrome — traffic dots + the open tab + a muted preview label. */}
-      <div className="flex items-center gap-2 border-b border-fd-border bg-fd-muted/60 px-3 py-2">
-        <span className="flex items-center gap-1.5">
-          <span className="size-2 rounded-full border border-fd-border bg-fd-background" />
-          <span className="size-2 rounded-full border border-fd-border bg-fd-background" />
-          <span className="size-2 rounded-full border border-fd-border bg-fd-background" />
-        </span>
-        <span className="ml-1 inline-flex items-center gap-1.5 rounded-t-md border border-b-0 border-fd-border bg-fd-background px-2 py-1 font-mono text-[10.5px] text-fd-foreground">
-          <FoldMark size={9} className="text-kp-accent-text" />
-          links-api.mdx
-        </span>
-        <span className="ml-auto font-mono text-[9.5px] tracking-wide text-fd-muted-foreground uppercase">
-          superlore preview
-        </span>
-      </div>
-
-      <div className="px-4 py-5">
-        <h3 className="text-[1.05rem] font-semibold tracking-[-0.02em] text-fd-foreground">
-          Links API — architecture
-        </h3>
-        <p className="mt-2 rounded bg-kp-success/10 px-1 text-[13.5px] leading-relaxed text-pretty text-fd-foreground">
-          {PROSE_AFTER}
-        </p>
-
-        {/* One clean comment-thread card, in flow (no absolute pins/cursors). */}
-        <div className="mt-4 overflow-hidden rounded-xl border border-fd-border bg-fd-background">
-          <div className="flex items-center gap-2 border-b border-fd-border px-3 py-2">
-            <span className="font-mono text-[9px] tracking-wide text-fd-muted-foreground uppercase">
-              Thread
-            </span>
-            <span className="font-mono text-[9px] tracking-wide text-fd-muted-foreground">
-              on <code className="text-fd-foreground">{`{ node: "${PIN_A.nodeId}" }`}</code>
-            </span>
-            <span className="ml-auto inline-flex items-center gap-1 rounded-full border border-kp-success/45 bg-kp-success/12 px-1.5 py-0.5 font-mono text-[8.5px] font-semibold tracking-wide text-kp-success uppercase">
-              <CheckGlyph className="size-2.5" />
-              Resolved
-            </span>
-          </div>
-          <div className="flex flex-col gap-2.5 p-3">
-            <div className="flex items-start gap-2">
-              <Avatar initials={PERSON_A.initials} label={PERSON_A.author} />
-              <div className="min-w-0 flex-1">
-                <span className="text-[11.5px] font-medium text-fd-foreground">
-                  {PERSON_A.author}
-                </span>
-                <p className="mt-0.5 text-[12px] leading-snug text-pretty text-fd-foreground">
-                  {PERSON_A.body}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <Avatar initials={PERSON_B.initials} label={PERSON_B.author} />
-              <div className="min-w-0 flex-1">
-                <span className="text-[11.5px] font-medium text-fd-foreground">
-                  {PERSON_B.author}
-                </span>
-                <p className="mt-0.5 text-[12px] leading-snug text-pretty text-fd-foreground">
-                  {PERSON_B.body}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2 border-t border-kp-accent-border pt-2.5 pl-2.5">
-              <FoldMark
-                size={11}
-                halfToneOpacity={0.6}
-                className="mt-0.5 shrink-0 text-kp-accent-text"
-              />
-              <div>
-                <span className="font-mono text-[9px] tracking-wide text-kp-accent-text uppercase">
-                  agent
-                </span>
-                <p className="mt-0.5 text-[11.5px] leading-snug text-pretty text-fd-foreground">
-                  {AGENT_REPLY}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -923,5 +829,11 @@ const SCENE_CSS = `
   /* No cursors, no glide, no caret blink — the static frame shows the resolved end state only. */
   .kp-loop-cursor { display: none; }
   .kp-loop-caret { display: none; }
+}
+
+/* ── Mobile: the loop runs here too, minified — shrink the board so the full stage (board + the
+   comment cinematic) fits a phone. The centered ~270px thread card already sits inside 390px. ── */
+@media (max-width: 1023px) {
+  .kp-loop-board > div { height: 300px !important; }
 }
 `;

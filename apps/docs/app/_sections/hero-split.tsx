@@ -14,9 +14,9 @@
  */
 
 import type { ReactNode } from "react";
-import { Canvas, Roster, Timeline, type RosterProps } from "superlore";
+import { Canvas } from "superlore";
 
-import { systemSpec, systemGraph, milestoneTimeline } from "../_data";
+import { systemSpec, systemGraph } from "../_data";
 import { FoldMark } from "../_fold-mark";
 
 const JSON_SRC = JSON.stringify(systemGraph().graph, null, 2);
@@ -50,28 +50,11 @@ const PANE_HEIGHT = 372;
    "rich, structured docs — canvases, boards, timelines" the headline promises — each carrying the
    same "Readable by agents" badge that makes the dual-rep point without a JSON dump. Desktop (≥lg) is
    untouched. */
-const heroTeam: RosterProps["people"] = [
-  { name: "Maya Chen", role: "Eng lead", slug: "maya", tags: ["platform"] },
-  { name: "Dev Patel", role: "Backend", slug: "dev", reportsTo: "Maya Chen" },
-  { name: "Ren Ito", role: "Frontend", slug: "ren", reportsTo: "Maya Chen" },
-];
-
-const MOBILE_SURFACES: { file: string; title: string; surface: ReactNode; fit?: boolean }[] = [
+const MOBILE_SURFACES: { file: string; title: string; surface: ReactNode }[] = [
   {
     file: "architecture.mdx",
     title: "Architecture",
-    surface: <Canvas bare spec={systemSpec} height={188} />,
-    fit: true,
-  },
-  {
-    file: "team.mdx",
-    title: "Team roster",
-    surface: <Roster people={heroTeam} label="Platform team" />,
-  },
-  {
-    file: "releases.mdx",
-    title: "Release timeline",
-    surface: <Timeline items={milestoneTimeline} label="Release timeline" />,
+    surface: <Canvas bare spec={systemSpec} height={240} />,
   },
 ];
 

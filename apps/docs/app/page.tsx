@@ -55,8 +55,9 @@ export default function Home() {
         <BreadthSection />
 
         {/* 3 · Why superlore — the founder story / pain / vision (the creator section). Steps back to
-            bg-fd-background, with a subtle violet aura behind it (content sits at z-10). */}
-        <div className="relative overflow-hidden bg-fd-background">
+            bg-fd-background, with a subtle violet aura behind it (content sits at z-10). DESKTOP-ONLY:
+            trimmed from the mobile flow to keep the phone journey short and visual. */}
+        <div className="relative hidden overflow-hidden bg-fd-background lg:block">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[460px]"
@@ -78,16 +79,22 @@ export default function Home() {
           <TheTurn />
         </div>
 
-        {/* 5 · Dual representation — ContractFork. Self-paints bg-fd-muted/40 (the step). */}
-        <ContractFork />
+        {/* 5 · Dual representation — ContractFork. Self-paints bg-fd-muted/40 (the step). DESKTOP-ONLY:
+            on mobile the hero canvas + the message already carry the dual-rep point. */}
+        <div className="hidden lg:block">
+          <ContractFork />
+        </div>
 
         {/* 6 · Use case · product docs — ReleaseSurface. Contained; wrapper sets bg-fd-background (the step). */}
         <div className="bg-fd-background">
           <ReleaseSurface />
         </div>
 
-        {/* 6 · Use case · company KB — KBSurface. Self-paints bg-fd-muted/40 (the step). */}
-        <KBSurface />
+        {/* 6 · Use case · company KB — KBSurface. Self-paints bg-fd-muted/40 (the step). DESKTOP-ONLY:
+            trimmed on mobile (the Release surface use-case already carries a KB-page mock). */}
+        <div className="hidden lg:block">
+          <KBSurface />
+        </div>
 
         {/* 7 · The loop — EditLoop. Self-paints bg-fd-background (the step). */}
         <EditLoop />

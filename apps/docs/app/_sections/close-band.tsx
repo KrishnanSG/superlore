@@ -21,7 +21,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { Eye, Shield, Star } from "lucide-react";
+import { Cloud, Eye, Shield, Star } from "lucide-react";
 
 import { Reveal } from "../reveal";
 
@@ -190,7 +190,21 @@ export function CloseBand() {
               <Eye className="size-4" />
               Try the Viewer
             </a>
+            <a className="kp-btn kp-btn-secondary" href="/cloud">
+              <Cloud className="size-4" />
+              superlore Cloud
+            </a>
           </div>
+
+          <p className="mt-5 max-w-[640px] text-sm leading-relaxed text-pretty text-fd-muted-foreground">
+            Want it fully managed?{" "}
+            <strong className="font-medium text-fd-foreground">superlore Cloud</strong> hosts your
+            KB and its MCP for you —{" "}
+            <a href="/cloud" className="text-kp-accent-text underline-offset-2 hover:underline">
+              join the waitlist
+            </a>
+            .
+          </p>
 
           <p className="mt-6 font-mono text-[11px] tracking-wide text-fd-muted-foreground">
             Open source · MCP-native · Auth-ready · Deploy anywhere

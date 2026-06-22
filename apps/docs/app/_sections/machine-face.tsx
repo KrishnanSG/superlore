@@ -83,7 +83,13 @@ export function MachineFacePanel() {
           {/* ── Right: the FOCAL VISUAL — the MCP endpoint card + tools, then the editors mention. ── */}
           <Reveal delay={80}>
             <div className="flex flex-col gap-5">
-              <McpCard />
+              {/* DESKTOP: the full MCP card (connection diagram + five designed tool rows). */}
+              <div className="hidden lg:block">
+                <McpCard />
+              </div>
+              {/* MOBILE: a compact "MCP compatible" card — endpoint + one-liner + tool names. The
+                  full diagram + tool rows are too heavy on a phone; this keeps just the proof. */}
+              <McpCardCompact />
               <EditorsRow />
             </div>
           </Reveal>
@@ -170,6 +176,45 @@ function McpCard() {
               </li>
             );
           })}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────── mobile-compact MCP card (lg:hidden) ──
+   A phone doesn't need the full diagram + five designed rows. Keep the proof: the MCP server
+   header + live endpoint chip, a one-liner that it's compatible with any agent client, and the
+   tool names as compact chips. */
+function McpCardCompact() {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-fd-border bg-fd-card lg:hidden">
+      <div aria-hidden className="kp-agent-gradient h-0.5 w-full opacity-90" />
+      <div className="flex items-center justify-between gap-3 border-b border-fd-border bg-fd-muted/40 px-4 py-3">
+        <div className="flex items-center gap-2.5">
+          <span className="flex size-6 items-center justify-center rounded-md border border-kp-accent-border bg-kp-accent-weak text-kp-accent-text">
+            <Terminal className="size-3.5" />
+          </span>
+          <span className="font-mono text-[11px] font-semibold tracking-wider text-fd-muted-foreground uppercase">
+            MCP server
+          </span>
+        </div>
+        <EndpointChip />
+      </div>
+      <div className="space-y-3 px-4 py-4">
+        <p className="text-[13.5px] leading-relaxed text-pretty text-fd-muted-foreground">
+          Compatible with any agent client — Claude, Cursor, Windsurf — over one MCP URL. The typed
+          graph, not a screenshot.
+        </p>
+        <ul className="flex flex-wrap gap-1.5">
+          {mcpTools.map((t) => (
+            <li
+              key={t.signature}
+              className="rounded-md border border-fd-border bg-fd-muted/50 px-2 py-1 font-mono text-[11px] text-fd-muted-foreground"
+            >
+              {t.signature.split("(")[0]}
+            </li>
+          ))}
         </ul>
       </div>
     </div>
