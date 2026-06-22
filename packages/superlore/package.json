@@ -1,6 +1,6 @@
 {
   "name": "superlore",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "The agent-native knowledge base — dual-representation components, theme, MCP, and auth. One corpus. Humans and agents.",
   "license": "Apache-2.0",
   "author": "Krishnan S G",
@@ -73,43 +73,43 @@
     "access": "public",
     "exports": {
       ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js"
+        "types": "./dist/index.d.mts",
+        "import": "./dist/index.mjs"
       },
       "./mcp": {
-        "types": "./dist/mcp.d.ts",
-        "import": "./dist/mcp.js"
+        "types": "./dist/mcp.d.mts",
+        "import": "./dist/mcp.mjs"
       },
       "./auth": {
-        "types": "./dist/auth.d.ts",
-        "import": "./dist/auth.js"
+        "types": "./dist/auth.d.mts",
+        "import": "./dist/auth.mjs"
       },
       "./frontmatter": {
-        "types": "./dist/frontmatter.d.ts",
-        "import": "./dist/frontmatter.js"
+        "types": "./dist/frontmatter.d.mts",
+        "import": "./dist/frontmatter.mjs"
       },
       "./ui": {
-        "types": "./dist/ui.d.ts",
-        "import": "./dist/ui.js"
+        "types": "./dist/ui.d.mts",
+        "import": "./dist/ui.mjs"
       },
       "./source": {
-        "types": "./dist/source.d.ts",
-        "import": "./dist/source.js"
+        "types": "./dist/source.d.mts",
+        "import": "./dist/source.mjs"
       },
       "./config": {
-        "types": "./dist/config.d.ts",
-        "import": "./dist/config.js"
+        "types": "./dist/config.d.mts",
+        "import": "./dist/config.mjs"
       },
       "./next": {
-        "types": "./dist/next.d.ts",
-        "import": "./dist/next.js"
+        "types": "./dist/next.d.mts",
+        "import": "./dist/next.mjs"
       },
       "./css": "./dist/css/superlore.css"
     }
   },
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "tsdown && mkdir -p dist/css && cp src/theme/superlore.css dist/css/superlore.css",
+    "dev": "tsdown --watch",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
@@ -127,8 +127,8 @@
   "peerDependencies": {
     "@modelcontextprotocol/sdk": "^1",
     "fumadocs-core": "^16",
-    "fumadocs-ui": "^16",
     "fumadocs-mdx": "^14",
+    "fumadocs-ui": "^16",
     "mermaid": "^11",
     "next": "^16",
     "next-auth": "^5",
@@ -161,25 +161,24 @@
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
-    "@types/mdx": "^2.0.13",
-    "@types/node": "^25.6.0",
-    "@types/react": "^19.2.14",
+    "@types/mdx": "^2.0.14",
+    "@types/node": "^25.9.4",
+    "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
     "@vitest/coverage-v8": "^4.1.9",
-    "esbuild-plugin-preserve-directives": "^0.0.11",
     "fumadocs-core": "16.8.2",
+    "fumadocs-mdx": "^14.3.2",
     "fumadocs-ui": "16.8.2",
-    "fumadocs-mdx": "^14.3.1",
     "jsdom": "^29.1.1",
     "mermaid": "^11.15.0",
     "next": "16.2.4",
     "next-auth": "5.0.0-beta.31",
     "next-themes": "^0.4.6",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
-    "tailwindcss": "^4.2.2",
-    "tsup": "^8.5.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "tailwindcss": "^4.3.1",
+    "tsdown": "^0.22.3",
     "typescript": "6.0.3",
     "vitest": "^4.1.9"
   }

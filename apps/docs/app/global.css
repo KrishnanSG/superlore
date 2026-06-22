@@ -1,12 +1,11 @@
 @import "tailwindcss";
 @import "superlore/css";
 
-/* Tailwind v4: scan these for class names. `superlore` ships source, so scan the package too — its
-   components use `kp-*` and `fd-*` utilities that must be generated here. */
+/* Tailwind v4: scan the app's own files. The published `superlore/css` self-registers superlore's
+   compiled components (it carries its own @source), so there's nothing to point at the package. */
 @source "../app";
 @source "../content";
 @source "../lib";
-@source "../../../packages/superlore/src";
 @source "../node_modules/fumadocs-ui/dist";
 
 /* ── Viewer: block-level comment affordances ──────────────────────────────

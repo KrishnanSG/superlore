@@ -76,11 +76,15 @@ export interface AuthProxyOptions {
 
 type AuthMiddleware = ReturnType<typeof createSuperloreAuth>["auth"];
 
+/** A Next proxy/middleware handler — a portable signature (the named `NextMiddleware` is deprecated
+ * in Next 16, and the inferred next-auth type isn't portable into the emitted `.d.ts`). */
+type ProxyHandler = (request: NextRequest) => Response | Promise<Response>;
+
 /**
  * Build a Next.js 16 `proxy.ts` default export from a superlore auth instance. Self-disabling: with
  * no `AUTH_GOOGLE_ID` it passes everything through, so local dev and public deploys stay open.
  */
-export function createAuthProxy(auth: AuthMiddleware, options: AuthProxyOptions = {}) {
+export function createAuthProxy(auth: AuthMiddleware, options: AuthProxyOptions = {}): ProxyHandler {
   const enforce = options.enforce ?? (!!process.env.AUTH_GOOGLE_ID && process.env.LOCAL !== "true");
   const isPublic = options.isPublic ?? defaultPublic;
   const signInPath = options.signInPath ?? "/auth/signin";
@@ -95,5 +99,8 @@ export function createAuthProxy(auth: AuthMiddleware, options: AuthProxyOptions 
     return NextResponse.next();
   });
 
-  return enforce ? gated : () => NextResponse.next();
+  // next-auth types its handler as a route handler (AppRouteHandlerFn), but it runs as Next
+  // middleware in proxy.ts — cast to the portable NextMiddleware type so the emitted .d.ts stays
+  // clean (no leaked next-auth internal) and the proxy default export type-checks for consumers.
+  return (enforce ? gated : () => NextResponse.next()) as unknown as ProxyHandler;
 }
