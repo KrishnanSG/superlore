@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE, changeFrequency: "weekly", priority: 1 },
     { url: `${BASE}/docs`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE}/changelog`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${BASE}/viewer`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/cloud`, changeFrequency: "monthly", priority: 0.5 },
   ];

@@ -295,10 +295,11 @@ html {
   margin-bottom: 0.25rem;
 }
 .kp-stat-card__value {
-  font-size: 1.375rem;
-  font-weight: 660;
+  font-family: var(--font-mono, ui-monospace, "SF Mono", monospace);
+  font-size: 1.75rem;
+  font-weight: 600;
   color: var(--color-fd-foreground);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
 
