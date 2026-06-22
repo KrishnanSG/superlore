@@ -30,11 +30,12 @@ err() {
   exit 1
 }
 
-# The Fold mark — the lit human face and the half-tone machine face — beside the wordmark.
-printf "\n  ${V}██${Z}${S}▓▓${Z}\n"
-printf "  ${V}██${Z}${S}▓▓${Z}   ${B}${V}superlore${Z}\n"
-printf "  ${V}██${Z}${S}▓▓${Z}   ${D}the company knowledge base your agents run on${Z}\n"
-printf "  ${V}██${Z}${S}▓▓${Z}\n\n"
+# The Fold mark — two clean violet tones (lit human face + lighter machine face) split by the
+# crease, rounded top and bottom. Matches the CLI banner (packages/cli/src/lib/log.ts) exactly.
+printf "\n  ${V}▗▄${Z}${D}▏${Z}${S}▄▖${Z}\n"
+printf "  ${V}██${Z}${D}▏${Z}${S}██${Z}   ${B}${V}superlore${Z}\n"
+printf "  ${V}██${Z}${D}▏${Z}${S}██${Z}   ${D}the company knowledge base your agents run on${Z}\n"
+printf "  ${V}▝▀${Z}${D}▏${Z}${S}▀▘${Z}\n\n"
 
 command -v node >/dev/null 2>&1 ||
   err "Node.js (>= 20) is required. Install it from https://nodejs.org then re-run."

@@ -40,7 +40,9 @@ export async function devCommand(flags: DevFlags): Promise<void> {
   }
   log.blank();
 
-  const args = flags.port ? ["--port", String(flags.port)] : [];
-  const code = await runScript(project.root, "dev", args);
+  // Pass the port via the PORT env var — `next dev` honours it. Forwarding `-- --port` through the
+  // package manager is fragile (pnpm forwards the `--` literally, and Next then reads `--port` as a
+  // directory argument → "Invalid project directory").
+  const code = await runScript(project.root, "dev", [], { PORT: String(port) });
   process.exit(code);
 }

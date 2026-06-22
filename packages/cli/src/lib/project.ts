@@ -72,6 +72,7 @@ export function runScript(
   root: string,
   script: string,
   extraArgs: readonly string[] = [],
+  env?: Record<string, string>,
 ): Promise<number> {
   const pm = detectPackageManager(root);
   // pnpm/npm/yarn/bun all accept `<pm> run <script> -- <args>`; bun uses `bun run`.
@@ -81,6 +82,7 @@ export function runScript(
       cwd: root,
       stdio: "inherit",
       shell: process.platform === "win32",
+      env: env ? { ...process.env, ...env } : process.env,
     });
     child.on("error", reject);
     child.on("close", (code) => resolvePromise(code ?? 0));
