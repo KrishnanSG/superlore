@@ -24,7 +24,7 @@
  * static, hand-scrollable snap rail (CSS-only, no JS theme/motion branch).
  */
 
-import type { ReactNode } from "react";
+import { isValidElement, type ReactNode } from "react";
 import {
   Board,
   Canvas,
@@ -256,6 +256,25 @@ const journeySpec: CanvasSpec = {
 
 const SURFACE_HEIGHT = 360;
 const TEMPLATE_TILE_HEIGHT = SURFACE_HEIGHT;
+
+/** A canvas tile beside another canvas reads as a wall of whiteboards. Spread the canvases evenly
+ *  through the marquee so two never sit adjacent — a stable ratio weave, resilient as tiles change. */
+const isCanvasTile = (t: BreadthTile): boolean =>
+  isValidElement(t.surface) && t.surface.type === Canvas;
+
+function spreadCanvases(list: readonly BreadthTile[]): BreadthTile[] {
+  const canvases = list.filter(isCanvasTile);
+  const rest = list.filter((t) => !isCanvasTile(t));
+  if (canvases.length === 0 || rest.length === 0) return [...list];
+  // Seed with the non-canvas tiles, then drop each canvas into an evenly spaced slot so two
+  // canvases never sit adjacent (the gap is >= 2 whenever there are at least as many other tiles).
+  const out: BreadthTile[] = [...rest];
+  const step = (rest.length + canvases.length) / canvases.length;
+  canvases.forEach((canvas, i) => {
+    out.splice(Math.min(out.length, Math.round(i * step) + 1), 0, canvas);
+  });
+  return out;
+}
 
 const tiles: readonly BreadthTile[] = [
   /* ── product docs & releases (left anchor) ─────────────────────────────────── */
@@ -507,7 +526,8 @@ function RailAnchor({ label, side }: { label: string; side: "left" | "right" }) 
 
 export function SurfaceMarquee({ className }: { className?: string }) {
   // Two copies of the track make the -50% loop seamless. Tiles get unique React keys per copy.
-  const track = [...tiles, ...tiles];
+  const ordered = spreadCanvases(tiles);
+  const track = [...ordered, ...ordered];
 
   return (
     <div className={`bs-marquee-root relative${className ? ` ${className}` : ""}`}>
@@ -597,8 +617,8 @@ export function SurfaceMarquee({ className }: { className?: string }) {
           {track.map((tile, i) => (
             <li
               key={`${tile.id}-${i}`}
-              className={i >= tiles.length ? "bs-rail-dup" : undefined}
-              aria-hidden={i >= tiles.length ? true : undefined}
+              className={i >= ordered.length ? "bs-rail-dup" : undefined}
+              aria-hidden={i >= ordered.length ? true : undefined}
             >
               <Tile tile={tile} />
             </li>
