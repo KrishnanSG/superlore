@@ -1,13 +1,14 @@
 import { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
 import { getComponentData, getPage, list, navigate, search } from "superlore/mcp";
+import { buildIndexFromSource } from "superlore/source";
 import type { KKind } from "superlore";
-import { buildSuperloreIndex } from "@/lib/superlore-index";
+import { source } from "@/lib/source";
 
 // superlore's docs are public and MCP-enabled: the same structured content the site renders is
 // exposed to agents here. No auth — this deploy is intentionally open. mcp-handler routes via the
 // [transport] segment; with basePath "/api" the Streamable HTTP endpoint resolves to /api/mcp.
-const index = buildSuperloreIndex();
+const index = buildIndexFromSource(source);
 
 const json = (data: unknown) => ({
   content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }],

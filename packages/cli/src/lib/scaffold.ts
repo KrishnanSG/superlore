@@ -116,8 +116,10 @@ function writeSkeleton(root: string, config: SuperloreJson): void {
           "fumadocs-core": "16.8.2",
           "fumadocs-mdx": "14.3.1",
           "fumadocs-ui": "16.8.2",
-          superlore: "^0.4.1",
+          superlore: "^0.5.1",
           "lucide-react": "^1.21.0",
+          // superlore peers the rendered components pull in: Mermaid (Diagram), themes.
+          mermaid: "^11.15.0",
           ...(mcpEnabled
             ? { "@modelcontextprotocol/sdk": "^1.29.0", "mcp-handler": "^1.1.0" }
             : {}),
@@ -162,7 +164,7 @@ function writeSkeleton(root: string, config: SuperloreJson): void {
           isolatedModules: true,
           skipLibCheck: true,
           incremental: true,
-          paths: { "@/*": ["./*"] },
+          paths: { "@/*": ["./*"], "collections/*": ["./.source/*"] },
           plugins: [{ name: "next" }],
         },
         include: ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
@@ -182,8 +184,7 @@ const withMDX = createMDX();
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
-  // \`superlore\` ships source (.ts/.tsx) for frictionless consumption — Next transpiles it.
-  transpilePackages: ["superlore"],
+  // superlore ships compiled ESM — consume it as a normal package (no transpilePackages).
 };
 
 export default withMDX(config);
@@ -231,7 +232,7 @@ export default config;
   write(
     "app/layout.tsx",
     `import type { ReactNode } from "react";
-import { RootProvider } from "fumadocs-ui/provider";
+import { RootProvider } from "superlore/ui";
 import "./global.css";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -309,12 +310,13 @@ export function generateStaticParams() {
 
   write(
     "lib/source.ts",
-    `import { loader } from "fumadocs-core/source";
-import { docs } from "@/.source";
+    `import { docs } from "collections/server";
+import { loader, lucideIconsPlugin } from "superlore/source";
 
 export const source = loader({
   baseUrl: "/docs",
   source: docs.toFumadocsSource(),
+  plugins: [lucideIconsPlugin()],
 });
 `,
   );
@@ -359,10 +361,14 @@ Edit \`content/docs/index.mdx\` to make it yours, then run \`superlore dev\`.
       `import { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
 import { getComponentData, getPage, list, navigate, search } from "superlore/mcp";
+import { buildIndexFromSource } from "superlore/source";
+import type { KKind } from "superlore";
+import { source } from "@/lib/source";
 
 // Your KB's MCP endpoint. Served at ${mcpPath} — the same structured content the site renders,
-// exposed to agents. Build the index from your content source and pass it to each tool.
-// See the superlore docs (Agents & MCP) for wiring the index from \`source\`.
+// exposed to agents. The index is built straight from your content \`source\`: author once, and
+// humans read the pages while agents query this corpus. No scraping, no drift.
+const index = buildIndexFromSource(source);
 
 const json = (data: unknown) => ({
   content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }],
@@ -374,31 +380,32 @@ const handler = createMcpHandler(
       "search",
       "Full-text search across the knowledge base.",
       { query: z.string(), limit: z.number().int().positive().optional() },
-      async ({ query, limit }) => json(search(/* index */ {} as never, query, limit)),
+      async ({ query, limit }) => json(search(index, query, limit)),
     );
     server.tool(
       "get_page",
       "Get a page's full structured content by path.",
       { path: z.string() },
-      async ({ path }) => json(getPage(/* index */ {} as never, path)),
+      async ({ path }) => json(getPage(index, path)),
     );
     server.tool(
       "list",
       "List knowledge nodes, filtered by kind / tag / entityType.",
       { kind: z.string().optional(), tag: z.string().optional(), entityType: z.string().optional() },
-      async (args) => json(list(/* index */ {} as never, args)),
+      async ({ kind, tag, entityType }) =>
+        json(list(index, { kind: kind as KKind | undefined, tag, entityType })),
     );
     server.tool(
       "navigate",
       "Follow relations from a page path / node id / entity ref.",
       { target: z.string() },
-      async ({ target }) => json(navigate(/* index */ {} as never, target)),
+      async ({ target }) => json(navigate(index, target)),
     );
     server.tool(
       "get_component_data",
       "Get the structured data behind a rendered component (its knowledge face).",
       { id: z.string() },
-      async ({ id }) => json(getComponentData(/* index */ {} as never, id)),
+      async ({ id }) => json(getComponentData(index, id)),
     );
   },
   {},

@@ -20,11 +20,32 @@ export default function ChangelogPage() {
       <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-12 sm:py-16">
         <h1 className="text-3xl font-semibold tracking-tight text-fd-foreground">Changelog</h1>
         <p className="mt-2 max-w-2xl text-fd-muted-foreground">
-          What's new across superlore — the core library, the CLI, and the editor extension. Author
-          once; humans read it here, agents read the same entries over the MCP.
+          Everything new across superlore — the core library, the CLI, and the editor extension.
+          Author once; humans read it here, agents read the same entries over the MCP.
         </p>
         <div className="mt-8">
           <Releases label="superlore releases">
+            <Release
+              version="superlore 0.5 · CLI 0.3"
+              date="2026-06-22"
+              status="done"
+              title="init → a KB that builds and deploys"
+              changes={[
+                {
+                  type: "added",
+                  text: "buildIndexFromSource — one call turns your content source into the MCP index. Author once; the agent queries the same corpus the site renders.",
+                  refs: [{ rel: "related", target: "/docs/agents/mcp", label: "Agents & MCP" }],
+                },
+                {
+                  type: "added",
+                  text: "Personal KB template — superlore init --type personal-kb scaffolds a private, authenticated KB that's a digital replica of how you think and work, exposed to your agents over MCP.",
+                },
+                {
+                  type: "fixed",
+                  text: "superlore init now scaffolds a KB that installs, builds, and deploys out of the box — correct package config and working MCP wiring.",
+                },
+              ]}
+            />
             <Release
               version="superlore 0.4"
               date="2026-06-22"
@@ -73,7 +94,10 @@ export default function ChangelogPage() {
                   type: "added",
                   text: "superlore connect — auto-detects VS Code / Cursor / Windsurf and installs the editor extension. No Marketplace.",
                 },
-                { type: "added", text: "The editor extension renders the full component set in preview, including Handoff." },
+                {
+                  type: "added",
+                  text: "The editor extension renders the full component set in preview, including Handoff.",
+                },
               ]}
             />
             <Release
