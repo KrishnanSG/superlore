@@ -38,7 +38,7 @@ export async function connectCommand(flags: ConnectFlags = {}): Promise<void> {
     log.blank();
     log.info(`${dim("Install one, then re-run")} ${cyan("superlore connect")}${dim(".")}`);
     log.info(
-      `${dim("If an editor is installed but its CLI isn't on PATH, open it and run")} ${cyan('"Shell Command: Install \'<editor>\' command in PATH"')}${dim(".")}`,
+      `${dim("If an editor is installed but its CLI isn't on PATH, open it and run")} ${cyan("\"Shell Command: Install '<editor>' command in PATH\"")}${dim(".")}`,
     );
     printMcpNextStep();
     // Not an error: nothing to do, exit clean so it's safe in any script / `init` chain.
@@ -85,7 +85,9 @@ function report(result: InstallResult): InstallResult {
       log.success(`${bold(result.editor.label)} ${dim("— extension installed.")}`);
       break;
     case "already-installed":
-      log.info(`${accent("›")} ${bold(result.editor.label)} ${dim("— already installed, up to date.")}`);
+      log.info(
+        `${accent("›")} ${bold(result.editor.label)} ${dim("— already installed, up to date.")}`,
+      );
       break;
     case "failed":
       log.error(`${bold(result.editor.label)} ${dim("— install failed:")} ${result.error}`);
@@ -109,12 +111,17 @@ function printManualInstall(): void {
 function printMcpNextStep(): void {
   log.blank();
   log.info(bold("Next: connect the MCP"));
+  // superlore's own docs MCP — always-on help: your agent reads superlore's latest docs over MCP.
+  log.info(`  ${dim("superlore's docs + help, in your agent — always current:")}`);
   log.info(
-    `  ${dim("Let your agent read the same corpus. Ask Claude")} ${cyan('"connect my superlore MCP"')}${dim(",")}`,
+    `  ${cyan("claude mcp add --transport http -s user superlore-docs https://superlore.vercel.app/api/mcp")}`,
   );
+  log.blank();
+  // Their own KB MCP — the whole point: the agent reads THEIR corpus, once deployed.
   log.info(
-    `  ${dim("or register it yourself:")} ${cyan("claude mcp add --transport http -s user superlore <url>/api/mcp")}`,
+    `  ${dim("And your own KB once it's live (or ask Claude")} ${cyan('"connect my superlore MCP"')}${dim("):")}`,
   );
+  log.info(`  ${cyan("claude mcp add --transport http -s user my-kb <your-kb-url>/api/mcp")}`);
 }
 
 // Re-export so callers (e.g. `init`) can reason about the editor set without importing the lib.

@@ -200,6 +200,8 @@ export function activate(context: vscode.ExtensionContext): void {
         localResourceRoots: [distRoot],
       },
     );
+    // Tab icon = the superlore Fold mark, not VS Code's generic file glyph.
+    created.iconPath = vscode.Uri.joinPath(context.extensionUri, "media", "icon.svg");
     created.webview.html = buildHtml(created.webview);
 
     // The webview posts { type: "ready" } once mounted, so a slow boot never misses content.

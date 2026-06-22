@@ -13,13 +13,21 @@ them into Claude, and you get a complete, MCP-enabled KB — no setup, no framew
 ## Let Claude build it
 
 <Steps>
-  <Step title="Add the superlore plugin (one time)">
-    Paste this into Claude:
+  <Step title="Add the superlore marketplace (one time)">
+    Paste into Claude — on its own:
 
     ```text
     /plugin marketplace add KrishnanSG/superlore
+    ```
+
+  </Step>
+  <Step title="Install the plugin">
+    Then, as a separate command:
+
+    ```text
     /plugin install superlore@superlore
     ```
+
   </Step>
   <Step title="Ask for your knowledge base">
     In a fresh chat, paste:
@@ -28,19 +36,23 @@ them into Claude, and you get a complete, MCP-enabled KB — no setup, no framew
     Make me a docs site with superlore
     ```
 
-    That's it. Claude takes it from there.
+    That's it. Claude takes it from there — and the superlore MCP ships with the plugin, so it can
+    read the docs as it builds.
+
   </Step>
 </Steps>
 
-<KeyFacts items={[{ label: "Copy → paste into Claude", value: "Make me a docs site with superlore" }]} />
+<KeyFacts
+  items={[{ label: "Copy → paste into Claude", value: "Make me a docs site with superlore" }]}
+/>
 
 ### What Claude does — automatically
 
 <Steps>
   <Step title="Asks two quick questions">
     **What kind of KB** — a **Company KB** (internal, for your teams + agents) or **Product
-    Documentation** (public, for your users) — and **who can read it** — **auth-protected**
-    (Google SSO gates the site _and_ the MCP) or **public**.
+    Documentation** (public, for your users) — and **who can read it** — **auth-protected** (Google
+    SSO gates the site _and_ the MCP) or **public**.
   </Step>
   <Step title="Warns if a company KB would be public">
     Choose a Company KB without auth and Claude flags it — an internal KB shouldn't be
@@ -86,8 +98,8 @@ superlore connect      # detects your editor(s), installs the live-preview exten
 ```
 
 <Note>
-  One get-started path: install the CLI → `superlore init` scaffolds the KB and sets up your editor →
-  then connect the MCP so your agent reads the same corpus (`connect` prints the exact `claude mcp
+  One get-started path: install the CLI → `superlore init` scaffolds the KB and sets up your editor
+  → then connect the MCP so your agent reads the same corpus (`connect` prints the exact `claude mcp
   add` command, or just ask Claude to _"connect my superlore MCP"_).
 </Note>
 

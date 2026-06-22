@@ -10,5 +10,11 @@
   "homepage": "https://github.com/KrishnanSG/superlore",
   "repository": "https://github.com/KrishnanSG/superlore",
   "license": "MIT",
-  "keywords": ["superlore", "knowledge-base", "docs", "mdx", "fumadocs", "mcp", "agent", "nextjs"]
+  "keywords": ["superlore", "knowledge-base", "docs", "mdx", "fumadocs", "mcp", "agent", "nextjs"],
+  "mcpServers": {
+    "superlore-docs": {
+      "type": "http",
+      "url": "https://superlore.vercel.app/api/mcp"
+    }
+  }
 }

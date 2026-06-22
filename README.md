@@ -30,14 +30,21 @@ can read over **MCP**.
 
 ## Get started
 
-**Let your agent build it.** Add the superlore plugin — paste these two lines into Claude:
+**Let your agent build it** — three quick pastes into Claude (run each on its own, in order):
+
+**1 · Add the marketplace** (one time)
 
 ```text
 /plugin marketplace add KrishnanSG/superlore
+```
+
+**2 · Install the plugin**
+
+```text
 /plugin install superlore@superlore
 ```
 
-Then, in a fresh chat, just ask:
+**3 · Ask for your knowledge base** — in a fresh chat
 
 ```text
 Make me a docs site with superlore
@@ -66,7 +73,7 @@ and the same block renders a beautiful, interactive surface for humans **and** s
 typed data an agent reads over MCP — provably one source, no drift.
 
 <div align="center">
-  <img src="https://superlore.vercel.app/dual-representation.png" alt="A superlore canvas rendered as an interactive architecture whiteboard — the human face of one authored block, and the same typed graph an agent reads over MCP" width="100%" />
+  <img src="apps/docs/public/landing-hero.png" alt="superlore landing — one authored block shown as a live, interactive board for humans alongside the same typed JSON an agent reads over MCP" width="100%" />
 </div>
 
 > The board a human sees **is** the typed graph an agent reads — queryable structure, not a flat image.

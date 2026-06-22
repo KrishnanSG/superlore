@@ -42,12 +42,14 @@ export function banner(): void {
   }
   // The Fold mark: the lit (human) face on the left and the half-tone (machine) face on the right,
   // meeting at the center crease, peaked top and bottom — mirrors brand/superlore-mark.svg.
+  // Two clean violet tones — the lit (human) face and the lighter machine face — meeting at the
+  // crease, rounded top and bottom. Solid blocks, no shade texture (that read as a checker grid).
   const seam = dim("▏");
   const lines = [
-    `  ${accent("▗▟█")}${accentSoft("▙▖")}`,
-    `  ${accent("▐█")}${seam}${accentSoft("▒▌")}   ${wordmark("superlore")}`,
-    `  ${accent("▐█")}${seam}${accentSoft("▒▌")}   ${dim("the company knowledge base your agents run on")}`,
-    `  ${accent("▝▜█")}${accentSoft("▛▘")}`,
+    `  ${accent("▗▄")}${seam}${accentSoft("▄▖")}`,
+    `  ${accent("██")}${seam}${accentSoft("██")}   ${wordmark("superlore")}`,
+    `  ${accent("██")}${seam}${accentSoft("██")}   ${dim("the company knowledge base your agents run on")}`,
+    `  ${accent("▝▀")}${seam}${accentSoft("▀▘")}`,
   ];
   process.stdout.write(`\n${lines.join("\n")}\n\n`);
 }
