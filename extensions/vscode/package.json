@@ -37,7 +37,10 @@
         "command": "superlore.openPreview",
         "title": "Open Preview to the Side",
         "category": "superlore",
-        "icon": "$(open-preview)"
+        "icon": {
+          "light": "media/icon.svg",
+          "dark": "media/icon.svg"
+        }
       }
     ],
     "keybindings": [
