@@ -43,6 +43,10 @@ moat — don't compromise it.
   docs under `node_modules/next/dist/docs/` before writing Next code.
 - **The MCP is a first-class surface**, not an afterthought — changes to the content model must
   keep the MCP contract coherent.
+- **Semver, packages versioned independently** — never change a published package's public surface
+  (exports, component props, `superlore.json`, MCP tools) without a version bump; keep
+  `package.json` `version` and the CLI `VERSION` constant in sync. Full rules:
+  [`CONTRIBUTING.md`](./CONTRIBUTING.md#versioning--releases).
 - **No emoji in core UI.** Flat, theme-equal, hierarchy via surfaces + 1px borders.
 
 ## Repo layout (scaffold)

@@ -46,6 +46,26 @@ pnpm dev          # run superlore's own docs app (built with superlore)
 - Add or update a Storybook story / example for any new or changed component.
 - Be kind and constructive — see [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md).
 
+## Versioning & releases
+
+superlore follows [semver](https://semver.org). The two publishable packages version
+**independently**: `superlore` (core) and `superlore-cli`.
+
+- **Pre-1.0 (`0.x`)** — bump the **minor** (`0.x.0`) for new features or new public exports
+  (backward-compatible — e.g. adding the `superlore/ui · source · config · next` subpaths shipped
+  as `0.2.0`); bump the **patch** (`0.x.y`) for fixes with no API change (e.g. a CLI banner tweak →
+  `superlore-cli@0.1.1`). Breaking changes also bump the minor while in `0.x`.
+- **Post-1.0** — **major** for breaking changes (removed/renamed exports, changed signatures,
+  dropped peer ranges), **minor** for backward-compatible features, **patch** for fixes.
+- **Never change a published package's public surface** — its exports, component props, the
+  `superlore.json` schema, or the MCP tools — without a version bump.
+- Keep each `package.json` `version` and the CLI's `VERSION` constant
+  (`packages/cli/src/index.ts`) in sync.
+- Conventional commits map to bumps: `feat:` → minor, `fix:` → patch, `feat!:` /
+  `BREAKING CHANGE:` → major.
+- **Publish** with `pnpm --filter <pkg> publish` (it applies the `src` → `dist` export swap; npm
+  2FA required), then tag the release.
+
 ## License
 
 By contributing, you agree that your contributions are licensed under the [Apache License 2.0](./LICENSE).
