@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import * as os from "node:os";
 import { join, dirname } from "node:path";
+import { CorpusTreeProvider, PageOutlineProvider, readMcpEndpoint } from "./views";
 
 /** A persisted comment (shape mirrors webview/src/comments/model.ts — host treats it opaquely). */
 interface StoredComment {
@@ -274,6 +275,88 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Track VS Code's theme and push it to the webview (superlore dark = the `.dark` class).
     vscode.window.onDidChangeActiveColorTheme(() => postTheme()),
+  );
+
+  // ──────────── Activity Bar home (Phase 1): corpus · this page · status ────────────
+  const corpus = new CorpusTreeProvider();
+  const pageOutline = new PageOutlineProvider();
+
+  // Status bar: present only inside a superlore project; surfaces the KB's MCP endpoint.
+  const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+  status.command = "superlore.openPreview";
+  const refreshStatus = (): void => {
+    const mcp = readMcpEndpoint();
+    if (mcp) {
+      status.text = "$(book) superlore";
+      status.tooltip = `superlore knowledge base · MCP at ${mcp}\nClick to open the dual-representation preview`;
+      status.show();
+    } else {
+      status.hide();
+    }
+  };
+  refreshStatus();
+
+  // Re-parse the active doc's outline as it changes, lightly debounced.
+  let outlineDebounce: ReturnType<typeof setTimeout> | undefined;
+  // The corpus tree follows files appearing / disappearing on disk.
+  const watcher = vscode.workspace.createFileSystemWatcher("**/*.mdx");
+
+  context.subscriptions.push(
+    vscode.window.registerTreeDataProvider("superlore.corpus", corpus),
+    vscode.window.registerTreeDataProvider("superlore.page", pageOutline),
+    status,
+    watcher,
+
+    vscode.commands.registerCommand("superlore.refreshCorpus", () => {
+      corpus.refresh();
+      pageOutline.refresh();
+      refreshStatus();
+    }),
+
+    // Welcome-view CTA when no KB is detected — point at the scaffold path.
+    vscode.commands.registerCommand("superlore.scaffoldHint", () => {
+      void vscode.window
+        .showInformationMessage(
+          "Scaffold a superlore KB: run `npm create superlore@latest` in a terminal, " +
+            "or ask your agent (with the superlore plugin) to set one up.",
+          "Open a terminal",
+        )
+        .then((choice) => {
+          if (choice === "Open a terminal") {
+            vscode.window.createTerminal("superlore").show();
+          }
+        });
+    }),
+
+    // Jump the active editor to a line picked in the "This page" outline.
+    vscode.commands.registerCommand("superlore.revealLine", (line: number) => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor || typeof line !== "number") return;
+      const pos = new vscode.Position(line, 0);
+      editor.selection = new vscode.Selection(pos, pos);
+      editor.revealRange(
+        new vscode.Range(pos, pos),
+        vscode.TextEditorRevealType.InCenterIfOutsideViewport,
+      );
+      void vscode.window.showTextDocument(editor.document, {
+        viewColumn: editor.viewColumn,
+        preserveFocus: false,
+      });
+    }),
+
+    vscode.window.onDidChangeActiveTextEditor(() => pageOutline.refresh()),
+    vscode.workspace.onDidChangeTextDocument((e) => {
+      if (e.document !== vscode.window.activeTextEditor?.document) return;
+      if (outlineDebounce) clearTimeout(outlineDebounce);
+      outlineDebounce = setTimeout(() => pageOutline.refresh(), 300);
+    }),
+    vscode.workspace.onDidChangeWorkspaceFolders(() => {
+      corpus.refresh();
+      refreshStatus();
+    }),
+
+    watcher.onDidCreate(() => corpus.refresh()),
+    watcher.onDidDelete(() => corpus.refresh()),
   );
 }
 

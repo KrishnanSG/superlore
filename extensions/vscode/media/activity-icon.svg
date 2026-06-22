@@ -1,0 +1,6 @@
+<svg width="24" height="24" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="#ffffff">
+  <!-- The Fold mark as a monochrome silhouette (VS Code masks + themes it). A small gap at the
+       crease keeps the two faces readable as the fold. -->
+  <polygon points="14,20 30.5,12.5 30.5,46 14,54" />
+  <polygon points="33.5,12.5 50,20 50,54 33.5,46" />
+</svg>

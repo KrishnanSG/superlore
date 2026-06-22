@@ -1,7 +1,7 @@
 {
   "name": "superlore-preview",
   "displayName": "superlore Preview",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Live, dual-representation preview for superlore .mdx — renders every component (Canvas/whiteboard, Timeline, Board, Table, …) as you type, with FigJam-style comment pins and Copy to Agent.",
   "license": "Apache-2.0",
   "author": "Krishnan S G",
@@ -29,9 +29,41 @@
   "main": "./dist/extension.cjs",
   "activationEvents": [
     "onLanguage:mdx",
-    "onLanguage:markdown"
+    "onLanguage:markdown",
+    "onView:superlore.corpus",
+    "onView:superlore.page",
+    "workspaceContains:superlore.json"
   ],
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "superlore",
+          "title": "superlore",
+          "icon": "media/activity-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "superlore": [
+        {
+          "id": "superlore.corpus",
+          "name": "Corpus",
+          "icon": "media/activity-icon.svg"
+        },
+        {
+          "id": "superlore.page",
+          "name": "This page",
+          "icon": "media/activity-icon.svg"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "superlore.corpus",
+        "contents": "No superlore knowledge base found in this workspace.\n\nA superlore KB is a folder with a `superlore.json` and your pages in `content/`.\n\n[Scaffold a KB](command:superlore.scaffoldHint)\n\n[Open the docs](https://superlore.vercel.app/docs)"
+      }
+    ],
     "commands": [
       {
         "command": "superlore.openPreview",
@@ -41,6 +73,17 @@
           "light": "media/icon.svg",
           "dark": "media/icon.svg"
         }
+      },
+      {
+        "command": "superlore.refreshCorpus",
+        "title": "Refresh",
+        "category": "superlore",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "superlore.scaffoldHint",
+        "title": "Scaffold a Knowledge Base",
+        "category": "superlore"
       }
     ],
     "keybindings": [
@@ -69,6 +112,13 @@
         {
           "command": "superlore.openPreview",
           "when": "resourceExtname == .mdx || resourceExtname == .superlore || resourceFilename =~ /\\.superlore\\.mdx$/ || editorLangId == mdx"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "superlore.refreshCorpus",
+          "when": "view == superlore.corpus",
+          "group": "navigation"
         }
       ]
     }

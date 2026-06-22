@@ -11,11 +11,10 @@ tsconfig.json
 verify/**
 scratch/**
 scripts/**
-# The icon source SVG — only the rendered media/icon.png ships.
-media/icon.svg
 
-# Keep: dist/** (extension.js + webview/), media/icon.png, README.md, package.json, LICENSE
+# Keep: dist/** (extension.cjs + webview/), media/** (icon.png marketplace icon + the Fold-mark
+# SVGs the editor-title command and the Activity Bar reference), README, manifest.
 !dist/**
-!media/icon.png
+!media/**
 !README.md
 !package.json
