@@ -99,6 +99,25 @@
   background-color: color-mix(in oklab, var(--kp-accent) 22%, transparent);
 }
 
+/* Sidebar hierarchy. The page tree renders separators (section headers) and page links as a flat
+   sibling list at one indent, so headers and items read as the same level. Treat the separators as
+   quiet eyebrow labels and tuck the links a step to their right, so the tree reads header → items.
+   `[data-active]` is present on every page/folder link (true|false), so this targets links only. */
+#nd-sidebar p {
+  margin-top: 1.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fd-muted-foreground);
+}
+#nd-sidebar p svg {
+  opacity: 0.6;
+}
+#nd-sidebar a[data-active] {
+  margin-inline-start: 0.75rem;
+}
+
 /* Branded focus ring: replace the browser-default blue rectangle with an accent ring. Modern
    browsers round the outline to the element's border-radius, so pills/buttons stay on-brand. */
 :focus-visible {
