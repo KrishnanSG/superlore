@@ -42,4 +42,7 @@ switch ($pm) {
 }
 
 Write-Host "$violet>$z Done. Scaffold your first knowledge base:"
-Write-Host "    ${bold}superlore init my-kb$z"
+Write-Host "    ${bold}superlore init my-kb$z   ${dim}- scaffolds the KB and sets up your editor$z"
+Write-Host ""
+Write-Host "${dim}Already set up? ${z}${bold}superlore connect$z${dim} installs the live-preview extension into$z"
+Write-Host "${dim}VS Code, Cursor, and Windsurf. Docs: https://superlore.vercel.app/docs$z"

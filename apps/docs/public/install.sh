@@ -88,5 +88,7 @@ if ! command -v superlore >/dev/null 2>&1; then
 fi
 
 say "Done. Scaffold your first knowledge base:"
-printf "    ${B}superlore init my-kb${Z}\n\n"
-printf "${D}Or just ask Claude: \"Make me a docs site using superlore.\" — see https://superlore.vercel.app/docs${Z}\n"
+printf "    ${B}superlore init my-kb${Z}   ${D}— scaffolds the KB and sets up your editor${Z}\n\n"
+printf "${D}Already set up? ${Z}${B}superlore connect${Z}${D} installs the live-preview extension into${Z}\n"
+printf "${D}VS Code · Cursor · Windsurf. Or just ask Claude: \"Make me a docs site using superlore.\"${Z}\n"
+printf "${D}Docs: https://superlore.vercel.app/docs${Z}\n"

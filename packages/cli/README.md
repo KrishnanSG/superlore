@@ -40,10 +40,16 @@ curl -fsSL https://superlore.vercel.app/install.sh | sh    # or: npm i -g superl
 ```
 
 ```bash
-superlore init my-kb   # scaffold — 2 questions → superlore.json + starter pages
+superlore init my-kb   # scaffold — 2 questions → superlore.json + starter pages, then sets up your editor
+superlore connect      # detect VS Code / Cursor / Windsurf and install the live-preview extension
 superlore dev          # live preview at localhost:3000
 superlore build        # production build, deploy anywhere
 ```
+
+`init` ends by offering to run `connect` for you, so one command takes you from nothing to a
+scaffolded KB with the editor extension installed — then it points you at wiring the MCP to your
+agent. `connect` detects each editor via its CLI or standard install path (macOS / Linux / Windows)
+and is safe to re-run.
 
 `superlore deploy` is reserved for managed **superlore Cloud**
 ([waitlisted](https://superlore.vercel.app/cloud)) — self-host free with `superlore build`.

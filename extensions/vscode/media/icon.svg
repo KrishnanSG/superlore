@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="superlore">
+  <!-- App-icon tile: the superlore "Fold" mark on an ink tile. -->
+  <rect width="64" height="64" rx="14" fill="#0B0C0E" />
+  <polygon points="14,20 32,12 32,46 14,54" fill="#6D5CF0" />
+  <polygon points="32,12 50,20 50,54 32,46" fill="#6D5CF0" opacity="0.5" />
+</svg>

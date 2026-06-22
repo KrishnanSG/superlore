@@ -76,6 +76,20 @@ cd my-kb
 superlore dev          # local preview at http://localhost:3000
 ```
 
+`superlore init` finishes by offering to set up your **editor** — it detects VS Code, Cursor, and
+Windsurf and installs the **superlore Preview** extension into each, so you get a live,
+dual-representation preview of every component as you type. Run it any time on its own:
+
+```bash
+superlore connect      # detects your editor(s), installs the live-preview extension
+```
+
+<Note>
+  One get-started path: install the CLI → `superlore init` scaffolds the KB and sets up your editor →
+  then connect the MCP so your agent reads the same corpus (`connect` prints the exact `claude mcp
+  add` command, or just ask Claude to _"connect my superlore MCP"_).
+</Note>
+
 ## Wire it in by hand
 
 The plugin and CLI generate everything below — reach for this only if you want to add superlore to

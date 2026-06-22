@@ -32,10 +32,13 @@ superlore works — that's the whole point of this skill. Keep the conversation 
 5. **Scaffold** — run `superlore init` with the answers (see CLI contract), narrating it.
 6. **Write / verify `superlore.json`** — the canonical config (schema below).
 7. **Seed starter content** — a couple of dual-representation pages so the KB isn't empty.
-8. **Offer to connect the MCP** — hand off to **superlore-connect-mcp** (never edit the user's Claude
+8. **Set up the editor** — `superlore init` offers this itself (it detects VS Code / Cursor /
+   Windsurf and installs the **superlore Preview** extension). If the user ran `init` non-interactively,
+   mention they can run `superlore connect` to install the live-preview extension into their editor(s).
+9. **Offer to connect the MCP** — hand off to **superlore-connect-mcp** (never edit the user's Claude
    config from this skill without their say-so).
-9. **Tell them how to run it and what's next** — `superlore dev`, then author (**superlore-author**) and,
-   when ready, deploy (**superlore-deploy**).
+10. **Tell them how to run it and what's next** — `superlore dev`, then author (**superlore-author**) and,
+    when ready, deploy (**superlore-deploy**).
 
 ## The two questions (use AskUserQuestion)
 
@@ -154,6 +157,9 @@ any Claude config and asks for the URL if it isn't known yet. Do not run `claude
 End with a short, concrete next-steps list:
 
 - **Run it:** `superlore dev` (or `npx superlore dev`) → open the local URL.
+- **Preview in your editor:** `superlore connect` installs the superlore Preview extension into
+  VS Code / Cursor / Windsurf (live preview of every component as you author). `init` already offers
+  this; mention it if it was skipped.
 - **Author:** "ask me to add pages, a canvas, or components" → triggers **superlore-author**.
 - **Connect agents:** offer **superlore-connect-mcp** if you didn't already.
 - **Deploy:** when ready, **superlore-deploy** (self-host on Vercel today; superlore Cloud is waitlisted).

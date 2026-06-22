@@ -14,6 +14,7 @@ import process from "node:process";
 import { cac } from "cac";
 
 import { buildCommand } from "./commands/build.js";
+import { connectCommand } from "./commands/connect.js";
 import { deployCommand } from "./commands/deploy.js";
 import { devCommand } from "./commands/dev.js";
 import { initCommand } from "./commands/init.js";
@@ -23,7 +24,7 @@ import { banner, log } from "./lib/log.js";
 export * from "./config.js";
 
 /** The CLI version, kept in sync with package.json at build time. */
-export const VERSION = "0.1.2";
+export const VERSION = "0.2.0";
 
 /** Build the argument parser. Exported for tests; `run()` wires it to argv. */
 export function buildCli(argv: readonly string[] = process.argv) {
@@ -38,6 +39,8 @@ export function buildCli(argv: readonly string[] = process.argv) {
     .option("--allowed-domain <domain>", "Restrict SSO to one email domain (implies --auth)")
     .option("--accent <color>", "Brand accent colour (any CSS colour)")
     .option("--no-mcp", "Disable the MCP endpoint (on by default)")
+    .option("--connect", "Install the editor extension after scaffolding (skip the prompt)")
+    .option("--no-connect", "Don't set up the editor extension")
     .option("-y, --yes", "Skip prompts; use flags + defaults")
     .example("superlore init my-kb --type product-docs")
     .example("superlore init acme --type company-kb --auth --allowed-domain acme.com")
@@ -51,15 +54,20 @@ export function buildCli(argv: readonly string[] = process.argv) {
           allowedDomain?: string;
           accent?: string;
           mcp?: boolean;
+          connect?: boolean;
           yes?: boolean;
         },
       ) => {
         // cac registers `auth: true` by default whenever `--no-auth` exists, so flags.auth can't
         // distinguish "unset" from "explicitly enabled". Recover the user's intent from raw argv:
-        // unset ⇒ undefined (let init apply the type-based default).
+        // unset ⇒ undefined (let init apply the type-based default). Same for --connect/--no-connect.
         const authExplicit = argv.includes("--auth");
         const noAuthExplicit = argv.includes("--no-auth");
         const auth = authExplicit ? true : noAuthExplicit ? false : undefined;
+
+        const connectExplicit = argv.includes("--connect");
+        const noConnectExplicit = argv.includes("--no-connect");
+        const connect = connectExplicit ? true : noConnectExplicit ? false : undefined;
 
         await initCommand(dir, {
           name: flags.name,
@@ -69,6 +77,7 @@ export function buildCli(argv: readonly string[] = process.argv) {
           accent: flags.accent,
           // `--no-mcp` flips this to false; default true is the intended behaviour.
           mcp: flags.mcp,
+          connect,
           yes: flags.yes,
         });
       },
@@ -84,6 +93,14 @@ export function buildCli(argv: readonly string[] = process.argv) {
   cli.command("build", "Production build of the KB").action(async () => {
     await buildCommand();
   });
+
+  cli
+    .command("connect", "Install the superlore editor extension (VS Code · Cursor · Windsurf)")
+    .option("--vsix <path>", "Install from a local .vsix instead of the Marketplace")
+    .example("superlore connect")
+    .action(async (flags: { vsix?: string }) => {
+      await connectCommand({ vsix: flags.vsix });
+    });
 
   cli
     .command("deploy", "Managed deploy (superlore Cloud) — private beta, joins the waitlist")
