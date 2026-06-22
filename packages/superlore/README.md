@@ -187,35 +187,30 @@ superlore is a component library, theme, and MCP server you drop into your docs 
 
 ## Quickstart
 
-> The `superlore` package is **not yet on npm**. For now, clone the monorepo and run the docs site to
-> explore the components, Canvas, and MCP. The flow below is the intended npm experience once the
-> first release lands.
+The fastest path is to **let your agent build it** — install the superlore plugin, then ask:
 
-**Explore the repo today**
-
-```bash
-git clone https://github.com/KrishnanSG/superlore.git
-cd superlore
-pnpm install        # Node >= 20, pnpm >= 10
-pnpm dev            # runs apps/docs — the canonical, MCP-enabled reference KB
+```text
+/plugin marketplace add KrishnanSG/superlore
+/plugin install superlore@superlore
 ```
 
-**The intended install (coming to npm)**
+```text
+Make me a docs site with superlore
+```
+
+Your agent scaffolds the project, writes `superlore.json`, seeds pages, wires the MCP, and previews
+it. Prefer a terminal? `curl -fsSL https://superlore.vercel.app/install.sh | sh`, then `superlore init`.
+
+**Or add it to an app**
 
 ```bash
-# add superlore to a Next.js 16 + Fumadocs app
 npm i superlore
-
-# …or just ask your agent
-"Build me a knowledge base for <X> with superlore and deploy it to Vercel."
 ```
 
-Import the theme in your global stylesheet, after Tailwind and the Fumadocs presets:
+Import the theme — two lines, superlore bundles the base styles it sits on:
 
 ```css
 @import "tailwindcss";
-@import "fumadocs-ui/css/neutral.css";
-@import "fumadocs-ui/css/preset.css";
 @import "superlore/css";
 
 @source "../node_modules/superlore/dist";
