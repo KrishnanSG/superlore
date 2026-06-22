@@ -1,0 +1,698 @@
+---
+title: Canvas
+icon: PenTool
+description: FigJam, in code — a whiteboard authored as a superlore-canvas spec, auto-designed and auto-laid-out.
+summary: Declare nodes, edges, and groups; superlore auto-designs and auto-lays-out a polished, interactive whiteboard that also serializes to a node/edge graph for the MCP.
+tags: [components, canvas, whiteboard, rich-visualization]
+---
+
+The **Canvas** turns a structured `superlore-canvas` spec into a polished, interactive whiteboard —
+no colors, sizes, or positions to choose. You declare _what_ (nodes, edges, groups, intents);
+superlore auto-designs and auto-lays-out the _how_. The same spec is the node/edge graph an agent
+reads over the MCP. Hit the maximize button (top-right) to open any board full-screen.
+
+## Edit it like a whiteboard
+
+Every board has an **Edit** button (the pencil, top-right). Click it and the canvas becomes a
+FigJam-style editor: **drag** nodes to rearrange, **＋ Note** to drop a sticky, click a node to
+**rename** or **delete** it. Then hit **Copy spec** — and you get the edited board back as a
+`superlore-canvas` JSON (a `manual` layout with exact coordinates).
+
+That's the whole point: you edit like a whiteboard, but it stays **your typed graph** — the same
+structure the MCP serves to agents. No exporting a picture, no drift. Paste the copied spec back
+into your `.mdx` and the board reopens exactly as you arranged it.
+
+## Shape library
+
+The full FigJam shape vocabulary — basic polygons, arrows, and flowchart shapes — all rendered
+from the same `superlore-canvas` spec, auto-designed (token-driven fills, theme-aware) and labeled.
+Pick a `kind`, add a `label`, optionally an `intent`; superlore does the rest.
+
+<Canvas
+  spec={{
+    title: "FigJam shape library",
+    layout: "free",
+    nodes: [
+      { id: "triangle", kind: "triangle", label: "Triangle", intent: "blue", x: 0, y: 0 },
+      {
+        id: "triangle-down",
+        kind: "triangle-down",
+        label: "Inverted",
+        intent: "purple",
+        x: 200,
+        y: 0,
+      },
+      { id: "pentagon", kind: "pentagon", label: "Pentagon", intent: "teal", x: 400, y: 0 },
+      { id: "hexagon", kind: "hexagon", label: "Hexagon", intent: "green", x: 600, y: 0 },
+      { id: "octagon", kind: "octagon", label: "Octagon", intent: "red", x: 800, y: 0 },
+      { id: "star", kind: "star", label: "Star", intent: "yellow", x: 0, y: 180 },
+      { id: "cross", kind: "cross", label: "Plus", intent: "pink", x: 200, y: 180 },
+      { id: "arrow-left", kind: "arrow-left", label: "Back", intent: "orange", x: 400, y: 180 },
+      { id: "arrow-right", kind: "arrow-right", label: "Next", intent: "blue", x: 620, y: 180 },
+      { id: "chevron", kind: "chevron", label: "Step", intent: "purple", x: 840, y: 180 },
+      { id: "parallelogram", kind: "parallelogram", label: "Input", intent: "teal", x: 0, y: 340 },
+      { id: "trapezoid", kind: "trapezoid", label: "Manual op", intent: "green", x: 220, y: 340 },
+      { id: "callout", kind: "callout", label: "Note this", intent: "accent", x: 440, y: 340 },
+      { id: "document", kind: "document", label: "Report", intent: "gray", x: 640, y: 340 },
+      { id: "process", kind: "process", label: "Subroutine", intent: "blue", x: 840, y: 340 },
+      { id: "stack", kind: "stack", label: "Records", intent: "gray", x: 0, y: 500 },
+      { id: "cylinder", kind: "cylinder", label: "Datastore", intent: "green", x: 200, y: 500 },
+      {
+        id: "sticky",
+        kind: "sticky",
+        label: "An idea on the wall",
+        intent: "yellow",
+        x: 400,
+        y: 500,
+      },
+      { id: "annot", kind: "annotation", label: "a handwritten aside", x: 640, y: 510 },
+      { id: "heading", kind: "heading", label: "Display heading", x: 840, y: 510 },
+    ],
+  }}
+/>
+
+## Sketch an architecture
+
+Frames, services, datastores, and an object store — colorful, auto-placed, all on-brand:
+
+<Canvas
+  spec={{
+    title: "Web service architecture",
+    layout: "auto",
+    direction: "right",
+    groups: [
+      { id: "edge", label: "Edge", frame: true },
+      { id: "core", label: "Core services", frame: true },
+    ],
+    nodes: [
+      { id: "client", kind: "icon", icon: "globe", label: "Client" },
+      { id: "cdn", kind: "rounded", group: "edge", intent: "blue", label: "CDN" },
+      { id: "gw", kind: "rounded", group: "edge", intent: "purple", label: "API Gateway" },
+      { id: "auth", kind: "rounded", group: "core", intent: "pink", label: "Auth service" },
+      { id: "api", kind: "rounded", group: "core", intent: "blue", label: "App service" },
+      { id: "queue", kind: "rounded", group: "core", intent: "orange", label: "Job queue" },
+      { id: "worker", kind: "rounded", group: "core", intent: "teal", label: "Worker" },
+      { id: "pg", kind: "cylinder", intent: "green", label: "Postgres" },
+      { id: "redis", kind: "cylinder", intent: "red", label: "Redis" },
+      { id: "blob", kind: "icon", icon: "cloud", label: "Object storage" },
+    ],
+    edges: [
+      { from: "client", to: "cdn" },
+      { from: "cdn", to: "gw" },
+      { from: "gw", to: "auth", rel: "depends-on" },
+      { from: "gw", to: "api" },
+      { from: "api", to: "queue", label: "enqueue" },
+      { from: "queue", to: "worker" },
+      { from: "api", to: "redis", label: "cache" },
+      { from: "worker", to: "pg", rel: "related", label: "writes" },
+      { from: "worker", to: "blob", kind: "curved", label: "persist" },
+    ],
+  }}
+/>
+
+## Looks great with zero styling
+
+Every node here declares only a `kind`, a `label`, and a `group` — **no colours, no sizes, no
+positions, no `intent`**. superlore's auto-designer does the rest: harmonious hues, soft section
+fills, tidy ELK layout, crisp connectors. This is the bar — a naive board still reads as a
+designed FigJam board.
+
+<Canvas
+  spec={{
+    title: "Checkout service — request path",
+    layout: "auto",
+    direction: "right",
+    groups: [
+      { id: "ingress", label: "Ingress", frame: true },
+      { id: "services", label: "Services", frame: true },
+      { id: "data", label: "Data", frame: true },
+    ],
+    nodes: [
+      { id: "user", kind: "circle", label: "Shopper" },
+      { id: "lb", kind: "rounded", label: "Load balancer", group: "ingress" },
+      { id: "gw", kind: "rounded", label: "API gateway", group: "ingress" },
+      { id: "cart", kind: "rounded", label: "Cart service", group: "services" },
+      { id: "checkout", kind: "rounded", label: "Checkout service", group: "services" },
+      { id: "payment", kind: "rounded", label: "Payment service", group: "services" },
+      { id: "inventory", kind: "rounded", label: "Inventory service", group: "services" },
+      { id: "events", kind: "rounded", label: "Event bus", group: "services" },
+      { id: "orders", kind: "cylinder", label: "Orders DB", group: "data" },
+      { id: "ledger", kind: "cylinder", label: "Ledger DB", group: "data" },
+    ],
+    edges: [
+      { from: "user", to: "lb" },
+      { from: "lb", to: "gw" },
+      { from: "gw", to: "cart" },
+      { from: "gw", to: "checkout" },
+      { from: "checkout", to: "payment", label: "charge" },
+      { from: "checkout", to: "inventory", label: "reserve" },
+      { from: "checkout", to: "events", label: "emit" },
+      { from: "checkout", to: "orders", label: "write" },
+      { from: "payment", to: "ledger", label: "post" },
+    ],
+  }}
+/>
+
+## Sections within sections
+
+Frames nest: give a group a `parent` and it sits inside the other section, with a slightly
+stronger fill so the depth reads at a glance.
+
+<Canvas
+  spec={{
+    title: "Platform topology",
+    layout: "auto",
+    direction: "down",
+    groups: [
+      { id: "cloud", label: "Cloud account", frame: true },
+      { id: "vpc", label: "Production VPC", frame: true, parent: "cloud" },
+      { id: "public", label: "Public subnet", frame: true, parent: "vpc" },
+      { id: "private", label: "Private subnet", frame: true, parent: "vpc" },
+    ],
+    nodes: [
+      { id: "alb", kind: "rounded", label: "Load balancer", group: "public" },
+      { id: "bastion", kind: "rounded", label: "Bastion", group: "public" },
+      { id: "app1", kind: "rounded", label: "App node A", group: "private" },
+      { id: "app2", kind: "rounded", label: "App node B", group: "private" },
+      { id: "db", kind: "cylinder", label: "Primary DB", group: "private" },
+    ],
+    edges: [
+      { from: "alb", to: "app1" },
+      { from: "alb", to: "app2" },
+      { from: "app1", to: "db", label: "read/write" },
+      { from: "app2", to: "db", label: "read/write" },
+    ],
+  }}
+/>
+
+## Not every board is one flow — layouts
+
+A real whiteboard is rarely a single connected diagram. Beyond the layered `auto` layout, two
+layouts handle boards that are **disconnected**:
+
+- **`board`** — a poster of independent sections. Each section is laid out on its own, then the
+  sections are packed **in the order you declare them**, wrapping into rows. No edges required
+  between them; reorder the spec and the poster re-flows.
+- **`manual`** — absolute placement. Every `x`/`y` (and a frame's `width`/`height`) is honoured
+  verbatim, FigJam-style — for a hand-arranged board reproduced pixel-for-pixel.
+
+Connectors can also carry colour: add `intent` to an edge to tint the line and its arrowhead, so a
+flow can be read by colour (or `intent: "neutral"` for a strong foreground line). Below, three
+disconnected sections placed in authored order, with the "happy path" coloured:
+
+<Canvas
+  spec={{
+    title: "Layouts — a poster of sections",
+    layout: "board",
+    direction: "down",
+    groups: [
+      { id: "ingest", label: "Ingest", frame: true, intent: "blue" },
+      { id: "serve", label: "Serve", frame: true, intent: "teal" },
+      { id: "watch", label: "Watch", frame: true, dashed: true, intent: "orange" },
+    ],
+    nodes: [
+      { id: "src", kind: "rect", group: "ingest", label: "Webhook" },
+      { id: "raw", kind: "cylinder", group: "ingest", label: "Raw store" },
+      { id: "pile", kind: "stack", group: "ingest", label: "Events" },
+      { id: "api", kind: "rect", group: "serve", label: "API" },
+      { id: "cache", kind: "cylinder", group: "serve", label: "Cache" },
+      { id: "dash", kind: "rect", group: "watch", label: "Dashboards" },
+      {
+        id: "alert",
+        kind: "rect",
+        intent: "red",
+        dashed: true,
+        group: "watch",
+        label: "On-call alert (proposed)",
+      },
+      { id: "note", kind: "heading", hand: true, label: "Ship ingest first!" },
+    ],
+    edges: [
+      { from: "src", to: "raw", intent: "blue" },
+      { from: "raw", to: "pile", intent: "blue" },
+      { from: "api", to: "cache", intent: "teal", label: "hot path" },
+      { from: "dash", to: "alert", intent: "orange" },
+    ],
+  }}
+/>
+
+For full, real-world boards built with these layouts — an agentic pipeline pinned with `manual`,
+and a multi-section review poster with `board` — see **[Briefs](/docs/canvas/briefs)**.
+
+## Embed images
+
+Drop a screenshot, a logo, or an exported diagram straight onto the board with `kind: "image"` and
+a `src`. It's a real node — humans see the picture, the MCP sees it as media in the graph.
+
+<Canvas
+  spec={{
+    title: "Images on the canvas",
+    layout: "free",
+    nodes: [
+      {
+        id: "logo",
+        kind: "image",
+        src: "/superlore-mark.svg",
+        label: "superlore",
+        width: 150,
+        height: 130,
+        x: 0,
+        y: 0,
+      },
+      {
+        id: "shot",
+        kind: "image",
+        src: "/superlore-mark.svg",
+        label: "Screenshot",
+        width: 170,
+        height: 130,
+        x: 360,
+        y: 0,
+      },
+      {
+        id: "cap",
+        kind: "note",
+        intent: "blue",
+        label: "Reference frame",
+        body: "An image node sits beside the boxes it explains — same spec, same graph.",
+        x: 150,
+        y: 200,
+      },
+    ],
+    edges: [
+      { from: "logo", to: "cap", kind: "line", intent: "blue" },
+      { from: "shot", to: "cap", kind: "line", intent: "blue" },
+    ],
+  }}
+/>
+
+## Brainstorm freely
+
+Set `layout: "free"` for an organic, FigJam-style scatter — perfect for ideation. Stickies
+auto-cycle a harmonious palette so a wall of notes looks designed, not gray.
+
+<Canvas
+  spec={{
+    title: "How do we cut p99 latency?",
+    layout: "free",
+    nodes: [
+      { id: "i1", kind: "rect", label: "Add a cache layer" },
+      { id: "i2", kind: "rect", label: "DB read replicas" },
+      { id: "i3", kind: "rect", label: "Make the slow path async" },
+      { id: "i4", kind: "rect", label: "Precompute hot queries" },
+      { id: "go", kind: "process", label: "Measure again", intent: "green" },
+    ],
+    edges: [
+      { from: "i1", to: "go" },
+      { from: "i2", to: "go" },
+      { from: "i3", to: "go" },
+      { from: "i4", to: "go" },
+    ],
+  }}
+/>
+
+## A deployment pipeline
+
+A system view that reads top to bottom: source through CI to the registry, then a gated promotion
+across environments. Edges are **typed** (`depends-on` for the gate, `blocks` for a guard) so the
+flow carries meaning, not just arrows — and the agent gets those relations in the graph.
+
+<Canvas
+  spec={{
+    title: "CI/CD pipeline",
+    layout: "auto",
+    direction: "down",
+    groups: [
+      { id: "ci", label: "Continuous integration", frame: true },
+      { id: "artifacts", label: "Artifacts", frame: true },
+      { id: "deploy", label: "Promotion", frame: true },
+    ],
+    nodes: [
+      { id: "commit", kind: "circle", intent: "blue", label: "Git push" },
+      { id: "lint", kind: "rounded", group: "ci", intent: "blue", label: "Lint + typecheck" },
+      {
+        id: "test",
+        kind: "rounded",
+        group: "ci",
+        intent: "blue",
+        label: "Unit + integration tests",
+      },
+      { id: "build", kind: "process", group: "ci", intent: "blue", label: "Build image" },
+      {
+        id: "registry",
+        kind: "cylinder",
+        group: "artifacts",
+        intent: "teal",
+        label: "Image registry",
+      },
+      {
+        id: "sbom",
+        kind: "document",
+        group: "artifacts",
+        intent: "teal",
+        label: "SBOM + provenance",
+      },
+      { id: "gate", kind: "diamond", group: "deploy", intent: "yellow", label: "Approval gate" },
+      { id: "staging", kind: "rounded", group: "deploy", intent: "green", label: "Staging" },
+      { id: "smoke", kind: "rounded", group: "deploy", intent: "green", label: "Smoke tests" },
+      { id: "prod", kind: "rounded", group: "deploy", intent: "purple", label: "Production" },
+    ],
+    edges: [
+      { from: "commit", to: "lint" },
+      { from: "lint", to: "test" },
+      { from: "test", to: "build", label: "on green" },
+      { from: "build", to: "registry", label: "push", rel: "related" },
+      { from: "build", to: "sbom", kind: "dashed", label: "attest" },
+      { from: "registry", to: "gate" },
+      { from: "gate", to: "staging", label: "approve", rel: "depends-on" },
+      { from: "staging", to: "smoke" },
+      { from: "smoke", to: "prod", label: "promote", rel: "blocks" },
+    ],
+  }}
+/>
+
+## An ideation board
+
+A free-form brainstorm — `layout: "free"`, `sketch: true` for the hand-drawn FigJam feel.
+Sections gather ideas by theme, stickies hold the raw thoughts, and an `annotation` parks a
+caveat in the margin. This is the "wall of notes" mode: declare the ideas, get a designed board.
+
+<Canvas
+  spec={{
+    title: "What should the platform team build next?",
+    layout: "free",
+    sketch: true,
+    groups: [
+      { id: "dx", label: "Developer experience", intent: "blue" },
+      { id: "reliability", label: "Reliability", intent: "green" },
+      { id: "cost", label: "Cost", intent: "orange" },
+    ],
+    nodes: [
+      { id: "dx1", kind: "sticky", group: "dx", label: "One-command local env" },
+      { id: "dx2", kind: "sticky", group: "dx", label: "Preview deploys per PR" },
+      { id: "dx3", kind: "sticky", group: "dx", label: "Typed client SDK codegen" },
+      {
+        id: "r1",
+        kind: "sticky",
+        group: "reliability",
+        label: "Auto-rollback on error budget burn",
+      },
+      { id: "r2", kind: "sticky", group: "reliability", label: "Chaos test the job queue" },
+      { id: "c1", kind: "sticky", group: "cost", label: "Right-size idle workers" },
+      { id: "c2", kind: "sticky", group: "cost", label: "Tiered storage for cold logs" },
+      { id: "parking", kind: "annotation", group: "cost", label: "needs finance sign-off — park" },
+    ],
+  }}
+/>
+
+## A decision & trade-off flow
+
+A weigh-the-options board — the question, the candidate approaches as cards, the criteria they're
+judged against, the decision diamond, and the outcome. Use this to make a build-vs-buy or
+which-datastore call legible: the agent reads the options and the chosen edge, not a screenshot.
+
+<Canvas
+  spec={{
+    title: "Which datastore for the new audit log?",
+    layout: "auto",
+    direction: "right",
+    groups: [
+      { id: "ask", label: "The question", frame: true, intent: "blue" },
+      { id: "options", label: "Options", frame: true, intent: "purple" },
+      { id: "criteria", label: "Criteria", frame: true, intent: "yellow" },
+      { id: "outcome", label: "Decision", frame: true, intent: "green" },
+    ],
+    nodes: [
+      {
+        id: "q",
+        kind: "card",
+        group: "ask",
+        intent: "blue",
+        label: "Append-only, high write volume, queried rarely",
+      },
+      { id: "pg", kind: "card", group: "options", intent: "purple", label: "Postgres table" },
+      { id: "ts", kind: "card", group: "options", intent: "purple", label: "Time-series DB" },
+      {
+        id: "obj",
+        kind: "card",
+        group: "options",
+        intent: "purple",
+        label: "Object store + manifest",
+      },
+      { id: "write", kind: "sticky", group: "criteria", label: "Write throughput" },
+      { id: "cost", kind: "sticky", group: "criteria", label: "Cost at 1y retention" },
+      { id: "ops", kind: "sticky", group: "criteria", label: "Operational burden" },
+      { id: "pick", kind: "diamond", group: "outcome", label: "Best fit?" },
+      {
+        id: "ship",
+        kind: "card",
+        group: "outcome",
+        intent: "green",
+        label: "Object store + manifest",
+      },
+      {
+        id: "why",
+        kind: "annotation",
+        group: "outcome",
+        label: "cheapest at retention; rare reads OK",
+      },
+    ],
+    edges: [
+      { from: "q", to: "pg" },
+      { from: "q", to: "ts" },
+      { from: "q", to: "obj" },
+      { from: "pg", to: "write", kind: "dashed", label: "good" },
+      { from: "obj", to: "cost", kind: "dashed", label: "best" },
+      { from: "ts", to: "ops", kind: "dashed", label: "heavy" },
+      { from: "cost", to: "pick" },
+      { from: "pick", to: "ship", label: "win on cost", rel: "links" },
+      { from: "ship", to: "why", kind: "dashed" },
+    ],
+  }}
+/>
+
+## Authoring
+
+A Canvas is a JSON `superlore-canvas` spec — `nodes`, optional `edges`, optional `groups`. Each node
+takes an `id`, a `kind` (`rect` · `rounded` · `card` · `circle` · `ellipse` · `diamond` · `pill` ·
+`sticky` · `note` · `cylinder` · `icon` · `image` · `annotation`, plus the FigJam shapes
+`triangle` · `triangle-down` · `pentagon` · `hexagon` · `octagon` · `star` · `cross` ·
+`arrow-left` · `arrow-right` · `chevron` · `parallelogram` · `trapezoid` · `callout` ·
+`document` · `process`), a `label`/`body`, and an optional
+`intent` — semantic (`accent` · `success` · `warning` · `danger`) or a FigJam colour
+(`gray` · `red` · `orange` · `yellow` · `green` · `teal` · `blue` · `purple` · `pink`). Connect with
+`edges` (`from`/`to`, optional `label`, `kind`, typed `rel`) or the inline `to:` sugar. Need precise
+control? Add `x`/`y`/`width`/`height` to any node and it's placed exactly there.
+
+The agent-native way to author one is a fenced **`superlore-canvas`** JSON block — drop it in any
+`.mdx` and it becomes a live board:
+
+```superlore-canvas
+{
+  "title": "Request lifecycle",
+  "nodes": [
+    { "id": "req", "kind": "circle", "label": "Request", "intent": "blue" },
+    { "id": "mw", "kind": "rounded", "label": "Middleware", "intent": "red" },
+    { "id": "handler", "kind": "rounded", "label": "Handler", "intent": "teal" },
+    { "id": "res", "kind": "circle", "label": "Response", "intent": "green" }
+  ],
+  "edges": [
+    { "from": "req", "to": "mw" },
+    { "from": "mw", "to": "handler" },
+    { "from": "handler", "to": "res", "label": "200 OK" }
+  ]
+}
+```
+
+## The knowledge face
+
+The spec **is** the knowledge graph. An agent calling `get_component_data` gets exactly the
+nodes and edges — typed relations included — never a picture:
+
+```json
+{
+  "kind": "diagram",
+  "syntax": "canvas",
+  "graph": {
+    "nodes": [{ "id": "pg", "label": "Postgres", "kind": "cylinder" }],
+    "edges": [{ "from": "api", "to": "pg", "rel": "related" }]
+  }
+}
+```
+
+## A worked board — cutting checkout p99 latency
+
+A real brainstorm, in code. We set `sketch: true` for the hand-drawn FigJam feel — connectors
+waver like a marker, section titles + edge labels are handwritten, and each section gets a dotted
+ground. The board walks left to right: the symptoms we measured, where we looked, the root cause,
+the options we weighed, the decision, and the rollout plan.
+
+```superlore-canvas
+{
+  "title": "Cutting checkout p99 latency",
+  "layout": "auto",
+  "direction": "down",
+  "sketch": true,
+  "groups": [
+    { "id": "symptoms", "label": "Symptoms", "frame": true, "intent": "red" },
+    { "id": "investigate", "label": "Investigate", "frame": true, "intent": "blue" },
+    { "id": "traces", "label": "Trace breakdown", "frame": true, "parent": "investigate", "intent": "blue" },
+    { "id": "cause", "label": "Root cause", "frame": true, "intent": "orange" },
+    { "id": "options", "label": "Options on the table", "frame": true, "intent": "purple" },
+    { "id": "decide", "label": "Decision", "frame": true, "intent": "teal" },
+    { "id": "rollout", "label": "Rollout & risks", "frame": true, "intent": "green" }
+  ],
+  "nodes": [
+    { "id": "p99", "kind": "card", "group": "symptoms", "intent": "red", "label": "Checkout p99 = 2.4s" },
+    { "id": "slo", "kind": "card", "group": "symptoms", "intent": "red", "label": "SLO is 800ms — breached" },
+    { "id": "spike", "kind": "sticky", "group": "symptoms", "label": "Worst at the 8pm sale peak" },
+
+    { "id": "apm", "kind": "icon", "icon": "activity", "group": "investigate", "label": "APM traces" },
+    { "id": "t-db", "kind": "rounded", "group": "traces", "intent": "blue", "label": "DB calls: 1.6s" },
+    { "id": "t-net", "kind": "rounded", "group": "traces", "intent": "blue", "label": "Payment API: 0.5s" },
+    { "id": "t-app", "kind": "rounded", "group": "traces", "intent": "blue", "label": "App logic: 0.3s" },
+    { "id": "orders", "kind": "cylinder", "group": "investigate", "intent": "blue", "label": "Orders DB" },
+
+    { "id": "nplus1", "kind": "card", "group": "cause", "intent": "orange", "label": "N+1 on line items" },
+    { "id": "noidx", "kind": "card", "group": "cause", "intent": "orange", "label": "Missing index on order_id" },
+    { "id": "pool", "kind": "sticky", "group": "cause", "label": "Pool saturates under peak load" },
+
+    { "id": "o-idx", "kind": "sticky", "group": "options", "label": "Add the composite index" },
+    { "id": "o-batch", "kind": "sticky", "group": "options", "label": "Batch the line-item reads" },
+    { "id": "o-cache", "kind": "sticky", "group": "options", "label": "Cache hot carts in Redis" },
+    { "id": "o-replica", "kind": "sticky", "group": "options", "label": "Move reads to a replica" },
+    { "id": "tradeoff", "kind": "annotation", "group": "options", "label": "cache adds invalidation risk — park it" },
+
+    { "id": "pick", "kind": "diamond", "group": "decide", "label": "Index + batch first?" },
+    { "id": "ship", "kind": "card", "group": "decide", "intent": "teal", "label": "Ship index + batched reads" },
+
+    { "id": "redis", "kind": "cylinder", "group": "rollout", "intent": "green", "label": "Redis (phase 2)" },
+    { "id": "canary", "kind": "process", "group": "rollout", "intent": "green", "label": "Canary at 5% traffic" },
+    { "id": "verify", "kind": "card", "group": "rollout", "intent": "green", "label": "Re-measure p99 vs SLO" },
+    { "id": "risk", "kind": "annotation", "group": "rollout", "label": "watch write latency on index build" }
+  ],
+  "edges": [
+    { "from": "p99", "to": "apm", "label": "dig in" },
+    { "from": "slo", "to": "apm" },
+    { "from": "apm", "to": "t-db", "rel": "defines" },
+    { "from": "t-db", "to": "orders", "label": "slow queries", "rel": "depends-on" },
+    { "from": "orders", "to": "nplus1", "label": "root cause", "rel": "related" },
+    { "from": "t-db", "to": "noidx" },
+    { "from": "nplus1", "to": "o-batch" },
+    { "from": "noidx", "to": "o-idx" },
+    { "from": "pool", "to": "o-replica" },
+    { "from": "o-idx", "to": "pick" },
+    { "from": "o-batch", "to": "pick" },
+    { "from": "pick", "to": "ship", "label": "yes — cheapest win", "rel": "links" },
+    { "from": "ship", "to": "canary", "label": "deploy" },
+    { "from": "canary", "to": "verify", "label": "then" },
+    { "from": "ship", "to": "redis", "kind": "dashed", "label": "if still slow", "rel": "see-also" }
+  ]
+}
+```
+
+## A full root-cause board
+
+The same vocabulary scales to a complete incident write-up. This board reads top to bottom across
+five framed phases — symptoms, the compounding root causes, the app-side fix, the database-side
+optimization, and the measured impact — using `card`s for findings, a `cylinder` for the index, an
+`annotation` for the gotcha, and `pill`s for the headline numbers. Every edge is **typed**
+(`blocks`, `supersedes`, `depends-on`) so the causal chain is data, not arrows.
+
+```superlore-canvas
+{
+  "title": "Incident analysis — search API timeouts at peak",
+  "direction": "down",
+  "layout": "auto",
+  "sketch": true,
+  "groups": [
+    { "id": "symptoms_grp", "label": "1 · Symptoms & impact", "frame": true, "intent": "red" },
+    { "id": "root_causes_grp", "label": "2 · Compounding root causes", "frame": true, "intent": "orange" },
+    { "id": "app_fix_grp", "label": "3 · Application-side fix", "frame": true, "intent": "blue" },
+    { "id": "db_fix_grp", "label": "4 · Database-side optimization", "frame": true, "intent": "green" },
+    { "id": "impact_grp", "label": "5 · Measured impact", "frame": true, "intent": "teal" }
+  ],
+  "nodes": [
+    { "id": "sym_1", "kind": "card", "intent": "danger", "label": "Search requests timing out", "body": "p99 search latency 40–96 s at the dinner peak.\nGateway dropping connections under load.", "group": "symptoms_grp" },
+    { "id": "sym_2", "kind": "sticky", "label": "Query-shape anomaly", "body": "Only multi-filter searches fail.\nSingle-term searches pass under the radar.", "group": "symptoms_grp" },
+
+    { "id": "rc_1", "kind": "process", "intent": "warning", "label": "Stage 1 — heavy enrichment first", "body": "The query joined every catalog field before filtering.\nIt transformed the whole table, then narrowed.", "group": "root_causes_grp" },
+    { "id": "rc_2", "kind": "process", "intent": "warning", "label": "Stage 2 — non-sargable filter", "body": "Used a computed expression on created_at.\nComputed predicates defeat the index → full scan.", "group": "root_causes_grp" },
+    { "id": "rc_3", "kind": "cylinder", "intent": "danger", "label": "Flawed legacy index", "body": "(tenant_id, tags, created_at)\ncreated_at was the trailing key behind an\nunbounded array column → usage: 0.", "group": "root_causes_grp" },
+    { "id": "rc_4", "kind": "annotation", "label": "Full-scan trap", "body": "The low-cardinality status index (3 values) forced a huge in-memory residual filter.", "group": "root_causes_grp" },
+
+    { "id": "fix_app_1", "kind": "rounded", "intent": "success", "label": "Reordered the pipeline", "body": "Moved the filter to stage 1.\nEnrichment now runs only on matched rows.", "group": "app_fix_grp" },
+    { "id": "fix_app_2", "kind": "rounded", "intent": "success", "label": "Native range predicate", "body": "Replaced the computed expression with a\nplain created_at BETWEEN start AND end.", "group": "app_fix_grp" },
+
+    { "id": "fix_db_1", "kind": "cylinder", "intent": "accent", "label": "Primary index (status, created_at)", "body": "Equality column leads, range column trails —\nthe textbook composite-index order.", "group": "db_fix_grp" },
+    { "id": "fix_db_2", "kind": "cylinder", "intent": "green", "label": "Secondary index (created_at, status)", "body": "Covers time-only queries and sorting by date.", "group": "db_fix_grp" },
+    { "id": "fix_db_3", "kind": "process", "intent": "neutral", "label": "Cleanup", "body": "Drop the redundant status-only index.\nReview the legacy index before removing it.", "group": "db_fix_grp" },
+
+    { "id": "metric_1", "kind": "card", "intent": "success", "label": "Isolated query — 110× faster", "body": "29,153 ms → 263 ms", "group": "impact_grp" },
+    { "id": "metric_2", "kind": "card", "intent": "success", "label": "End-to-end search latency", "body": "25.8 s → 7.4 s at peak", "group": "impact_grp" },
+    { "id": "metric_3", "kind": "pill", "intent": "success", "label": "Connection drops: 15 → 0", "group": "impact_grp" },
+    { "id": "metric_4", "kind": "pill", "intent": "success", "label": "Retry storms: 44 → 0", "group": "impact_grp" },
+    { "id": "metric_5", "kind": "card", "intent": "success", "label": "Slowest request", "body": "40–96 s → 12 s", "group": "impact_grp" }
+  ],
+  "edges": [
+    { "from": "sym_1", "to": "rc_1", "label": "investigated", "kind": "arrow" },
+    { "from": "sym_2", "to": "rc_1", "label": "isolating context", "kind": "arrow" },
+    { "from": "rc_1", "to": "rc_2", "label": "then", "kind": "arrow", "rel": "blocks" },
+    { "from": "rc_2", "to": "rc_3", "label": "defeats", "kind": "dashed", "rel": "blocks" },
+    { "from": "rc_4", "to": "rc_2", "label": "context", "kind": "line" },
+
+    { "from": "rc_1", "to": "fix_app_1", "label": "fixed by", "kind": "arrow", "rel": "supersedes" },
+    { "from": "rc_2", "to": "fix_app_2", "label": "fixed by", "kind": "arrow", "rel": "supersedes" },
+
+    { "from": "fix_app_2", "to": "fix_db_1", "label": "enables", "kind": "arrow", "rel": "depends-on" },
+    { "from": "fix_app_2", "to": "fix_db_2", "label": "enables", "kind": "arrow", "rel": "depends-on" },
+    { "from": "rc_3", "to": "fix_db_3", "label": "triggers", "kind": "arrow" },
+
+    { "from": "metric_1", "to": "metric_5", "kind": "line" },
+    { "from": "metric_2", "to": "metric_3", "kind": "line" },
+    { "from": "metric_3", "to": "metric_4", "kind": "line" }
+  ]
+}
+```
+
+## A product roadmap
+
+A planning board, hand-drawn (`sketch: true`): three "now / next / later" frames of feature cards,
+a `diamond` for the gate decision, and `annotation`s parking the open questions in the margin. The
+flow edges carry the dependency story, so an agent can answer "what blocks the public API?" from
+the graph alone.
+
+```superlore-canvas
+{
+  "title": "Q3 roadmap — what ships when",
+  "layout": "auto",
+  "direction": "right",
+  "sketch": true,
+  "groups": [
+    { "id": "now", "label": "Now", "frame": true, "intent": "green" },
+    { "id": "next", "label": "Next", "frame": true, "intent": "blue" },
+    { "id": "later", "label": "Later", "frame": true, "intent": "purple" }
+  ],
+  "nodes": [
+    { "id": "n1", "kind": "card", "intent": "green", "group": "now", "label": "Template gallery", "body": "Ten ready board templates, fill-in-the-blanks." },
+    { "id": "n2", "kind": "card", "intent": "green", "group": "now", "label": "Theming via config", "body": "Brand colours + type from one settings file." },
+    { "id": "n3", "kind": "sticky", "intent": "yellow", "group": "now", "label": "Both already in code review" },
+
+    { "id": "x1", "kind": "card", "intent": "blue", "group": "next", "label": "Public API v2", "body": "Stable read endpoints + typed client SDK." },
+    { "id": "x2", "kind": "card", "intent": "blue", "group": "next", "label": "Live preview", "body": "Hot-reload boards while authoring." },
+    { "id": "gate", "kind": "diamond", "intent": "yellow", "group": "next", "label": "API frozen?" },
+
+    { "id": "l1", "kind": "card", "intent": "purple", "group": "later", "label": "Mobile reader", "body": "Read-only boards on small screens." },
+    { "id": "l2", "kind": "card", "intent": "purple", "group": "later", "label": "Connectors", "body": "Pull live data into nodes." },
+    { "id": "open", "kind": "annotation", "group": "later", "label": "connectors need the API frozen first — park until gate clears" }
+  ],
+  "edges": [
+    { "from": "n1", "to": "x2", "label": "feeds", "rel": "related" },
+    { "from": "n2", "to": "x1", "rel": "related" },
+    { "from": "x1", "to": "gate", "label": "must stabilize" },
+    { "from": "gate", "to": "l1", "label": "yes → build", "rel": "depends-on" },
+    { "from": "gate", "to": "l2", "label": "yes → build", "rel": "depends-on" },
+    { "from": "l2", "to": "open", "kind": "dashed", "rel": "see-also" }
+  ]
+}
+```

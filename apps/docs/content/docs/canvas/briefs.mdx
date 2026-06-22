@@ -1,0 +1,223 @@
+---
+title: Briefs
+icon: LayoutDashboard
+description: Real engineering boards, rebuilt as superlore Canvas — the kind of architecture, brainstorm, and review whiteboards a product team actually draws, authored as structured MDX.
+summary: Two real product-engineering whiteboards recreated as superlore-canvas specs — one pinned with absolute placement (manual layout), one a poster of disconnected sections laid out in the order they are declared (board layout).
+tags: [canvas, whiteboard, examples, architecture, brainstorm]
+---
+
+These are not toy diagrams. They are the kind of boards a product-engineering team draws on a
+whiteboard while figuring something out — an agentic pipeline, a "today vs. where we want to be"
+review, a wall of asides and decisions. Each one is a single `superlore-canvas` spec: it renders as
+the board below **and** serializes to a typed node/edge graph an agent reads over the MCP.
+
+Two things make boards like these possible beyond a tidy flowchart:
+
+- **Not everything is a flow.** A board can be **disconnected sections** — several independent
+  diagrams, notes, and headings sitting side by side. With `layout: "board"` they are placed in
+  **the order you declare them**, wrapping into rows like a poster. No edges required.
+- **Or pin it exactly.** With `layout: "manual"` every `x`/`y` (and a frame's `width`/`height`)
+  is honoured verbatim — FigJam-style absolute placement — for a faithful, hand-arranged board.
+
+## 1 · Auth & SSO — a request path, pinned
+
+A single board that walks the team through a sign-in flow. A browser hits the **app**, which hands
+off to the **identity provider**; on success a session is minted, cached, and the user is let
+through. It doubles as a tour of the vocabulary: **stacks** for piles of records, free-floating
+**asides**, a **dashed working frame**, **colour-coded connectors** you can read by hue, and a
+speech-bubble **callout** — all from one spec, placed to the pixel with `layout: "manual"`.
+
+```superlore-canvas
+{
+  "title": "Sign-in with SSO",
+  "layout": "manual",
+  "direction": "down",
+  "groups": [
+    { "id": "outer", "label": "Auth flow", "frame": true, "intent": "gray" },
+    { "id": "exchange", "label": "Token exchange", "frame": true, "dashed": true, "intent": "teal", "parent": "outer" }
+  ],
+  "nodes": [
+    { "id": "browser", "kind": "note", "intent": "yellow", "group": "outer", "x": 150, "y": 24, "width": 320, "height": 96,
+      "body": "Browser requests a protected page.\nNo valid session cookie is present yet." },
+
+    { "id": "idp", "kind": "note", "intent": "teal", "group": "exchange", "x": 170, "y": 230, "width": 280, "height": 92,
+      "body": "Identity provider\nValidates the user and returns an auth code." },
+    { "id": "google", "kind": "rect", "intent": "purple", "group": "exchange", "x": 600, "y": 214, "width": 240, "height": 60, "label": "Google Workspace" },
+    { "id": "okta", "kind": "rect", "intent": "green", "group": "exchange", "x": 600, "y": 300, "width": 240, "height": 60, "label": "Okta" },
+
+    { "id": "callback", "kind": "rect", "intent": "teal", "group": "exchange", "x": 170, "y": 420, "width": 280, "height": 64, "label": "Callback exchanges code for tokens" },
+    { "id": "stack1", "kind": "stack", "intent": "gray", "group": "exchange", "x": 600, "y": 410 },
+    { "id": "stack2", "kind": "stack", "intent": "red", "count": 3, "group": "exchange", "x": 760, "y": 410 },
+    { "id": "aside1", "kind": "text", "group": "exchange", "x": 600, "y": 520, "width": 320, "height": 88,
+      "body": "Verifies the ID token signature and audience, then maps claims onto the internal user record." },
+
+    { "id": "session", "kind": "note", "intent": "teal", "group": "exchange", "x": 170, "y": 610, "width": 280, "height": 80,
+      "body": "Mints a session and caches it in Redis." },
+    { "id": "aside2", "kind": "text", "group": "exchange", "x": 600, "y": 660, "width": 340, "height": 120,
+      "body": "Sets a signed, http-only cookie. Subsequent requests skip the provider and read the cached session straight from Redis." },
+
+    { "id": "stack3", "kind": "stack", "intent": "gray", "group": "exchange", "x": 190, "y": 800 },
+    { "id": "granted", "kind": "callout", "intent": "yellow", "group": "exchange", "x": 330, "y": 798, "width": 190, "height": 96, "label": "Access granted" },
+
+    { "id": "page", "kind": "text", "group": "outer", "x": 210, "y": 980, "width": 280, "label": "Protected page renders" }
+  ],
+  "edges": [
+    { "from": "browser", "to": "idp", "intent": "yellow", "fromSide": "bottom", "toSide": "top" },
+    { "from": "google", "to": "idp", "intent": "gray", "label": "either provider", "fromSide": "left", "toSide": "right" },
+    { "from": "okta", "to": "idp", "intent": "gray", "fromSide": "left", "toSide": "right" },
+    { "from": "idp", "to": "callback", "intent": "teal", "rel": "depends-on", "fromSide": "bottom", "toSide": "top" },
+    { "from": "callback", "to": "session", "intent": "teal", "fromSide": "bottom", "toSide": "top" },
+    { "from": "idp", "to": "session", "intent": "neutral", "kind": "curved", "fromSide": "left", "toSide": "left" },
+    { "from": "session", "to": "stack3", "intent": "teal", "fromSide": "bottom", "toSide": "top" },
+    { "from": "session", "to": "granted", "intent": "teal", "rel": "links", "fromSide": "bottom", "toSide": "top" },
+    { "from": "aside2", "to": "session", "intent": "neutral", "fromSide": "left", "toSide": "right" }
+  ]
+}
+```
+
+Because the board is a graph, an agent asking the MCP for this component gets the real structure —
+`idp —depends-on→ callback`, `session —links→ Access granted` — not a screenshot to interpret.
+
+## 2 · From password auth to SSO — the whole story
+
+Now the wider picture: several independent diagrams on one surface — _password auth today_, the
+_SSO_ variant, the _session service_ internals with its asides and a dashed cleanup note, a framing
+question, the target flow, and a closing line. None of these are one connected flow. This board uses
+`layout: "board"`: each **section is laid out on its own**, then the sections are packed **in the
+order they appear in the spec**, wrapping into rows. You author reading order; the poster falls out.
+
+```superlore-canvas
+{
+  "title": "From password auth to SSO",
+  "layout": "board",
+  "direction": "down",
+  "groups": [
+    { "id": "today", "label": "Password auth — today", "frame": true, "intent": "blue" },
+    { "id": "sso", "label": "SSO", "frame": true, "intent": "teal" },
+    { "id": "session", "label": "Session service", "frame": true, "intent": "pink" },
+    { "id": "win", "label": "Unified sign-in", "frame": true, "intent": "teal" }
+  ],
+  "nodes": [
+    { "id": "t1", "kind": "rect", "intent": "yellow", "group": "today", "label": "User types email + password" },
+    { "id": "t2", "kind": "rect", "intent": "yellow", "group": "today", "label": "Server hashes and compares" },
+    { "id": "t3", "kind": "rect", "intent": "purple", "group": "today", "label": "Credentials store" },
+    { "id": "t4", "kind": "rect", "intent": "pink", "group": "today", "label": "Session service" },
+    { "id": "db", "kind": "cylinder", "intent": "green", "group": "today", "label": "Postgres\nusers" },
+    { "id": "t5", "kind": "stack", "intent": "gray", "group": "today", "label": "Session returned" },
+
+    { "id": "w1", "kind": "rect", "intent": "yellow", "group": "sso", "label": "User clicks Continue with SSO" },
+    { "id": "w2", "kind": "rect", "intent": "purple", "group": "sso", "label": "Provider authenticates and returns a code" },
+    { "id": "w3", "kind": "rect", "intent": "pink", "group": "sso", "label": "Session service" },
+    { "id": "w4", "kind": "note", "intent": "teal", "group": "sso", "body": "Callback verifies the token, provisions the user just-in-time, and mints a session." },
+
+    { "id": "i1", "kind": "rect", "intent": "gray", "group": "session", "label": "Verify the signed token" },
+    { "id": "i2", "kind": "rect", "intent": "gray", "group": "session", "label": "Map provider claims to a user" },
+    { "id": "i3", "kind": "rect", "intent": "gray", "group": "session", "label": "Mint + cache the session" },
+    { "id": "i4", "kind": "rect", "intent": "red", "dashed": true, "group": "session", "label": "Cleanup: expire stale sessions" },
+    { "id": "ia1", "kind": "note", "intent": "red", "group": "session", "body": "Passwords are a support burden — resets, lockouts, and reused-credential breaches." },
+    { "id": "ia2", "kind": "note", "intent": "red", "group": "session", "body": "Each app reimplements its own login — no central place to revoke access on offboarding." },
+
+    { "id": "q", "kind": "heading", "label": "How do we solve this?" },
+    { "id": "thought", "kind": "note", "intent": "gray", "hand": true, "body": "Make the identity provider the single source of truth — one sign-in, one place to grant and revoke access." },
+
+    { "id": "n1", "kind": "note", "intent": "yellow", "group": "win", "body": "User picks any provider — Google, Okta, or email." },
+    { "id": "n2", "kind": "note", "intent": "teal", "group": "win", "body": "Callback verifies the token and provisions the user." },
+    { "id": "n3", "kind": "rect", "intent": "teal", "group": "win", "label": "Mint the session" },
+    { "id": "n4", "kind": "rect", "intent": "teal", "group": "win", "label": "Cache it in Redis" },
+    { "id": "n5", "kind": "callout", "intent": "yellow", "group": "win", "label": "Access granted" },
+
+    { "id": "win-line", "kind": "heading", "hand": true, "label": "One sign-in, everywhere!" },
+    { "id": "quote", "kind": "note", "intent": "gray", "hand": true, "body": "If identity lives in one provider, every app trusts the same session and offboarding is a single click." }
+  ],
+  "edges": [
+    { "from": "t1", "to": "t2", "intent": "yellow" },
+    { "from": "t2", "to": "t3", "intent": "yellow" },
+    { "from": "t3", "to": "t4", "intent": "pink" },
+    { "from": "db", "to": "t4", "intent": "green", "label": "reads" },
+    { "from": "t4", "to": "t5", "intent": "pink" },
+
+    { "from": "w1", "to": "w2", "intent": "teal" },
+    { "from": "w2", "to": "w3", "intent": "teal" },
+    { "from": "w3", "to": "w4", "intent": "teal" },
+
+    { "from": "i1", "to": "i2", "intent": "neutral" },
+    { "from": "i2", "to": "i3", "intent": "neutral" },
+    { "from": "ia1", "to": "i2", "intent": "neutral" },
+    { "from": "ia2", "to": "i3", "intent": "neutral" },
+
+    { "from": "n1", "to": "n2", "intent": "teal" },
+    { "from": "n2", "to": "n3", "intent": "teal" },
+    { "from": "n3", "to": "n4", "intent": "teal" },
+    { "from": "n4", "to": "n5", "intent": "teal", "rel": "links" }
+  ]
+}
+```
+
+The whole poster is one authored document. Reorder the sections in the spec and the poster
+re-flows; add a section and it slots in where you wrote it. That is the point of `board` layout —
+**a knowledge base where the structure you write is the structure agents read and humans see.**
+
+## 3 · User concerns → suggestions
+
+A discovery board: a wall of verbatim user concerns (sticky-style cards), a coloured **Suggestions**
+frame, and the flow they're about. The concern cards have no edges between them — they're just
+_captured_, and `board` layout arranges them in the order you wrote them.
+
+```superlore-canvas
+{
+  "title": "Checkout friction — discovery",
+  "layout": "board",
+  "direction": "down",
+  "groups": [
+    { "id": "concerns", "label": "Concerns", "frame": true, "intent": "orange" },
+    { "id": "suggestions", "label": "Suggestions", "frame": true, "intent": "green" },
+    { "id": "today", "label": "Checkout — today", "frame": true, "intent": "blue" },
+    { "id": "guest", "label": "Guest checkout", "frame": true, "intent": "teal" },
+    { "id": "payment", "label": "Payment service", "frame": true, "intent": "pink" }
+  ],
+  "nodes": [
+    { "id": "title", "kind": "heading", "label": "Reducing checkout abandonment" },
+
+    { "id": "c1", "kind": "note", "intent": "neutral", "group": "concerns", "body": "Forcing account creation before purchase loses first-time buyers." },
+    { "id": "c2", "kind": "note", "intent": "neutral", "group": "concerns", "body": "Too many steps — \"I just want to pay and leave\", \"why is this five pages?\"." },
+    { "id": "c3", "kind": "note", "intent": "neutral", "group": "concerns", "body": "Shipping cost only appears on the last step, so people bail late." },
+    { "id": "c4", "kind": "note", "intent": "orange", "group": "concerns", "body": "Error messages are vague — \"card declined\" with no reason." },
+    { "id": "c5", "kind": "note", "intent": "orange", "group": "concerns", "body": "No saved cards — repeat customers re-enter everything every time." },
+    { "id": "c6", "kind": "note", "intent": "neutral", "group": "concerns", "body": "No way to apply a promo code without leaving the page and coming back." },
+    { "id": "kpi", "kind": "rect", "intent": "red", "group": "concerns", "label": "Mobile drop-off worst" },
+    { "id": "kpiaside", "kind": "text", "group": "concerns", "body": "Desktop is fine; the small-screen form is the pain." },
+
+    { "id": "sug", "kind": "note", "intent": "green", "group": "suggestions", "body": "Collapse to a single page with express wallets up top, guest by default, shipping shown before payment, and inline promo + saved cards." },
+
+    { "id": "t1", "kind": "rect", "intent": "yellow", "group": "today", "label": "User must create an account" },
+    { "id": "t2", "kind": "rect", "intent": "yellow", "group": "today", "label": "Five-step wizard" },
+    { "id": "t3", "kind": "rect", "intent": "purple", "group": "today", "label": "Address form" },
+    { "id": "t4", "kind": "rect", "intent": "pink", "group": "today", "label": "Payment service" },
+    { "id": "db", "kind": "cylinder", "intent": "green", "group": "today", "label": "Postgres\norders" },
+    { "id": "t5", "kind": "stack", "intent": "gray", "group": "today", "label": "Order confirmed" },
+
+    { "id": "w1", "kind": "rect", "intent": "yellow", "group": "guest", "label": "Buyer taps an express wallet" },
+    { "id": "w2", "kind": "rect", "intent": "purple", "group": "guest", "label": "Wallet returns address + token" },
+    { "id": "w3", "kind": "rect", "intent": "pink", "group": "guest", "label": "Payment service" },
+    { "id": "w4", "kind": "note", "intent": "teal", "group": "guest", "body": "One tap charges the token and creates a guest order — no account needed." },
+
+    { "id": "i1", "kind": "rect", "intent": "gray", "group": "payment", "label": "Tokenize the card" },
+    { "id": "i2", "kind": "rect", "intent": "gray", "group": "payment", "label": "Authorize the charge" },
+    { "id": "i3", "kind": "rect", "intent": "gray", "group": "payment", "label": "Capture on fulfilment" },
+    { "id": "i4", "kind": "rect", "intent": "red", "dashed": true, "group": "payment", "label": "Cleanup: void expired authorizations" }
+  ],
+  "edges": [
+    { "from": "kpiaside", "to": "kpi", "intent": "neutral" },
+    { "from": "t1", "to": "t2", "intent": "yellow" },
+    { "from": "t2", "to": "t3", "intent": "yellow" },
+    { "from": "t3", "to": "t4", "intent": "pink" },
+    { "from": "db", "to": "t4", "intent": "green", "label": "reads" },
+    { "from": "t4", "to": "t5", "intent": "pink" },
+    { "from": "w1", "to": "w2", "intent": "teal" },
+    { "from": "w2", "to": "w3", "intent": "teal" },
+    { "from": "w3", "to": "w4", "intent": "teal" },
+    { "from": "i1", "to": "i2", "intent": "neutral" },
+    { "from": "i2", "to": "i3", "intent": "neutral" }
+  ]
+}
+```

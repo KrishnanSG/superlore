@@ -1,0 +1,233 @@
+---
+title: Gallery
+icon: Images
+description: Real, varied whiteboards a startup actually draws — a cloud architecture, a storyboard, UI wireframes, an incident analysis, a sprint board — all authored as superlore-canvas, all queryable over the MCP.
+summary: A gallery of superlore Canvas boards across genuinely different scenarios — cloud architecture, product storyboard, UI wireframes, incident root-cause analysis, sprint board — proving that nested frames + routed connectors cover the full range of engineering whiteboarding.
+tags: [canvas, gallery, architecture, wireframe, storyboard, incident]
+---
+
+A whiteboard is the same data structure whatever you're drawing. Here are five genuinely different
+boards — an architecture, a storyboard, a wireframe, an incident analysis, a sprint board — each a
+single `superlore-canvas` spec, each a typed graph the MCP can read.
+
+## 1 · Cloud architecture — a URL shortener
+
+The SRS test: a real request-path architecture with tiers, datastores, a key-generation service, a
+cache, and an async analytics pipeline. Connectors are routed by ELK so they weave between tiers
+instead of cutting through them.
+
+```superlore-canvas
+{
+  "title": "URL shortener — cloud architecture",
+  "direction": "right",
+  "groups": [
+    { "id": "client", "label": "Client", "frame": true, "intent": "gray" },
+    { "id": "edge", "label": "Edge", "frame": true, "intent": "blue" },
+    { "id": "app", "label": "Services", "frame": true, "intent": "purple" },
+    { "id": "data", "label": "Data", "frame": true, "intent": "green" },
+    { "id": "async", "label": "Analytics (async)", "frame": true, "intent": "orange" }
+  ],
+  "nodes": [
+    { "id": "user", "kind": "circle", "group": "client", "label": "User" },
+
+    { "id": "cdn", "kind": "icon", "icon": "globe", "group": "edge", "label": "CDN + WAF" },
+    { "id": "gw", "kind": "icon", "icon": "shield", "group": "edge", "label": "API Gateway" },
+
+    { "id": "shorten", "kind": "rect", "intent": "purple", "group": "app", "label": "Shorten service" },
+    { "id": "redirect", "kind": "rect", "intent": "purple", "group": "app", "label": "Redirect service" },
+    { "id": "kgs", "kind": "rect", "intent": "accent", "group": "app", "label": "Key-Gen service (KGS)" },
+    { "id": "hit", "kind": "diamond", "group": "app", "label": "Cache hit?" },
+    { "id": "consumer", "kind": "rect", "intent": "orange", "group": "app", "label": "Analytics consumer" },
+
+    { "id": "cache", "kind": "cylinder", "intent": "red", "group": "data", "label": "Redis cache" },
+    { "id": "ddb", "kind": "cylinder", "intent": "green", "group": "data", "label": "DynamoDB\nurl_map" },
+    { "id": "keys", "kind": "cylinder", "intent": "green", "group": "data", "label": "Key pool" },
+    { "id": "warehouse", "kind": "cylinder", "intent": "teal", "group": "data", "label": "Analytics store" },
+
+    { "id": "queue", "kind": "parallelogram", "intent": "orange", "group": "async", "label": "SQS — click events" }
+  ],
+  "edges": [
+    { "from": "user", "to": "cdn", "label": "HTTPS", "intent": "blue" },
+    { "from": "cdn", "to": "gw", "intent": "blue" },
+    { "from": "gw", "to": "shorten", "label": "POST /shorten", "rel": "links" },
+    { "from": "gw", "to": "redirect", "label": "GET /:key", "rel": "links" },
+
+    { "from": "shorten", "to": "kgs", "label": "next key", "rel": "depends-on" },
+    { "from": "kgs", "to": "keys", "label": "pool", "intent": "green", "rel": "depends-on" },
+    { "from": "shorten", "to": "ddb", "label": "store", "intent": "green", "rel": "depends-on" },
+    { "from": "shorten", "to": "cache", "label": "warm", "intent": "red" },
+
+    { "from": "redirect", "to": "hit", "intent": "purple" },
+    { "from": "hit", "to": "cache", "label": "lookup", "intent": "red", "rel": "depends-on" },
+    { "from": "hit", "to": "ddb", "label": "miss", "kind": "dashed", "intent": "green" },
+    { "from": "redirect", "to": "queue", "label": "emit click", "intent": "orange" },
+
+    { "from": "queue", "to": "consumer", "intent": "orange" },
+    { "from": "consumer", "to": "warehouse", "label": "write", "intent": "teal", "rel": "depends-on" }
+  ]
+}
+```
+
+An agent over the MCP can answer "what does the redirect service depend on?" straight from the
+`depends-on` edges — cache, then DynamoDB on a miss — without reading the picture.
+
+## 2 · Product storyboard — onboarding
+
+A `row` of scene frames (each a `column`: the shot + its caption) — a video script / onboarding
+walkthrough you can read left to right.
+
+```superlore-canvas
+{
+  "title": "Onboarding — storyboard",
+  "layout": "row",
+  "align": "stretch",
+  "gap": 34,
+  "groups": [
+    { "id": "s1", "label": "1 · Land", "frame": true, "intent": "blue", "layout": "column" },
+    { "id": "s2", "label": "2 · Connect", "frame": true, "intent": "purple", "layout": "column" },
+    { "id": "s3", "label": "3 · First value", "frame": true, "intent": "green", "layout": "column" },
+    { "id": "s4", "label": "4 · Invite team", "frame": true, "intent": "teal", "layout": "column" },
+    { "id": "s5", "label": "5 · Habit", "frame": true, "intent": "yellow", "layout": "column" }
+  ],
+  "nodes": [
+    { "id": "i1", "kind": "image", "group": "s1", "label": "Hero + one-line promise", "width": 220, "height": 124 },
+    { "id": "c1", "kind": "text", "group": "s1", "body": "Cold visitor lands. One line: what + why. A single CTA — ‘Start free’." },
+    { "id": "i2", "kind": "image", "group": "s2", "label": "Connect a source", "width": 220, "height": 124 },
+    { "id": "c2", "kind": "text", "group": "s2", "body": "Pick a source, OAuth in two clicks. Progress shown; never a dead end." },
+    { "id": "i3", "kind": "image", "group": "s3", "label": "First insight", "width": 220, "height": 124 },
+    { "id": "c3", "kind": "text", "group": "s3", "body": "A real chart from their own data within 60s — the aha moment." },
+    { "id": "i4", "kind": "image", "group": "s4", "label": "Invite teammates", "width": 220, "height": 124 },
+    { "id": "c4", "kind": "text", "group": "s4", "body": "One-tap invite. Seats are free in trial — pull the team in early." },
+    { "id": "i5", "kind": "image", "group": "s5", "label": "Weekly digest", "width": 220, "height": 124 },
+    { "id": "c5", "kind": "text", "group": "s5", "body": "A Monday digest brings them back. Activation → habit." }
+  ]
+}
+```
+
+## 3 · UI wireframe — mobile dashboard
+
+The layout regions _are_ the screen: a `column` shell with a header `row`, a KPI `grid`, an activity
+`column`, and a tab-bar `row`. No coordinates.
+
+```superlore-canvas
+{
+  "title": "Mobile dashboard — wireframe",
+  "layout": "column",
+  "align": "center",
+  "groups": [
+    { "id": "screen", "label": "Dashboard", "frame": true, "intent": "blue", "layout": "column", "align": "stretch" },
+    { "id": "top", "label": "Header", "frame": true, "parent": "screen", "intent": "gray", "layout": "row", "align": "stretch" },
+    { "id": "kpis", "label": "KPIs", "frame": true, "parent": "screen", "intent": "teal", "layout": "grid" },
+    { "id": "feed", "label": "Activity", "frame": true, "parent": "screen", "intent": "purple", "layout": "column", "align": "stretch" },
+    { "id": "tabs", "label": "Tabs", "frame": true, "parent": "screen", "intent": "gray", "layout": "row", "align": "stretch" }
+  ],
+  "nodes": [
+    { "id": "logo", "kind": "rect", "intent": "gray", "group": "top", "label": "≡" },
+    { "id": "htitle", "kind": "rect", "intent": "gray", "group": "top", "label": "Dashboard" },
+    { "id": "avatar", "kind": "circle", "intent": "gray", "group": "top", "label": "@" },
+    { "id": "k1", "kind": "rect", "intent": "teal", "group": "kpis", "label": "Revenue\n$48k" },
+    { "id": "k2", "kind": "rect", "intent": "green", "group": "kpis", "label": "Users\n1,204" },
+    { "id": "k3", "kind": "rect", "intent": "blue", "group": "kpis", "label": "Churn\n2.1%" },
+    { "id": "k4", "kind": "rect", "intent": "orange", "group": "kpis", "label": "NPS\n61" },
+    { "id": "f1", "kind": "rect", "intent": "purple", "group": "feed", "label": "Acme upgraded to Pro" },
+    { "id": "f2", "kind": "rect", "intent": "purple", "group": "feed", "label": "3 new signups today" },
+    { "id": "f3", "kind": "rect", "intent": "purple", "group": "feed", "label": "Invoice #1182 paid" },
+    { "id": "t1", "kind": "rect", "intent": "gray", "group": "tabs", "label": "Home" },
+    { "id": "t2", "kind": "rect", "intent": "gray", "group": "tabs", "label": "Reports" },
+    { "id": "t3", "kind": "rect", "intent": "gray", "group": "tabs", "label": "Settings" }
+  ]
+}
+```
+
+## 4 · Incident analysis — checkout p99 regression
+
+A `column` from symptoms to fix, with a live `StatGrid` of the blast radius, hypotheses on a
+sticky wall, and the root cause called out. Each note is typed data the MCP can read.
+
+```superlore-canvas
+{
+  "title": "Root-cause analysis — checkout p99 regression",
+  "layout": "column",
+  "align": "stretch",
+  "groups": [
+    { "id": "sym", "label": "Symptoms", "frame": true, "intent": "red", "layout": "grid" },
+    { "id": "hyp", "label": "Hypotheses", "frame": true, "intent": "orange", "layout": "grid" },
+    { "id": "cause", "label": "Root cause", "frame": true, "intent": "accent", "layout": "column" },
+    { "id": "fix", "label": "Remediation", "frame": true, "intent": "green", "layout": "row", "align": "stretch" }
+  ],
+  "nodes": [
+    { "id": "sy1", "kind": "note", "intent": "red", "group": "sym", "body": "p99 checkout 2.4s vs 800ms SLO — breached at the 20:00 peak." },
+    { "id": "sy2", "kind": "note", "intent": "red", "group": "sym", "body": "DB CPU flat; app-tier latency is what's spiking." },
+    { "id": "sy3", "kind": "note", "intent": "red", "group": "sym", "body": "Only the cart → order path; reads are fine." },
+    { "id": "metrics", "kind": "embed", "component": "StatGrid", "group": "sym", "props": { "stats": [ { "label": "p99", "value": "2.4s", "hint": "SLO 800ms" }, { "label": "Error rate", "value": "0.3%" }, { "label": "Peak QPS", "value": "9.1k" } ] } },
+    { "id": "h1", "kind": "sticky", "group": "hyp", "label": "N+1 on line-items?" },
+    { "id": "h2", "kind": "sticky", "group": "hyp", "label": "Connection-pool exhaustion?" },
+    { "id": "h3", "kind": "sticky", "group": "hyp", "label": "Lock contention on inventory?" },
+    { "id": "rc", "kind": "card", "intent": "accent", "group": "cause", "label": "Pool capped at 10. The 8pm peak queues connections → tail latency on the order write." },
+    { "id": "fx1", "kind": "rect", "intent": "green", "group": "fix", "label": "Raise pool 10 → 40" },
+    { "id": "fx2", "kind": "rect", "intent": "green", "group": "fix", "label": "Bulkhead the order path" },
+    { "id": "fx3", "kind": "rect", "intent": "green", "group": "fix", "label": "Alert on pool saturation" }
+  ],
+  "edges": [
+    { "from": "h2", "to": "rc", "intent": "accent", "label": "confirmed", "rel": "depends-on" }
+  ]
+}
+```
+
+## 5 · Brainstorm — a growth jam
+
+`layout: "free"` + `sketch: true` for a hand-drawn ideation board: a central goal with ideas
+radiating out, stickies and a margin note.
+
+```superlore-canvas
+{
+  "title": "Activation ideas — jam",
+  "layout": "free",
+  "sketch": true,
+  "nodes": [
+    { "id": "core", "kind": "circle", "intent": "accent", "label": "Activation", "x": 430, "y": 250 },
+    { "id": "a", "kind": "sticky", "intent": "yellow", "label": "Template gallery on day 1", "x": 80, "y": 60 },
+    { "id": "b", "kind": "sticky", "intent": "blue", "label": "Sample data pre-loaded on signup", "x": 800, "y": 70 },
+    { "id": "c", "kind": "sticky", "intent": "green", "label": "CLI / Slack quickstart", "x": 70, "y": 470 },
+    { "id": "d", "kind": "sticky", "intent": "pink", "label": "Weekly ‘what's new’ digest", "x": 810, "y": 470 },
+    { "id": "note", "kind": "annotation", "label": "north star: 7-day return", "x": 410, "y": 470 }
+  ],
+  "edges": [
+    { "from": "core", "to": "a" },
+    { "from": "core", "to": "b" },
+    { "from": "core", "to": "c" },
+    { "from": "core", "to": "d" }
+  ]
+}
+```
+
+## 6 · Hand-drawn accents — where they're needed
+
+A real brainstorm isn't all hand-drawn or all crisp — it's a clean structure with marker
+**on top of it**: a circled bet, a stuck-on sticky, a scribbled arrow. Set `hand: true` on the
+elements that want it (and `outline: true` for a "circle this" ring); leave the rest crisp.
+
+```superlore-canvas
+{
+  "title": "Q3 bets — what ships first",
+  "layout": "free",
+  "nodes": [
+    { "id": "r1", "kind": "rect", "intent": "blue", "label": "Search relevance revamp", "x": 120, "y": 110, "width": 320, "height": 54 },
+    { "id": "r2", "kind": "rect", "intent": "teal", "label": "Template gallery", "x": 120, "y": 196, "width": 320, "height": 54 },
+    { "id": "r3", "kind": "rect", "intent": "purple", "label": "Public API v2", "x": 120, "y": 282, "width": 320, "height": 54 },
+    { "id": "r4", "kind": "rect", "intent": "green", "label": "Mobile app", "x": 120, "y": 368, "width": 320, "height": 54 },
+
+    { "id": "ring", "kind": "ellipse", "intent": "accent", "hand": true, "outline": true, "x": 96, "y": 176, "width": 372, "height": 96 },
+    { "id": "note1", "kind": "sticky", "intent": "yellow", "hand": true, "label": "ship this first!", "x": 540, "y": 188, "width": 180, "height": 104 },
+    { "id": "note2", "kind": "annotation", "hand": true, "label": "everything else slips a sprint", "x": 150, "y": 452 },
+    { "id": "note3", "kind": "sticky", "intent": "pink", "hand": true, "label": "customer-asked ×4", "x": 540, "y": 300, "width": 180, "height": 100 }
+  ],
+  "edges": [
+    { "from": "note1", "to": "ring", "kind": "sketch", "fromSide": "left", "toSide": "right" },
+    { "from": "note3", "to": "r3", "kind": "sketch", "fromSide": "left", "toSide": "right" }
+  ]
+}
+```
+
+Six boards, one component, one knowledge model. Author once; humans get the whiteboard, agents get
+the graph.
