@@ -1,12 +1,13 @@
 ---
 title: Tools
 icon: Wrench
-description: The five MCP tools superlore exposes — search, get_page, list, navigate, get_component_data — with their arguments and what each returns.
-summary: Reference for the five superlore MCP tools — search (ranked page hits), get_page (full structured page), list (filtered knowledge nodes), navigate (refs + backlinks), and get_component_data (a component's knowledge face).
+docType: reference
+description: The six MCP tools superlore exposes — search, get_page, get_section, list, navigate, get_component_data — with their arguments and what each returns.
+summary: Reference for the six superlore MCP tools — search (ranked page hits), get_page (full structured page), get_section (one node by id), list (filtered knowledge nodes), navigate (refs + backlinks), and get_component_data (a component's knowledge face).
 tags: [mcp, agents, reference]
 ---
 
-The superlore MCP server (`/api/mcp` on this deploy) exposes **five tools** over the structured
+The superlore MCP server (`/api/mcp` on this deploy) exposes **six tools** over the structured
 index. Each returns JSON — the typed knowledge behind the pages, never scraped HTML.
 
 <DataTable
@@ -21,6 +22,11 @@ index. Each returns JSON — the typed knowledge behind the pages, never scraped
       tool: "get_page",
       args: "path",
       returns: "Frontmatter + ordered knowledge nodes for one page",
+    },
+    {
+      tool: "get_section",
+      args: "id",
+      returns: "A single knowledge node by ${path}#${id}",
     },
     {
       tool: "list",
@@ -51,6 +57,11 @@ index. Each returns JSON — the typed knowledge behind the pages, never scraped
     Fetch a page's full structured content by path (e.g. `/docs/architecture`): its frontmatter
     plus the ordered list of knowledge nodes — prose sections and the serialized knowledge faces of
     every component on the page. Returns `{ error: "not_found", path }` for an unknown path.
+  </Step>
+  <Step title="get_section(id)">
+    Fetch a single knowledge node by its `${path}#${id}` address — one prose section or one
+    component's face, without the rest of the page. Returns `{ error: "not_found", id }` for an
+    unknown id.
   </Step>
   <Step title="list({ kind?, tag?, entityType? })">
     List knowledge nodes across the whole corpus, filtered by node `kind`, by frontmatter `tag`, or

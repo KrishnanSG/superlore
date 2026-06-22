@@ -3,5 +3,5 @@
   "icon": "Plug",
   "collapsible": true,
   "defaultOpen": false,
-  "pages": ["index", "tools", "connect"]
+  "pages": ["index", "connect", "tools"]
 }

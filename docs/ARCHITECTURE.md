@@ -86,7 +86,7 @@ superlore/
 ├── skills/            # agent skills: scaffold · author · deploy
 ├── apps/
 │   └── docs/          # superlore's own docs, built with superlore (the canonical reference)
-├── docs/              # internal project docs (this file, HANDOFF, ROADMAP)
+├── docs/              # internal project docs (this file, ROADMAP, VISION, COMPONENTS, …)
 └── brand/             # mark, colour tokens, voice
 ```
 

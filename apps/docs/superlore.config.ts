@@ -83,29 +83,34 @@ export const superlore: SuperloreConfig = {
   // An `announcement` (see the SuperloreConfig type) renders a dismissible sidebar card via
   // <AnnouncementCard>. Wiring it into the notebook layout's sidebar slot is pending a Fumadocs
   // slot fix — the component is shipped and ready to mount.
+  // Reading order across tabs follows Diátaxis: Guide (tutorial + how-to + concepts) → Canvas →
+  // Agents & MCP → API Reference LAST (reference is consulted, not read, so it sits off the
+  // newcomer's first-read path).
   tabs: [
     {
       title: "Guide",
       url: "/docs",
       icon: "book-open",
-      match: ["", "getting-started", "architecture", "authoring", "auth", "built-with-superlore"],
+      match: [
+        "",
+        "getting-started",
+        "architecture",
+        "authoring",
+        "auth",
+        "add-to-existing-app",
+        "troubleshooting",
+        "built-with-superlore",
+      ],
     },
-    // Canvas sits before Components — the whiteboard is a headline capability, not a footnote. It's
-    // a folder tab now: the whole Canvas world (the region model, templates, gallery, briefs) nests
-    // under it, so the tab tracks the folder index AND every sub-page. Templates folds in here.
+    // Canvas sits before the reference — the whiteboard is a headline capability, not a footnote.
+    // It's a folder tab: the whole Canvas world (overview, templates, gallery, briefs) nests under
+    // it, so the tab tracks the folder index AND every sub-page.
     {
       title: "Canvas",
       url: "/docs/canvas",
       icon: "pen-tool",
       match: ["canvas"],
       folder: "canvas",
-    },
-    {
-      title: "Components",
-      url: "/docs/components",
-      icon: "blocks",
-      match: ["components"],
-      folder: "components",
     },
     // Agents & MCP is its own folder tab: the agent surface (authoring-for-agents + the MCP, which
     // has its own nested section for tools + connecting).
@@ -115,6 +120,16 @@ export const superlore: SuperloreConfig = {
       icon: "plug",
       match: ["agents"],
       folder: "agents",
+    },
+    // API Reference is LAST — the component catalog is reference material (consulted, not read), so
+    // it sits off the newcomer's first-read path. The `components/**` files stay where they are; only
+    // the tab label + order change. The folder is rooted at /docs/components.
+    {
+      title: "API Reference",
+      url: "/docs/components",
+      icon: "blocks",
+      match: ["components"],
+      folder: "components",
     },
   ],
   // The Viewer is a special, standalone surface (drop in MDX, see it render live). Featured as a

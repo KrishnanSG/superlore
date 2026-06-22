@@ -1,7 +1,7 @@
 # Canvas — what makes a first-class FigJam experience
 
 _The design bar for superlore Canvas. Researched + distilled so every polish pass builds against the
-same target. Pairs with `docs/canvas-viewer-plan.md` (architecture). Last updated 2026-06-19._
+same target. Pairs with `docs/canvas/as-built.md` (architecture). Last updated 2026-06-19._
 
 The goal isn't "a diagram renderer." It's a whiteboard that feels **professional, fun, and worth
 looking at** — you _want_ to read it. These are the properties that get us there, each with the

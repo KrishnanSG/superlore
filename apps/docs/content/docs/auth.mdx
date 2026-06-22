@@ -1,6 +1,7 @@
 ---
-title: Enabling auth
+title: Enable auth
 icon: Shield
+docType: how-to
 description: Gate the site and the MCP with Auth.js v5 + Google SSO — optional, off by default, self-disabling without config.
 summary: superlore ships pluggable Auth.js v5 + Google SSO. It is off unless AUTH_GOOGLE_ID is set; configure env, build the auth instance, and wrap proxy.ts. The MCP inherits the same policy.
 tags: [guide, auth, sso, security]
@@ -53,7 +54,7 @@ to flip it.
 With **no** `AUTH_ALLOWED_DOMAIN`, any Google account can sign in. Set it to your workspace domain
 to restrict sign-in to that org; `AUTH_ALLOWED_EMAILS` lets specific addresses in regardless.
 
-## Wiring it up
+## Wire it up
 
 <Steps>
   <Step title="Build the auth instance">

@@ -16,6 +16,9 @@ export const docs = defineDocs({
     schema: superloreFrontmatterSchema.extend({
       // Example of the extension point — a consumer's own field. Optional, backward compatible.
       audience: z.enum(["humans", "agents", "both"]).optional(),
+      // Diátaxis page type. Optional, app-level only (NOT in the published `superlore` package).
+      // One page, one type — and it doubles as a typed signal the MCP `list` can key off.
+      docType: z.enum(["tutorial", "how-to", "concept", "reference"]).optional(),
     }),
   },
 });

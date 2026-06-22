@@ -1,8 +1,9 @@
 ---
 title: MCP
 icon: Plug
+docType: concept
 description: Connect an agent to this knowledge base over the Model Context Protocol.
-summary: This deploy is public and MCP-enabled at /api/mcp — the tools, what they return, and how to connect.
+summary: superlore ships a first-class MCP server over the same structured content the site renders, mounted at /api/mcp. This overview routes to the tool reference and the connect guide.
 tags: [mcp, agents, integration]
 ---
 
@@ -18,43 +19,18 @@ this deploy it is **public — no auth** — and mounted at:
   what an agent reads and what a human sees can never drift.
 </Note>
 
-## Tools
+## Where to next
 
-<DataTable
-  columns={[
-    { key: "tool", label: "Tool" },
-    { key: "args", label: "Arguments" },
-    { key: "returns", label: "Returns" },
-  ]}
-  rows={[
-    { tool: "search", args: "query, limit?", returns: "Ranked page hits" },
-    { tool: "get_page", args: "path", returns: "Frontmatter + ordered knowledge nodes" },
-    { tool: "get_section", args: "id", returns: "A single node by ${path}#${id}" },
-    { tool: "list", args: "kind?, tag?, entityType?", returns: "Filtered knowledge nodes" },
-    { tool: "navigate", args: "target", returns: "Outgoing refs + backlinks" },
-    { tool: "get_component_data", args: "id", returns: "A component's knowledge face" },
-  ]}
-/>
-
-## Connecting
-
-Point any MCP-capable client at the endpoint. For Claude-style config:
-
-```json
-{
-  "mcpServers": {
-    "superlore-docs": {
-      "type": "http",
-      "url": "https://YOUR-DEPLOY/api/mcp"
-    }
-  }
-}
-```
-
-Then ask your agent things like _"search the superlore docs for the dual-representation contract"_ or
-_"get_page /docs/architecture"_ and it will read this knowledge base directly.
+<CardGroup cols={2}>
+  <Card title="Tools" icon="wrench" href="/docs/agents/mcp/tools">
+    The six MCP tools, their arguments, and exactly what each returns.
+  </Card>
+  <Card title="Connect a client" icon="cable" href="/docs/agents/mcp/connect">
+    Point Claude (or any MCP-capable client) at this deploy.
+  </Card>
+</CardGroup>
 
 <Tip title="Inheriting auth">
-  If a deploy gates the site (Auth.js / SSO), the MCP inherits the same policy. This docs deploy is
-  intentionally open so anyone can connect.
+  If a deploy gates the site (Auth.js / SSO — see [Enable auth](/docs/auth)), the MCP inherits the
+  same policy. This docs deploy is intentionally open so anyone can connect.
 </Tip>

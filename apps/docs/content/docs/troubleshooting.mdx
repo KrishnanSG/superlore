@@ -1,0 +1,62 @@
+---
+title: Troubleshooting
+icon: LifeBuoy
+docType: how-to
+description: Fix the common snags when running a superlore KB — auth not gating, the MCP returning not_found, and Tailwind not styling superlore components.
+summary: Solutions to the three most common superlore issues — auth that passes every request through (missing AUTH_GOOGLE_ID or LOCAL=true), MCP tools returning not_found (wrong path or id, stale index), and unstyled components (missing superlore/css import or a Tailwind @source that does not scan the package).
+tags: [guide, troubleshooting, operations]
+---
+
+The three snags people hit most, and how to clear each one.
+
+## Auth is not gating the site
+
+superlore's auth is **off by default** and **self-disabling** — if it never asks anyone to sign in,
+the gate is intentionally inactive. Check, in order:
+
+- **`AUTH_GOOGLE_ID` is unset.** Its presence is what turns auth on. With no client id,
+  `createAuthProxy` passes every request through. Set `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`.
+- **`LOCAL=true` is set.** This forces auth off even when Google is configured — useful for local
+  dev, but it disables the gate everywhere it is set. Unset it on deployed environments.
+- **`proxy.ts` is not wired.** The gate lives in `proxy.ts` (Next.js 16's middleware), not
+  `middleware.ts`. Confirm the file exports `createAuthProxy(auth)` and its `config.matcher` covers
+  your routes. See [Enable auth](/docs/auth).
+
+Because the gate sits in `proxy.ts` in front of every route, fixing it gates the site **and**
+`/api/mcp` together — they can never drift apart.
+
+## The MCP returns not_found
+
+`get_page`, `get_section`, and `get_component_data` return `{ error: "not_found", ... }` when the
+address does not resolve. Check:
+
+- **The path is the route, not the file.** `get_page` takes a doc path like `/docs/architecture`,
+  not `content/docs/architecture.mdx`.
+- **The id is the full `${path}#${id}` address.** `get_section` and `get_component_data` key off
+  the heading or component id within a page — a bare slug will miss. Use `search` or `get_page`
+  first to discover the exact id.
+- **The index is stale.** The MCP serves the structured index built from your MDX. After adding or
+  renaming a page, rebuild so the index reflects it. Renaming a heading **moves its anchor** — fix
+  inbound links in the same pass.
+
+For the full tool contract, see [Tools](/docs/agents/mcp/tools).
+
+## Components render unstyled
+
+If superlore components show up without their theme, Tailwind is not scanning the package:
+
+- **Import `superlore/css`.** Your global stylesheet needs both `@import "tailwindcss";` and
+  `@import "superlore/css";` — the second pulls in superlore's tokens and base styles. See
+  [Add it to an existing app](/docs/add-to-existing-app).
+- **Add a Tailwind `@source` for the package.** Tailwind v4 only generates classes for files it
+  scans. superlore's components live in `node_modules`, so point a `@source` at the package (for
+  example `@source "../node_modules/superlore/dist";`) so their utility classes are emitted.
+- **Do not branch on theme in JS.** Light and dark are a pure CSS-token swap via `[data-theme]`.
+  If a component looks right in one theme only, you have hardcoded a colour instead of using a
+  token.
+
+<Tip title="Verify both faces">
+  After fixing rendering, point an agent at [the MCP](/docs/agents/mcp) and confirm `get_page`
+  returns the structure you intended. A component that renders but serves nothing to the MCP is a
+  picture, not a [knowledge face](/docs/authoring/dual-representation).
+</Tip>

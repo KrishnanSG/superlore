@@ -1,6 +1,7 @@
 ---
-title: Connect
+title: Connect a client
 icon: Cable
+docType: how-to
 description: Point Claude or any MCP-capable client at this superlore deploy over Streamable HTTP.
 summary: Add the superlore MCP server to an MCP client with an http entry pointing at /api/mcp. This docs deploy is public and unauthenticated; gated deploys make the MCP inherit the site's auth policy.
 tags: [mcp, agents, integration, setup]
@@ -36,7 +37,7 @@ origin). Then ask your agent things like:
 - _"get_page /docs/architecture"_
 - _"list every node tagged canvas"_
 
-and it reads this knowledge base directly — through the [five tools](/docs/agents/mcp/tools), not
+and it reads this knowledge base directly — through the [six tools](/docs/agents/mcp/tools), not
 by scraping pages.
 
 <Tip title="Inheriting auth">

@@ -1,0 +1,69 @@
+---
+title: Add it to an existing app
+icon: PackagePlus
+docType: how-to
+description: Wire superlore into an app you already have — install the package, import the theme, register the components, define the content source, and mount the MCP. Every import comes from superlore.
+summary: Add superlore to an existing Next.js app by hand — npm i superlore, import superlore/css, wire getMDXComponents, define the content source with superlore/config and superlore/next, render with superlore/ui and superlore/source, then mount the MCP route. The plugin and CLI generate all of this for you.
+tags: [guide, setup, operations]
+---
+
+The [superlore plugin and CLI](/docs/getting-started) generate everything below for you. Reach for
+this only when you want to add superlore to an **existing** app. **Every import comes from
+`superlore`** — you never touch the renderer underneath.
+
+## Install the package
+
+```bash
+npm i superlore
+```
+
+## Import the theme
+
+Two lines in your global stylesheet — superlore bundles the base styles:
+
+```css
+@import "tailwindcss";
+@import "superlore/css";
+```
+
+## Wire the components
+
+```tsx
+// mdx-components.tsx
+import { getMDXComponents } from "superlore";
+export function useMDXComponents(components) {
+  return getMDXComponents(components);
+}
+```
+
+## Define the content source
+
+```ts
+// source.config.ts
+import { defineDocs, superloreFrontmatterSchema } from "superlore/config";
+export const docs = defineDocs({
+  dir: "content/docs",
+  docs: { schema: superloreFrontmatterSchema.extend({ /* your fields */ }) },
+});
+```
+
+```js
+// next.config.mjs
+import { createMDX } from "superlore/next";
+export default createMDX()({ reactStrictMode: true });
+```
+
+## Load and render
+
+Load your content with `loader` from `superlore/source`, then render with `DocsLayout`,
+`DocsPage`, and `DocsBody` from `superlore/ui` and `RootProvider` at the root.
+
+## Mount the MCP route
+
+Expose the MCP over the same content so agents can read it — see
+[Connect a client](/docs/agents/mcp/connect) and the [MCP tools](/docs/agents/mcp/tools).
+
+<Tip title="Light and dark are equal">
+  superlore ships both themes from one token set and defaults to the reader's system preference.
+  Never branch on theme in your code — it's a pure CSS-token swap.
+</Tip>

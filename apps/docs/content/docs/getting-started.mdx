@@ -1,9 +1,10 @@
 ---
-title: Getting started
+title: Get started
 icon: Rocket
-description: The fastest way to start a superlore knowledge base — copy two lines into Claude and watch it build the whole thing. Plus a CLI and a by-hand path, all importing only from superlore.
-summary: Start a superlore KB the fast way — install the superlore Claude plugin and say "Make me a docs site with superlore", and Claude scaffolds, seeds, and connects the MCP for you. Or use the CLI (superlore init), or wire it in by hand — every path imports only from superlore.
-tags: [guide, setup]
+docType: tutorial
+description: The fastest way to start a superlore knowledge base — copy two lines into Claude and watch it build the whole thing, or scaffold from the terminal with the CLI.
+summary: Start a superlore KB the fast way — install the superlore Claude plugin and say "Make me a docs site with superlore", and Claude scaffolds, seeds, and connects the MCP for you. Or use the CLI (superlore init). Adding superlore to an existing app is a separate guide.
+tags: [tutorial, setup]
 ---
 
 The fastest way to a superlore knowledge base is to **let Claude build it.** Copy two lines, paste
@@ -90,58 +91,7 @@ superlore connect      # detects your editor(s), installs the live-preview exten
   add` command, or just ask Claude to _"connect my superlore MCP"_).
 </Note>
 
-## Wire it in by hand
-
-The plugin and CLI generate everything below — reach for this only if you want to add superlore to
-an existing app. **Every import comes from `superlore`** — you never touch the renderer underneath.
-
-<Steps>
-  <Step title="Install">
-    ```bash
-    npm i superlore
-    ```
-  </Step>
-  <Step title="Import the theme">
-    Two lines in your global stylesheet — superlore bundles the base styles:
-    ```css
-    @import "tailwindcss";
-    @import "superlore/css";
-    ```
-  </Step>
-  <Step title="Wire the components">
-    ```tsx
-    // mdx-components.tsx
-    import { getMDXComponents } from "superlore";
-    export function useMDXComponents(components) {
-      return getMDXComponents(components);
-    }
-    ```
-  </Step>
-  <Step title="Define content + build">
-    ```ts
-    // source.config.ts
-    import { defineDocs, superloreFrontmatterSchema } from "superlore/config";
-    export const docs = defineDocs({
-      dir: "content/docs",
-      docs: { schema: superloreFrontmatterSchema.extend({ /* your fields */ }) },
-    });
-    ```
-    ```js
-    // next.config.mjs
-    import { createMDX } from "superlore/next";
-    export default createMDX()({ reactStrictMode: true });
-    ```
-  </Step>
-  <Step title="Load + render">
-    Load your content with `loader` from `superlore/source`, then render with `DocsLayout`,
-    `DocsPage`, and `DocsBody` from `superlore/ui` and `RootProvider` at the root.
-  </Step>
-  <Step title="Mount the MCP route">
-    Expose the MCP over the same content so agents can read it — see [MCP](/docs/agents/mcp).
-  </Step>
-</Steps>
-
-## A first page
+## Author a first page
 
 ```mdx
 ---
@@ -164,12 +114,15 @@ once — there's one source.
 
 ## Where to next
 
-<CardGroup cols={3}>
+<CardGroup cols={2}>
+  <Card title="Canvas" icon="pen-tool" href="/docs/canvas">
+    The FigJam-style whiteboard authored in MDX.
+  </Card>
   <Card title="Components" icon="blocks" href="/docs/components">
     The full library, each with a live example and its knowledge face.
   </Card>
-  <Card title="Canvas" icon="pen-tool" href="/docs/canvas">
-    The FigJam-style whiteboard authored in MDX.
+  <Card title="Add it to an existing app" icon="package-plus" href="/docs/add-to-existing-app">
+    Already have a Next.js app? Wire superlore in by hand.
   </Card>
   <Card title="Enable auth" icon="shield" href="/docs/auth">
     Gate the site (and the MCP) with Google SSO — optional, off by default.
