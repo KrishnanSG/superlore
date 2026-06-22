@@ -12,14 +12,15 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve, join } from "node:path";
 import http from "node:http";
 
-const require = createRequire("/Users/dgkrish/Code/superlore/");
+const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 
 const here = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(here, "../../..");
 const distDir = resolve(here, "../dist/webview");
 const outDir = process.env.OUT || here;
 const canvasMdx = readFileSync(
-  "/Users/dgkrish/Code/superlore/apps/docs/content/docs/canvas.mdx",
+  resolve(repoRoot, "apps/docs/content/docs/canvas.mdx"),
   "utf8",
 );
 

@@ -84,7 +84,10 @@ type ProxyHandler = (request: NextRequest) => Response | Promise<Response>;
  * Build a Next.js 16 `proxy.ts` default export from a superlore auth instance. Self-disabling: with
  * no `AUTH_GOOGLE_ID` it passes everything through, so local dev and public deploys stay open.
  */
-export function createAuthProxy(auth: AuthMiddleware, options: AuthProxyOptions = {}): ProxyHandler {
+export function createAuthProxy(
+  auth: AuthMiddleware,
+  options: AuthProxyOptions = {},
+): ProxyHandler {
   const enforce = options.enforce ?? (!!process.env.AUTH_GOOGLE_ID && process.env.LOCAL !== "true");
   const isPublic = options.isPublic ?? defaultPublic;
   const signInPath = options.signInPath ?? "/auth/signin";

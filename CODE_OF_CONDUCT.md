@@ -42,10 +42,11 @@ officially representing the community in public spaces.
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the
-maintainers at **krishnan@acme.com**. All complaints will be reviewed and investigated
-promptly and fairly. All maintainers are obligated to respect the privacy and security of the
-reporter of any incident.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported privately to
+the maintainers by opening a [GitHub Security Advisory](https://github.com/KrishnanSG/superlore/security/advisories/new)
+or contacting a maintainer directly. All complaints will be reviewed and investigated promptly and
+fairly. All maintainers are obligated to respect the privacy and security of the reporter of any
+incident.
 
 ## Attribution
 

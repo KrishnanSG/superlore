@@ -117,8 +117,8 @@ importers:
         specifier: ^5.2.0
         version: 5.2.0
       superlore:
-        specifier: ^0.5.1
-        version: 0.5.1(7023a621ddf011e8317bcc0b41a142ab)
+        specifier: ^0.5.2
+        version: 0.5.2(7023a621ddf011e8317bcc0b41a142ab)
       unist-util-visit:
         specifier: ^5.1.0
         version: 5.1.0
@@ -5736,8 +5736,8 @@ packages:
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
 
-  superlore@0.5.1:
-    resolution: {integrity: sha512-OH9wG1wUHdZ62LjT9SSC3iE6MP+SZe8U8fGzR/UiHgDoK8VBvvU9xQr8CceIAthl2gzrXYLjSbKohgIFGX1SoA==}
+  superlore@0.5.2:
+    resolution: {integrity: sha512-QmYSSqUU77TaqDTHYS4S+HNb268jGrAwVKBX2/QCPd0/cZ3hqqcZcEV4VBK3k3+spJkO/G6NI+E3Qf6fRIBpWw==}
     engines: {node: '>=20'}
     peerDependencies:
       '@modelcontextprotocol/sdk': ^1
@@ -12214,7 +12214,7 @@ snapshots:
       tinyglobby: 0.2.17
       ts-interface-checker: 0.1.13
 
-  superlore@0.5.1(7023a621ddf011e8317bcc0b41a142ab):
+  superlore@0.5.2(7023a621ddf011e8317bcc0b41a142ab):
     dependencies:
       '@xyflow/react': 12.11.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       class-variance-authority: 0.7.1

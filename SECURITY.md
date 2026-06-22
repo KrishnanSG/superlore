@@ -6,7 +6,8 @@ We take the security of superlore seriously and appreciate responsible disclosur
 
 **Please do not open a public issue for security vulnerabilities.**
 
-Instead, email **krishnan@acme.com** with:
+Instead, use GitHub's [private vulnerability reporting](https://github.com/KrishnanSG/superlore/security/advisories/new)
+(the repo's **Security → Report a vulnerability**) and include:
 
 - a description of the issue and its impact,
 - steps to reproduce (a minimal proof-of-concept if possible),
