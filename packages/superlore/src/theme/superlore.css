@@ -1,6 +1,15 @@
 @import "fumadocs-ui/css/neutral.css";
 @import "fumadocs-ui/css/preset.css";
 
+/* Register superlore's own compiled components as a Tailwind content source, so a consumer
+   never has to point @source at node_modules. The path resolves relative to THIS file. When
+   published, this file is dist/css/superlore.css, so the glob below reaches the sibling
+   compiled component JS. In the monorepo it is src/theme/superlore.css, where the glob matches
+   nothing — the app scans the .tsx source itself. Either way the package "just works" on
+   @import "superlore/css" alone. (Keep glob patterns out of this comment: a slash-star-slash
+   sequence would close it early.) */
+@source "../**/*.js";
+
 /* ================================================================================
    superlore/css — the superlore theme preset. Bundles the base styles it builds on, so a
    consumer imports one thing.

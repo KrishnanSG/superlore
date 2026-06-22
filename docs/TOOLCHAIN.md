@@ -34,9 +34,11 @@ a package build, tests, semver/release, and CI._
 - **`"use client"` per file.** Keep `src/index.ts` a directive-free re-export barrel; put the
   directive at the top of each interactive component. tsup `splitting: true` + the
   preserve-directives plugin emit it per chunk. A build smoke test greps `dist` to confirm.
-- **Tailwind scanning:** `superlore/css` carries `@source` relative to the shipped CSS so consumers
-  get class scanning for free. Documented fallback for edge cases:
-  `@source "../node_modules/superlore/dist";` in the consumer's global.css.
+- **Tailwind scanning:** `superlore/css` carries `@source "../**/*.js"` relative to the shipped CSS
+  (`dist/css/superlore.css` → its sibling compiled components), so the consumer's setup is just
+  `@import "tailwindcss"; @import "superlore/css";` — no `@source` to wire up. Verified by compiling a
+  consumer-style input with `source(none)`: the `kp-*` utilities generate from the package alone.
+  Keep glob patterns out of CSS comments (a `*/` sequence closes the comment early).
 - **Peer deps:** react, react-dom, next (optional), tailwindcss (optional).
 
 ## Test strategy

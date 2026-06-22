@@ -207,13 +207,12 @@ it. Prefer a terminal? `curl -fsSL https://superlore.vercel.app/install.sh | sh`
 npm i superlore
 ```
 
-Import the theme — two lines, superlore bundles the base styles it sits on:
+Import the theme — two lines. `superlore/css` bundles the base styles it sits on **and** registers
+its own components, so there's no `@source` to wire up:
 
 ```css
 @import "tailwindcss";
 @import "superlore/css";
-
-@source "../node_modules/superlore/dist";
 ```
 
 Wire the components in, and author MDX:
