@@ -19,6 +19,7 @@ export * from "./components/board";
 export * from "./components/releases";
 export * from "./components/schedule";
 export * from "./components/decision";
+export { Handoff, type HandoffProps } from "./components/handoff";
 export * from "./components/comparison";
 export * from "./components/roster";
 export * from "./components/checklist";

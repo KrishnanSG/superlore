@@ -1,0 +1,114 @@
+---
+title: Handoff
+icon: Handshake
+docType: reference
+description: A session-handoff record for the top of a doc — who handed off to whom, what's done, what's next — that serializes to a typed handoff knowledge node.
+summary: Handoff renders the baton between work sessions (AI↔AI, AI↔human, human↔human) and serializes to a handoff knowledge node, so the agent picking up the work reads from / to / status / done / next / questions as data, not prose.
+tags: [components, knowledge-structures, dual-representation, handoff, sessions]
+---
+
+A `Handoff` is the structured **baton between work sessions** — AI↔AI (Claude → Codex), AI↔human, or
+human↔human. Drop it at the **top of a doc** so whoever (or whatever) picks the work up sees who
+handed off, the current state, what's done, what's next, and the open questions — at a glance.
+
+Humans read the card; the agent gets `{ kind:"handoff", from, to, status, context, done, next,
+questions, refs }` and continues **without re-deriving state**. It's the dual-representation contract
+applied to "where we left off" — and it reuses the shared `status` lifecycle, so an agent can query
+"all blocked handoffs" across the corpus.
+
+## The two faces
+
+<Example
+  code={`<Handoff
+  from={{ name: "Claude", kind: "agent" }}
+  to={{ name: "Krish", kind: "human", role: "Head of Eng" }}
+  date="2026-06-22"
+  status="in-progress"
+  summary="Picking up the docs restructure mid-flight."
+  context="The atlas nav and llms.txt shipped today; the changelog route is still open."
+  done={[
+    "Atlas IA live (Guide / Canvas / Agents & MCP / API Reference)",
+    "/llms.txt + sitemap + robots shipped",
+  ]}
+  next={[
+    "Stand up the /changelog route (Changesets + Release)",
+    "Add an optional /llms-full.txt",
+  ]}
+  questions={["Keep the built-with badge on the docs site, or move it to marketing?"]}
+  refs={[{ rel: "related", target: "/docs/architecture", label: "Architecture" }]}
+/>`}
+>
+  <Handoff
+    from={{ name: "Claude", kind: "agent" }}
+    to={{ name: "Krish", kind: "human", role: "Head of Eng" }}
+    date="2026-06-22"
+    status="in-progress"
+    summary="Picking up the docs restructure mid-flight."
+    context="The atlas nav and llms.txt shipped today; the changelog route is still open."
+    done={[
+      "Atlas IA live (Guide / Canvas / Agents & MCP / API Reference)",
+      "/llms.txt + sitemap + robots shipped",
+    ]}
+    next={[
+      "Stand up the /changelog route (Changesets + Release)",
+      "Add an optional /llms-full.txt",
+    ]}
+    questions={["Keep the built-with badge on the docs site, or move it to marketing?"]}
+    refs={[{ rel: "related", target: "/docs/architecture", label: "Architecture" }]}
+  />
+</Example>
+
+### What the agent reads
+
+`get_component_data` returns the handoff as structure — so the next session continues from data:
+
+```json
+{
+  "kind": "handoff",
+  "id": "handoff",
+  "from": { "name": "Claude", "kind": "agent" },
+  "to": { "name": "Krish", "kind": "human", "role": "Head of Eng" },
+  "date": { "iso": "2026-06-22", "precision": "day" },
+  "status": "in-progress",
+  "summary": "Picking up the docs restructure mid-flight.",
+  "context": "The atlas nav and llms.txt shipped today; the changelog route is still open.",
+  "done": ["Atlas IA live (Guide / Canvas / Agents & MCP / API Reference)", "/llms.txt + sitemap + robots shipped"],
+  "next": ["Stand up the /changelog route (Changesets + Release)", "Add an optional /llms-full.txt"],
+  "questions": ["Keep the built-with badge on the docs site, or move it to marketing?"],
+  "refs": [{ "rel": "related", "target": "/docs/architecture", "label": "Architecture", "internal": true }]
+}
+```
+
+## Open handoff
+
+Omit `to` for a handoff to whoever picks the work up next — useful for a doc left "ready for the next
+session." `from` and `to` also accept a bare string when you don't need the human/agent distinction.
+
+<Example
+  code={`<Handoff
+  from="Krish"
+  status="blocked"
+  summary="Blocked on a product decision before the migration can proceed."
+  questions={["Which workspace domains get SSO by default?"]}
+/>`}
+>
+  <Handoff
+    from="Krish"
+    status="blocked"
+    summary="Blocked on a product decision before the migration can proceed."
+    questions={["Which workspace domains get SSO by default?"]}
+  />
+</Example>
+
+## Props
+
+| Prop | Type | Notes |
+| --- | --- | --- |
+| `from` | `string \| { name, kind?, role? }` | Who's handing off. `kind` is `"human"` (default) or `"agent"`. |
+| `to` | `string \| { name, kind?, role? }` | Who's receiving. Omit for an open handoff. |
+| `date` | `string` | Parsed to a typed `KDate` in the knowledge face. |
+| `status` | `"in-progress" \| "blocked" \| "done"` | Reuses the shared lifecycle (queryable across components). |
+| `summary` | `ReactNode` | One-line context. |
+| `context` | `ReactNode` | Background / current state. |
+| `done` / `next` / `questions` | `ReactNode[]` | Completed work · action items · open questions. |
+| `refs` | `{ rel?, target, label? }[]` | Typed links (the PR, the spec, related docs). |

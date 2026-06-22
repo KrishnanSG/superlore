@@ -43,7 +43,8 @@ export type KKind =
   | "endpoint"
   | "process"
   | "metric"
-  | "interface";
+  | "interface"
+  | "handoff";
 
 /** Lifecycle status — one enum across Timeline, Board, Roadmap, Decision, Release… */
 export type Status =
@@ -419,6 +420,36 @@ export interface InterfaceNode extends KnowledgeNode {
   sidebar?: PreviewNavGroup[];
   /** Plain-text gloss of the content shown inside the frame. */
   content?: string;
+}
+
+export interface HandoffParty {
+  name: string;
+  /** A person, or an AI agent (Claude, Codex, …). Defaults to "human". */
+  kind?: "human" | "agent";
+  role?: string;
+}
+
+/**
+ * A session-handoff record — the structured baton passed between work sessions: AI↔AI (Claude/Codex),
+ * AI↔human, or human↔human. Sits at the top of a doc. The human reads who / what's done / what's next;
+ * the agent picking the work up gets `{ from, to, status, context, done, next, questions, refs }` as
+ * data, so it continues without re-deriving state. Dual-representation applied to "where we left off".
+ */
+export interface HandoffNode extends KnowledgeNode {
+  kind: "handoff";
+  from: HandoffParty;
+  to?: HandoffParty;
+  date?: KDate;
+  /** Reuses the shared lifecycle: "in-progress" (work continues), "blocked", "done" (complete). */
+  status?: Status;
+  /** The current state / background. */
+  context?: string;
+  /** What's been completed. */
+  done?: string[];
+  /** What's next / action items for the receiver. */
+  next?: string[];
+  /** Open questions / blockers. */
+  questions?: string[];
 }
 
 /* --------------------------------------------------------------------- helpers ---- */

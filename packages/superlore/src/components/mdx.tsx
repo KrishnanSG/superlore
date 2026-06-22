@@ -46,6 +46,7 @@ import { Board, Kanban } from "./board";
 import { Changelog, Release, Releases } from "./releases";
 import { Schedule } from "./schedule";
 import { Decision } from "./decision";
+import { Handoff } from "./handoff";
 import { Comparison } from "./comparison";
 import { Roster } from "./roster";
 import { Checklist, Runbook } from "./checklist";
@@ -126,6 +127,7 @@ const superloreComponents = {
   Changelog,
   Schedule,
   Decision,
+  Handoff,
   Comparison,
   Roster,
   Checklist,
