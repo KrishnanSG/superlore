@@ -114,20 +114,24 @@ function writeSkeleton(root: string, config: SuperloreJson): void {
           postinstall: "fumadocs-mdx",
         },
         dependencies: {
-          "fumadocs-core": "16.8.2",
-          "fumadocs-mdx": "14.3.1",
-          "fumadocs-ui": "16.8.2",
+          // Relaxed ranges (not exact pins) — this lands in the user's own repo, so let them take
+          // patches/minors freely. superlore's peerDependencies already fence the majors.
+          "fumadocs-core": "^16.8.2",
+          "fumadocs-mdx": "^14.3.1",
+          "fumadocs-ui": "^16.8.2",
           superlore: "^0.5.3",
           "lucide-react": "^1.21.0",
           // superlore peers the rendered components pull in: Mermaid (Diagram), themes.
           mermaid: "^11.15.0",
           ...(mcpEnabled
-            ? { "@modelcontextprotocol/sdk": "^1.29.0", "mcp-handler": "^1.1.0" }
+            ? // mcp-handler pins an EXACT sdk peer (1.26.0); npm errors on anything else (pnpm only
+              // warns). Pin the sdk to match so `npm install` resolves cleanly for every package manager.
+              { "@modelcontextprotocol/sdk": "1.26.0", "mcp-handler": "^1.1.0" }
             : {}),
           // Auth.js v5 powers the optional Google SSO gate (superlore/auth). Self-disabling
           // without AUTH_GOOGLE_ID, so it's harmless until the env is set.
           ...(authEnabled ? { "next-auth": "^5.0.0-beta.25" } : {}),
-          next: "16.2.4",
+          next: "^16.2.4",
           "next-themes": "^0.4.6",
           react: "^19.2.5",
           "react-dom": "^19.2.5",
@@ -140,7 +144,7 @@ function writeSkeleton(root: string, config: SuperloreJson): void {
           "@types/react-dom": "^19.2.3",
           postcss: "^8.5.10",
           tailwindcss: "^4.2.2",
-          typescript: "6.0.3",
+          typescript: "^6.0.3",
         },
       },
       null,
