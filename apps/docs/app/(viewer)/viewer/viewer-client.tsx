@@ -7,6 +7,7 @@ import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import rehypeSlug from "rehype-slug";
+import rehypeHighlight from "rehype-highlight";
 import { DocsBody } from "superlore/ui";
 import { getMDXComponents, cn } from "superlore";
 import { AlertTriangle, Code2, Download, Eye, FileText, Upload } from "lucide-react";
@@ -222,7 +223,9 @@ async function compileMdx(source: string): Promise<MdxComponent> {
   const mod = await evaluate(source, {
     ...runtime,
     remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm, remarkSuperloreCanvas],
-    rehypePlugins: [rehypeSlug, rehypeKpBlockIds],
+    // rehypeHighlight (highlight.js) — syntax highlighting for fenced code in the runtime-compiled
+    // preview (no build-time Shiki here). Covers all common languages.
+    rehypePlugins: [rehypeSlug, rehypeHighlight, rehypeKpBlockIds],
   });
   return mod.default as MdxComponent;
 }
