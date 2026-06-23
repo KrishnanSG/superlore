@@ -1,0 +1,436 @@
+<style>
+  /* ============================================================================
+     superlore · "mint" theme preview — Mintlify-grade chrome, superlore underneath.
+     Self-contained. Light/dark co-equal. Brand violet #6D5CF0. Inter/JetBrains-mono
+     via system stack (the real theme ships Inter). No emoji in UI; inline SVG icons.
+     ============================================================================ */
+  :root {
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, monospace;
+
+    --ground: #fcfcfd; --surface: #ffffff; --surface-2: #f5f6f8; --surface-3: #eef0f4;
+    --text: #14161a; --text-2: #565e68; --text-3: #8a909a;
+    --border: #e7e9ee; --border-2: #dfe2e8;
+    --accent: #5a47e0; --accent-ink: #ffffff; --accent-weak: #efedfd; --accent-border: #d8d2fb;
+    --accent-text: #5a47e0;
+    --grad-a: #6d5cf0; --grad-b: #8b5cf0;
+    --green: #1f9d5e; --green-weak: #e7f6ee;
+    --amber: #b9831a; --amber-weak: #fbf2dd;
+    --code-bg: #1a1b26;
+    --shadow-sm: 0 1px 2px rgba(16,18,28,.05), 0 1px 3px rgba(16,18,28,.06);
+    --shadow-md: 0 4px 12px -3px rgba(16,18,28,.10), 0 2px 6px -2px rgba(16,18,28,.07);
+    --shadow-lift: 0 10px 30px -12px rgba(58,42,160,.22), 0 2px 8px -3px rgba(16,18,28,.10);
+    --content-max: 744px;
+  }
+  [data-theme="dark"] {
+    --ground: #0b0c0e; --surface: #131519; --surface-2: #181b21; --surface-3: #1e222a;
+    --text: #e7e9ed; --text-2: #aeb4be; --text-3: #767d88;
+    --border: #23272f; --border-2: #2d323b;
+    --accent: #8877f5; --accent-ink: #0b0c0e; --accent-weak: #1a1640; --accent-border: #342a6b;
+    --accent-text: #a99cff;
+    --green: #46c46a; --green-weak: #112a1c;
+    --amber: #f2c94c; --amber-weak: #2a2310;
+    --code-bg: #15161f;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.4); --shadow-md: 0 6px 16px -6px rgba(0,0,0,.6);
+    --shadow-lift: 0 14px 36px -14px rgba(0,0,0,.7), 0 2px 8px -3px rgba(0,0,0,.5);
+  }
+
+  * { box-sizing: border-box; }
+  .mint { background: var(--ground); color: var(--text); font-family: var(--sans);
+    -webkit-font-smoothing: antialiased; line-height: 1.65; min-height: 100vh; }
+  .mint a { color: inherit; text-decoration: none; }
+  .mint ::selection { background: color-mix(in oklab, var(--accent) 26%, transparent); }
+
+  /* ---- top navbar ------------------------------------------------------------ */
+  .nav { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 18px;
+    height: 60px; padding: 0 22px; background: color-mix(in oklab, var(--ground) 86%, transparent);
+    backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--border); }
+  .brand { display: flex; align-items: center; gap: 9px; font-weight: 680; letter-spacing: -.02em; font-size: 16px; }
+  .brand .mark { width: 22px; height: 22px; }
+  .chip { font: 600 10px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent-text); background: var(--accent-weak); border: 1px solid var(--accent-border);
+    padding: 4px 6px; border-radius: 6px; }
+  .tabs { display: flex; gap: 4px; margin-left: 6px; }
+  .tab { padding: 7px 12px; border-radius: 8px; font-size: 14px; font-weight: 530; color: var(--text-2); cursor: pointer; }
+  .tab:hover { color: var(--text); background: var(--surface-2); }
+  .tab.on { color: var(--accent-text); background: var(--accent-weak); }
+  .nav-sp { flex: 1; }
+  .search { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px 0 11px;
+    min-width: 210px; border: 1px solid var(--border-2); border-radius: 9px; background: var(--surface);
+    color: var(--text-3); font-size: 13px; box-shadow: var(--shadow-sm); }
+  .search .kbd { margin-left: auto; font: 600 11px/1 var(--mono); color: var(--text-3);
+    border: 1px solid var(--border-2); border-radius: 5px; padding: 3px 5px; }
+  .nlink { font-size: 14px; color: var(--text-2); padding: 7px 6px; }
+  .nlink:hover { color: var(--text); }
+  .cta { font-size: 14px; font-weight: 580; color: var(--accent-ink); background: var(--accent);
+    border: none; padding: 8px 14px; border-radius: 9px; cursor: pointer; box-shadow: var(--shadow-sm);
+    display: inline-flex; align-items: center; gap: 7px; }
+  .cta:hover { filter: brightness(1.06); }
+  .icon-btn { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px;
+    border: 1px solid var(--border-2); background: var(--surface); color: var(--text-2); cursor: pointer; }
+  .icon-btn:hover { color: var(--text); border-color: var(--accent-border); }
+
+  /* ---- shell ----------------------------------------------------------------- */
+  .shell { display: grid; grid-template-columns: 270px minmax(0,1fr) 232px; gap: 0;
+    max-width: 1480px; margin: 0 auto; }
+  .sidebar { padding: 26px 14px 60px 22px; border-right: 1px solid var(--border); height: calc(100vh - 60px);
+    position: sticky; top: 60px; overflow: auto; }
+  .grp { margin-bottom: 22px; }
+  .grp-l { font: 600 11px/1 var(--sans); letter-spacing: .09em; text-transform: uppercase;
+    color: var(--text-3); padding: 0 10px 9px; }
+  .nav-i { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 9px;
+    font-size: 14px; color: var(--text-2); cursor: pointer; }
+  .nav-i:hover { color: var(--text); background: var(--surface-2); }
+  .nav-i.on { color: var(--accent-text); background: var(--accent-weak); font-weight: 560; }
+  .nav-i svg { width: 16px; height: 16px; opacity: .85; flex: none; }
+
+  .main { padding: 40px 56px 100px; min-width: 0; }
+  .wrap { max-width: var(--content-max); margin: 0 auto; }
+  .crumbs { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--text-3); margin-bottom: 18px; }
+  .crumbs b { color: var(--text-2); font-weight: 500; }
+  h1.t { font-size: 2.4rem; font-weight: 720; letter-spacing: -.033em; line-height: 1.08; margin: 0 0 14px; }
+  .lead { font-size: 1.16rem; line-height: 1.6; color: var(--text-2); margin: 0 0 14px; max-width: 62ch; }
+  .metarow { display: flex; gap: 8px; align-items: center; margin: 0 0 36px; flex-wrap: wrap; }
+  .pill { font: 540 12px/1 var(--sans); color: var(--text-2); background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 999px; padding: 5px 11px; }
+  .pill.agent { color: var(--accent-text); background: var(--accent-weak); border-color: var(--accent-border);
+    display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+  h2.sec { font-size: 1.45rem; font-weight: 650; letter-spacing: -.02em; margin: 46px 0 14px; padding-top: 6px; color: var(--text); }
+  .p { font-size: 1rem; color: var(--text); margin: 0 0 16px; }
+  .p.dim { color: var(--text-2); }
+  .ic { font-family: var(--mono); font-size: .86em; background: var(--surface-2); border: 1px solid var(--border);
+    padding: 1.5px 6px; border-radius: 6px; }
+  .lk { color: var(--accent-text); font-weight: 500; border-bottom: 1px solid var(--accent-border); }
+
+  /* ---- canvas (the superlore signature) -------------------------------------- */
+  .canvas { position: relative; border: 1px solid var(--border); border-radius: 16px; padding: 22px;
+    background:
+      radial-gradient(circle at 14px 14px, color-mix(in oklab, var(--text) 12%, transparent) 1.1px, transparent 1.4px) 0 0 / 22px 22px,
+      var(--surface); box-shadow: var(--shadow-sm); margin: 8px 0 30px; overflow: hidden; }
+  .canvas-cap { position: absolute; top: 12px; left: 16px; font: 600 11px/1 var(--mono);
+    letter-spacing: .04em; color: var(--text-3); }
+  .node { position: absolute; border-radius: 12px; border: 1.5px solid; padding: 10px 13px; background: var(--surface);
+    box-shadow: var(--shadow-md); font-size: 13px; font-weight: 560; display: flex; align-items: center; gap: 8px; }
+  .node small { display: block; font-weight: 440; color: var(--text-2); font-size: 11.5px; margin-top: 2px; }
+  .node .dot { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; flex: none; }
+
+  /* ---- cards ----------------------------------------------------------------- */
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 8px 0 30px; }
+  .card { border: 1px solid var(--border); border-radius: 14px; padding: 18px; background: var(--surface);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; cursor: pointer; }
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); border-color: var(--accent-border); }
+  .card .ci { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; margin-bottom: 13px;
+    background: var(--accent-weak); color: var(--accent-text); border: 1px solid var(--accent-border); }
+  .card h3 { font-size: 15px; font-weight: 620; margin: 0 0 5px; letter-spacing: -.01em; }
+  .card p { font-size: 13.5px; color: var(--text-2); margin: 0; line-height: 1.55; }
+
+  /* ---- callout --------------------------------------------------------------- */
+  .callout { display: grid; grid-template-columns: auto 1fr; gap: 13px; border: 1px solid var(--border);
+    border-left: 3px solid var(--green); background: linear-gradient(0deg, var(--surface), var(--surface)) padding-box;
+    border-radius: 12px; padding: 15px 17px; margin: 8px 0 30px; }
+  .callout.tip { border-left-color: var(--green); background: color-mix(in oklab, var(--green-weak) 60%, var(--surface)); }
+  .callout .cgi { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; color: #fff; background: var(--green); }
+  .callout b { display: block; font-size: 14px; margin-bottom: 3px; }
+  .callout p { margin: 0; font-size: 13.7px; color: var(--text-2); line-height: 1.55; }
+
+  /* ---- steps ----------------------------------------------------------------- */
+  .steps { position: relative; margin: 6px 0 30px; padding-left: 6px; }
+  .step { position: relative; padding: 0 0 24px 42px; }
+  .step:last-child { padding-bottom: 0; }
+  .step::before { content: ""; position: absolute; left: 13px; top: 26px; bottom: -2px; width: 2px; background: var(--border-2); }
+  .step:last-child::before { display: none; }
+  .step .num { position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent); color: var(--accent-ink); font: 640 13px/1 var(--mono); display: grid; place-items: center;
+    box-shadow: 0 0 0 4px var(--ground); }
+  .step h4 { font-size: 15px; font-weight: 600; margin: 4px 0 5px; }
+  .step p { margin: 0; font-size: 14px; color: var(--text-2); }
+
+  /* ---- frame + code ---------------------------------------------------------- */
+  .frame { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow-md); margin: 8px 0 8px; }
+  .frame .ph { aspect-ratio: 16/8; background:
+      linear-gradient(120deg, color-mix(in oklab,var(--accent) 16%,var(--surface)), color-mix(in oklab,var(--grad-b) 14%,var(--surface)));
+    display: grid; place-items: center; color: var(--text-3); font-size: 13px; }
+  .frame-cap { font-size: 12.5px; color: var(--text-3); margin: 8px 2px 30px; }
+  .code { border-radius: 13px; overflow: hidden; background: var(--code-bg); border: 1px solid var(--border); margin: 8px 0 30px; box-shadow: var(--shadow-sm); }
+  .code .bar { display: flex; align-items: center; gap: 8px; padding: 9px 13px; border-bottom: 1px solid rgba(255,255,255,.07); }
+  .code .fn { font: 560 12px/1 var(--mono); color: #a9b1d6; }
+  .code .cp { margin-left: auto; color: #6b7394; }
+  .code pre { margin: 0; padding: 15px 16px; font: 13px/1.7 var(--mono); color: #c0caf5; overflow-x: auto; }
+  .k { color: #bb9af7; } .s { color: #9ece6a; } .f { color: #7aa2f7; } .c { color: #565f89; } .n { color: #ff9e64; }
+
+  /* ---- toc ------------------------------------------------------------------- */
+  .toc { padding: 40px 22px; height: calc(100vh - 60px); position: sticky; top: 60px; }
+  .toc-l { font: 600 11px/1 var(--sans); letter-spacing: .09em; text-transform: uppercase; color: var(--text-3); margin-bottom: 14px; }
+  .toc a { display: block; font-size: 13px; color: var(--text-2); padding: 6px 0 6px 12px; border-left: 2px solid var(--border); }
+  .toc a.on { color: var(--accent-text); border-left-color: var(--accent); font-weight: 540; }
+  .toc a:hover { color: var(--text); }
+  .filter { margin-top: 30px; }
+  .fchip { display: inline-flex; gap: 6px; align-items: center; font: 520 12px/1 var(--sans); color: var(--text-2);
+    border: 1px solid var(--border); border-radius: 999px; padding: 6px 11px; margin: 0 6px 8px 0; cursor: pointer; }
+  .fchip.on { color: var(--accent-text); background: var(--accent-weak); border-color: var(--accent-border); }
+  .fchip .sw { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ---- changelog ------------------------------------------------------------- */
+  .jump { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 34px; }
+  .jump a { font: 560 13px/1 var(--mono); color: var(--text-2); border: 1px solid var(--border); border-radius: 9px; padding: 8px 11px; }
+  .jump a:hover { color: var(--accent-text); border-color: var(--accent-border); background: var(--accent-weak); }
+  .rel { display: grid; grid-template-columns: 168px 1fr; gap: 30px; padding: 0 0 44px; border-top: 1px solid var(--border); margin-top: 10px; }
+  .rel:first-of-type { border-top: none; }
+  .rail { padding-top: 30px; position: sticky; top: 84px; align-self: start; }
+  .rail .ver { font: 700 22px/1 var(--sans); letter-spacing: -.02em; }
+  .rail .date { font-size: 13px; color: var(--text-3); margin: 7px 0 12px; }
+  .tag { display: inline-flex; gap: 6px; align-items: center; font: 540 11.5px/1 var(--sans); color: var(--text-2);
+    border: 1px solid var(--border); border-radius: 999px; padding: 5px 9px; margin: 0 5px 6px 0; }
+  .tag .sw { width: 7px; height: 7px; border-radius: 50%; }
+  .body { padding-top: 30px; }
+  .body .hl { display: flex; align-items: center; gap: 10px; font-size: 1.32rem; font-weight: 660; letter-spacing: -.02em; margin: 0 0 14px; }
+  .body .hl .hi { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: #fff;
+    background: linear-gradient(135deg, var(--grad-a), var(--grad-b)); }
+  .hcards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 18px; }
+  .hcard { border: 1px solid var(--border); border-radius: 12px; padding: 14px; background: var(--surface); }
+  .hcard b { font-size: 13.5px; } .hcard p { margin: 4px 0 0; font-size: 12.8px; color: var(--text-2); line-height: 1.5; }
+  .chg { list-style: none; padding: 0; margin: 4px 0 0; }
+  .chg li { display: grid; grid-template-columns: 78px 1fr; gap: 12px; padding: 9px 0; border-top: 1px dashed var(--border); font-size: 14px; }
+  .ctype { font: 600 11px/1 var(--mono); letter-spacing: .03em; text-transform: uppercase; padding: 4px 7px; border-radius: 6px; height: max-content; text-align: center; }
+  .ct-add { color: var(--green); background: var(--green-weak); }
+  .ct-imp { color: var(--accent-text); background: var(--accent-weak); }
+  .ct-fix { color: var(--amber); background: var(--amber-weak); }
+
+  .view { display: none; } .view.on { display: block; }
+  @media (max-width: 1180px){ .toc, .sidebar { display: none; } .shell { grid-template-columns: 1fr; } .main { padding: 32px 24px 80px; } }
+</style>
+
+<div class="mint" data-theme="light" id="root">
+  <!-- ============================ NAVBAR ============================ -->
+  <nav class="nav">
+    <a class="brand">
+      <svg class="mark" viewBox="0 0 64 64" aria-hidden><polygon points="14,20 32,12 32,46 14,54" fill="#6D5CF0"/><polygon points="32,12 50,20 50,54 32,46" fill="#6D5CF0" opacity=".5"/></svg>
+      superlore <span class="chip">docs</span>
+    </a>
+    <div class="tabs">
+      <div class="tab on" data-view="docs">Documentation</div>
+      <div class="tab" data-view="log">Changelog</div>
+    </div>
+    <div class="nav-sp"></div>
+    <div class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      Search the docs <span class="kbd">⌘K</span>
+    </div>
+    <a class="nlink">Support</a>
+    <button class="cta">Open app
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+    <button class="icon-btn" id="tg" title="Toggle theme">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    </button>
+  </nav>
+
+  <div class="shell">
+    <!-- ============================ SIDEBAR ============================ -->
+    <aside class="sidebar">
+      <div class="grp">
+        <div class="grp-l">Get started</div>
+        <div class="nav-i on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m13 2-3 9h5l-3 9"/></svg>Introduction</div>
+        <div class="nav-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4.5 16.5 6-6 4 4 5-7"/><path d="M5 21h14"/></svg>Quickstart</div>
+        <div class="nav-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6v6H9z"/></svg>Concepts</div>
+      </div>
+      <div class="grp">
+        <div class="grp-l">Guides</div>
+        <div class="nav-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M6 20V4M18 20v-7"/></svg>Author content</div>
+        <div class="nav-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8l-9-5-9 5v8l9 5 9-5Z"/><path d="m3.3 7 8.7 5 8.7-5"/></svg>Render in your app</div>
+        <div class="nav-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>Migrate to superlore</div>
+      </div>
+      <div class="grp">
+        <div class="grp-l">Components</div>
+        <div class="nav-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Canvas</div>
+        <div class="nav-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Board &amp; Timeline</div>
+        <div class="nav-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4zM4 10h16M10 5v14"/></svg>Tables &amp; Releases</div>
+      </div>
+      <div class="grp">
+        <div class="grp-l">Agents &amp; MCP</div>
+        <div class="nav-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 7V4h6v3M5 7h14v13H5zM9 12h6M9 16h4"/></svg>Connect the MCP</div>
+      </div>
+    </aside>
+
+    <!-- ============================ MAIN ============================ -->
+    <main class="main">
+      <!-- ---------- DOCS VIEW ---------- -->
+      <section class="view on" id="docs">
+        <div class="wrap">
+          <div class="crumbs">Components <span>›</span> <b>Canvas</b></div>
+          <h1 class="t">Canvas</h1>
+          <p class="lead">Author a whiteboard as a typed node-and-edge graph. Humans see an interactive
+            FigJam-style board; agents read the same structure over the MCP — never a screenshot to interpret.</p>
+          <div class="metarow">
+            <span class="pill">Component</span>
+            <span class="pill">Dual-representation</span>
+            <span class="pill agent">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 7V4h6v3M5 7h14v13H5z"/><circle cx="9" cy="13" r="1.2" fill="currentColor"/><circle cx="15" cy="13" r="1.2" fill="currentColor"/></svg>
+              Copy for agent
+            </span>
+          </div>
+
+          <h2 class="sec" id="overview">Overview</h2>
+          <p class="p">A <span class="ic">Canvas</span> renders from a single fenced block. The same graph powers
+            the visual board and the typed knowledge face the MCP serves — <span class="lk">one source, two readers</span>.</p>
+
+          <div class="canvas" aria-label="typed graph">
+            <span class="canvas-cap">superlore-canvas · typed graph</span>
+            <svg style="position:absolute;inset:0;width:100%;height:100%" aria-hidden>
+              <defs><marker id="ah" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6Z" fill="#9aa1ac"/></marker></defs>
+              <path d="M175,92 C235,92 235,92 292,92" stroke="#9aa1ac" stroke-width="1.6" fill="none" marker-end="url(#ah)"/>
+              <path d="M412,92 C470,92 470,150 470,168" stroke="#9aa1ac" stroke-width="1.6" fill="none" marker-end="url(#ah)"/>
+              <path d="M120,128 C120,170 250,180 250,196" stroke="#9aa1ac" stroke-width="1.6" stroke-dasharray="5 4" fill="none" marker-end="url(#ah)"/>
+            </svg>
+            <div class="node" style="left:34px; top:70px; border-color:#6ba4f0">
+              <span class="dot" style="background:#e9f1fd;color:#3b82d6"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.6 3.6 3 8 3s8-1.4 8-3V6"/></svg></span>
+              Source<small>MDX in your repo</small>
+            </div>
+            <div class="node" style="left:292px; top:68px; border-color:#9b7df2">
+              <span class="dot" style="background:var(--accent-weak);color:var(--accent-text)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m13 2-3 9h5l-3 9"/></svg></span>
+              Canvas<small>typed graph</small>
+            </div>
+            <div class="node" style="left:392px; top:168px; border-color:#7dc68a">
+              <span class="dot" style="background:var(--green-weak);color:var(--green)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="2.5"/></svg></span>
+              Humans
+            </div>
+            <div class="node" style="left:178px; top:196px; border-color:#e865b5">
+              <span class="dot" style="background:#fbe7f3;color:#c43d8f"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V5h6v3M9 14h.01M15 14h.01"/></svg></span>
+              Agents<small>over MCP</small>
+            </div>
+          </div>
+
+          <h2 class="sec" id="why">Why it matters</h2>
+          <div class="cards">
+            <div class="card">
+              <div class="ci"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+              <h3>Typed, not pixels</h3>
+              <p>Nodes, edges, intents and groups are real data — diff-able, queryable, and stable across renders.</p>
+            </div>
+            <div class="card">
+              <div class="ci"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 8l9-5 9 5M3 16l9 5 9-5"/></svg></div>
+              <h3>One source, two readers</h3>
+              <p>The board humans pan and zoom is the exact structure an agent reads — no drift, no interpretation.</p>
+            </div>
+          </div>
+
+          <h2 class="sec" id="auto">Authoring</h2>
+          <div class="callout tip">
+            <span class="cgi"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <div><b>Tip</b><p>Start from layout <span class="ic">flow</span> and let ELK auto-arrange. Switch to <span class="ic">board</span> or <span class="ic">manual</span> only when you need authored placement.</p></div>
+          </div>
+
+          <div class="steps">
+            <div class="step"><span class="num">1</span><h4>Open a fenced block</h4><p>Use a <span class="ic">superlore-canvas</span> code fence anywhere in your MDX.</p></div>
+            <div class="step"><span class="num">2</span><h4>Describe nodes &amp; edges</h4><p>Give each node a kind, intent, and label; connect them with typed edges.</p></div>
+            <div class="step"><span class="num">3</span><h4>Render &amp; serve</h4><p>Humans get the board; the MCP serves the same graph to agents — automatically.</p></div>
+          </div>
+
+          <h2 class="sec" id="ex">Example</h2>
+          <div class="code">
+            <div class="bar"><span class="fn">flow.mdx</span><span class="cp"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></span></div>
+<pre><span class="c">```superlore-canvas</span>
+{
+  <span class="s">"layout"</span>: <span class="s">"flow"</span>, <span class="s">"direction"</span>: <span class="s">"right"</span>,
+  <span class="s">"nodes"</span>: [
+    { <span class="s">"id"</span>: <span class="s">"src"</span>, <span class="s">"kind"</span>: <span class="s">"cylinder"</span>, <span class="s">"label"</span>: <span class="s">"Source"</span> },
+    { <span class="s">"id"</span>: <span class="s">"cv"</span>,  <span class="s">"kind"</span>: <span class="s">"rounded"</span>,  <span class="s">"intent"</span>: <span class="s">"accent"</span> }
+  ],
+  <span class="s">"edges"</span>: [{ <span class="s">"from"</span>: <span class="s">"src"</span>, <span class="s">"to"</span>: <span class="s">"cv"</span> }]
+}
+<span class="c">```</span></pre>
+          </div>
+
+          <div class="frame">
+            <div class="ph">Interactive board — pan, zoom, inspect</div>
+          </div>
+          <div class="frame-cap">The rendered Canvas. Locked or interactive; light and dark co-equal.</div>
+        </div>
+      </section>
+
+      <!-- ---------- CHANGELOG VIEW ---------- -->
+      <section class="view" id="log">
+        <div class="wrap">
+          <div class="crumbs"><b>Changelog</b></div>
+          <h1 class="t">What's new</h1>
+          <p class="lead">Every release, with the rich detail your users expect — and a typed knowledge face
+            an agent can query: <span class="ic">"what changed in 4.15?"</span></p>
+          <div class="jump">
+            <a>4.15 · Jun</a><a>4.14 · May</a><a>4.13 · Apr</a><a>4.12 · Mar</a>
+          </div>
+
+          <div class="rel">
+            <div class="rail">
+              <div class="ver">4.15</div><div class="date">June 18, 2026</div>
+              <span class="tag"><span class="sw" style="background:#6d5cf0"></span>Dashboards</span>
+              <span class="tag"><span class="sw" style="background:#1f9d5e"></span>API</span>
+            </div>
+            <div class="body">
+              <div class="hl"><span class="hi"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20V10M6 20V4M18 20v-7"/></svg></span>Live dashboards, redesigned</div>
+              <div class="hcards">
+                <div class="hcard"><b>Realtime tiles</b><p>Sub-second refresh with no flicker — pin any metric to the top of a board.</p></div>
+                <div class="hcard"><b>Shareable views</b><p>Saved filters travel in the URL; teammates land on exactly what you see.</p></div>
+              </div>
+              <ul class="chg">
+                <li><span class="ctype ct-add">Added</span><span>Dashboard tiles with realtime refresh and pin-to-top.</span></li>
+                <li><span class="ctype ct-imp">Improved</span><span>Filter state now serializes to the URL for shareable views.</span></li>
+                <li><span class="ctype ct-fix">Fixed</span><span>Timezone drift on weekly rollups for non-UTC workspaces.</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="rel">
+            <div class="rail">
+              <div class="ver">4.14</div><div class="date">May 28, 2026</div>
+              <span class="tag"><span class="sw" style="background:#1f9d5e"></span>API</span>
+              <span class="tag"><span class="sw" style="background:#b9831a"></span>Performance</span>
+            </div>
+            <div class="body">
+              <div class="hl"><span class="hi"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 16V8l-9-5-9 5v8l9 5 9-5Z"/></svg></span>A faster, typed API</div>
+              <ul class="chg">
+                <li><span class="ctype ct-add">Added</span><span>Cursor pagination on every list endpoint.</span></li>
+                <li><span class="ctype ct-imp">Improved</span><span>p95 query latency down 40% on large workspaces.</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============================ TOC ============================ -->
+    <aside class="toc">
+      <div id="toc-docs">
+        <div class="toc-l">On this page</div>
+        <a class="on">Overview</a><a>Why it matters</a><a>Authoring</a><a>Example</a>
+      </div>
+      <div id="toc-log" style="display:none">
+        <div class="toc-l">Filter by tag</div>
+        <div class="filter">
+          <span class="fchip on">All</span>
+          <span class="fchip"><span class="sw" style="background:#6d5cf0"></span>Dashboards</span>
+          <span class="fchip"><span class="sw" style="background:#1f9d5e"></span>API</span>
+          <span class="fchip"><span class="sw" style="background:#b9831a"></span>Performance</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  const root = document.getElementById('root');
+  document.getElementById('tg').onclick = () =>
+    root.setAttribute('data-theme', root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
+    t.classList.add('on');
+    const v = t.dataset.view;
+    document.getElementById('docs').classList.toggle('on', v === 'docs');
+    document.getElementById('log').classList.toggle('on', v === 'log');
+    document.getElementById('toc-docs').style.display = v === 'docs' ? '' : 'none';
+    document.getElementById('toc-log').style.display = v === 'log' ? '' : 'none';
+    window.scrollTo(0, 0);
+  });
+  document.querySelectorAll('.fchip').forEach(c => c.onclick = () => {
+    document.querySelectorAll('.fchip').forEach(x => x.classList.remove('on')); c.classList.add('on');
+  });
+</script>
