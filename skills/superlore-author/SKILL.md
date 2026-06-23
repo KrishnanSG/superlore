@@ -3,7 +3,7 @@ name: superlore-author
 description: Author and edit content into an existing superlore knowledge base — "vibe your docs". Turns intent ("add a page about X", "document our onboarding", "make a roadmap") into well-structured MDX with dual-representation components (cards, timelines, boards, entity cards, tables, a Canvas), so humans get a clean page and agents get a typed knowledge face from one source. Use when adding, writing, editing, or restructuring pages, components, or a Canvas in a superlore KB.
 metadata:
   author: superlore
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Authoring superlore content ("vibe your docs")
@@ -27,6 +27,22 @@ If you're about to write a Markdown table or a bulleted list of facts, reach for
 `KeyFacts` instead so the data survives into the knowledge face. If you're about to describe a
 system, a flow, or a brainstorm visually, use a **Canvas** — and invoke the **superlore-canvas** skill,
 which knows the full Canvas spec.
+
+## Lead with a visual — always include a Canvas
+
+Default to **opening the page with (or placing inline) a Canvas** that visualizes the thing — the
+system, the flow, the relationships, the plan. A wall of prose is the failure mode: a reader (and an
+agent) should grasp the _shape_ at a glance, then read the detail beneath it. Put the Canvas at the
+top when it frames the whole page; place it inline next to the section it illustrates otherwise.
+
+- Documenting a system or service → a Canvas of its architecture, up top.
+- A process / onboarding / runbook → a Canvas of the flow.
+- A decision, comparison, or plan → a Canvas mapping the options or the roadmap.
+- Even a concept page is clearer with a small Canvas of how the pieces relate.
+
+Invoke **superlore-canvas** for the spec. The bar: **visualize first**. Only skip the Canvas when a
+page is genuinely non-visual (a pure changelog, a glossary) — and then do it deliberately, not by
+default.
 
 ## The shape of a superlore page
 
@@ -119,5 +135,6 @@ knowledge into a component. (To connect the MCP, use **superlore-connect-mcp**.)
 ## Remember
 
 - One source, two faces. Author the **data**.
+- **Lead with a Canvas** — visualize the thing at the top or inline; prose supports the picture.
 - A `summary` on every page; structural components over prose; stable headings.
 - Visual/diagram/whiteboard work → hand off to **superlore-canvas**.

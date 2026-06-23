@@ -1,7 +1,7 @@
 {
   "name": "superlore",
   "displayName": "superlore",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Scaffold, author, deploy, and connect a superlore knowledge base — author once in MDX, humans get a clean visual site and agents get a first-class MCP over the same structured content. Say \"Make me a docs using superlore\" to start.",
   "author": {
     "name": "superlore",
