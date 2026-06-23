@@ -1,7 +1,7 @@
 {
   "name": "superlore-preview",
   "displayName": "superlore Preview",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "description": "Live, dual-representation preview for superlore .mdx — renders every component (Canvas/whiteboard, Timeline, Board, Table, …) as you type, with FigJam-style comment pins and Copy to Agent.",
   "license": "Apache-2.0",
   "author": "Krishnan S G",

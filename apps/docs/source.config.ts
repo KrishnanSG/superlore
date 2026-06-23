@@ -4,7 +4,10 @@ import { z } from "zod";
 // fumadocs-mdx under raw Node ESM, so it must not pull in the React component barrel. The schema is
 // also re-exported from the package root (`import { superloreFrontmatterSchema } from "superlore"`).
 import { superloreFrontmatterSchema } from "superlore/frontmatter";
-import { remarkSuperloreCanvas } from "./lib/remark-superlore-canvas.mjs";
+// The one markdown-upgrade plugin (canvas fences + task lists + GitHub alerts), straight from the
+// package — no local copy to drift. Like the schema, `superlore/mdx` is dependency-free, so it's
+// safe to load under fumadocs-mdx's raw-Node-ESM evaluation of this config.
+import { remarkSuperlore } from "superlore/mdx";
 
 // Typed frontmatter. `superloreFrontmatterSchema` is superlore's documented extension point — it already
 // carries Fumadocs' defaults (title, description, icon, full) AND the superlore knowledge-envelope
@@ -25,7 +28,8 @@ export const docs = defineDocs({
 
 export default defineConfig({
   mdxOptions: {
-    // Turn fenced ```superlore-canvas JSON blocks into <Canvas json="…" /> (the agent-authoring path).
-    remarkPlugins: [remarkSuperloreCanvas],
+    // Markdown-first authoring: ```superlore-canvas → <Canvas>, `- [ ]` task lists → <Checklist>,
+    // and `> [!NOTE]` GitHub alerts → Callouts. Runs after fumadocs' built-in remark-gfm.
+    remarkPlugins: [remarkSuperlore],
   },
 });

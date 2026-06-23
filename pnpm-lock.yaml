@@ -117,8 +117,8 @@ importers:
         specifier: ^5.2.0
         version: 5.2.0
       superlore:
-        specifier: ^0.8.1
-        version: 0.8.1(97f43a67cb0a20ef13638ce2bcded313)
+        specifier: ^0.9.0
+        version: 0.9.0(97f43a67cb0a20ef13638ce2bcded313)
       unist-util-visit:
         specifier: ^5.1.0
         version: 5.1.0
@@ -5558,8 +5558,8 @@ packages:
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
 
-  superlore@0.8.1:
-    resolution: {integrity: sha512-E8imU532k8J6HiQ3syxdyfzJSrX4NvWuGFuUq5jPjPIGDoo+uaWFrFaPHA8h3lW12da6+7onXdeRirNG5rOm+A==}
+  superlore@0.9.0:
+    resolution: {integrity: sha512-b7et6zNUp0C/mSOPkomCCvAHoAdO0T460pUm/VX9ZwdgRNiZq/B4OD1zSRI8uWJ/YGFVt4fboc1muoyS4hBw6A==}
     engines: {node: '>=20'}
     peerDependencies:
       '@modelcontextprotocol/sdk': ^1
@@ -11746,7 +11746,7 @@ snapshots:
       tinyglobby: 0.2.17
       ts-interface-checker: 0.1.13
 
-  superlore@0.8.1(97f43a67cb0a20ef13638ce2bcded313):
+  superlore@0.9.0(97f43a67cb0a20ef13638ce2bcded313):
     dependencies:
       '@mdx-js/mdx': 3.1.1
       '@shikijs/engine-javascript': 4.2.0
