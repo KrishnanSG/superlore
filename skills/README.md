@@ -1,10 +1,11 @@
 # superlore skills (Claude plugin)
 
 Agent skills shipped with superlore so anyone can run the whole KB lifecycle through their agent —
-**without** knowing how superlore works. This folder doubles as a **Claude plugin**: the manifest at
-[`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) bundles every skill below, and the
-repo-root [`.claude-plugin/marketplace.json`](../.claude-plugin/marketplace.json) makes it
-installable. Add the plugin and _"Make me a docs using superlore"_ just works.
+**without** knowing how superlore works. These skills are bundled into a **Claude plugin** rooted at
+the repo: the manifest at [`../.claude-plugin/plugin.json`](../.claude-plugin/plugin.json) lists every
+skill below, and the [`../.claude-plugin/marketplace.json`](../.claude-plugin/marketplace.json)
+alongside it (plugin `source: "."`) makes it installable. Add the plugin and _"Make me a docs using
+superlore"_ just works.
 
 ## The skills
 
@@ -54,25 +55,24 @@ takes it from there.
 **Local / development install** (from a clone of this repo):
 
 ```bash
-# point the marketplace at your local checkout
+# point the marketplace at your local checkout (the repo root holds .claude-plugin/)
 /plugin marketplace add /absolute/path/to/superlore
 /plugin install superlore@superlore
 
-# or test the plugin directly without installing
-claude --plugin-dir /absolute/path/to/superlore/skills
+# or test the plugin directly without installing (plugin root = repo root)
+claude --plugin-dir /absolute/path/to/superlore
 ```
 
-Validate the plugin before publishing with `claude plugin validate ./skills`.
+Validate the plugin before publishing — from the repo root — with `claude plugin validate .`.
 
 ## Layout
 
 ```
-superlore/
+superlore/                      # the "superlore" plugin root (source: ".")
 ├── .claude-plugin/
-│   └── marketplace.json        # the "superlore" marketplace (plugin source → ./skills)
-└── skills/                     # the "superlore" plugin root
-    ├── .claude-plugin/
-    │   └── plugin.json         # the plugin manifest (bundles every skill below)
+│   ├── marketplace.json        # the "superlore" marketplace (plugin source → ".")
+│   └── plugin.json             # the plugin manifest (bundles every skill below)
+└── skills/                     # the bundled skills, auto-discovered as /superlore:<skill>
     ├── superlore-scaffold/SKILL.md
     ├── superlore-author/SKILL.md
     ├── superlore-deploy/SKILL.md
