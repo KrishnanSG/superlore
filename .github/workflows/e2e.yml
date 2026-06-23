@@ -97,8 +97,11 @@ jobs:
         run: |
           node -e "
             const fs=require('fs'), path=require('path');
-            const root=path.dirname(require.resolve('superlore/package.json'));
-            const exps=require('superlore/package.json').exports || {};
+            // Read package.json off disk (NOT require — the exports map blocks require('pkg/package.json')),
+            // and realpath to follow pnpm's symlink so the export targets resolve from the real dir.
+            const pkgPath=path.join(process.cwd(),'node_modules','superlore','package.json');
+            const root=path.dirname(fs.realpathSync(pkgPath));
+            const exps=JSON.parse(fs.readFileSync(pkgPath,'utf8')).exports || {};
             const missing=[];
             for (const [key,val] of Object.entries(exps)) {
               const t = typeof val==='string' ? val : (val.import||val.default||val.types);
