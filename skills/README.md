@@ -29,6 +29,11 @@ installable. Add the plugin and _"Make me a docs using superlore"_ just works.
 - **[superlore-canvas](superlore-canvas/SKILL.md)** — author rich superlore Canvas diagrams (architecture
   maps, brainstorms, flows, decision trees) as a typed knowledge graph that renders FigJam-grade.
   Triggers on "visualize / draw / diagram / whiteboard this".
+- **[superlore-migrate](superlore-migrate/SKILL.md)** — migrate existing docs (Mintlify, Docusaurus,
+  Fumadocs, Nextra, GitBook, plain `.md` — any framework) into superlore: a plan-first flow (a
+  superlore doc you review + comment on), then convert with dual-rep components, verify the build +
+  key pages with Playwright, and a summary doc with screenshots. Triggers on "migrate / port / convert
+  my docs to superlore".
 
 ## Install the plugin into Claude
 
@@ -72,7 +77,8 @@ superlore/
     ├── superlore-author/SKILL.md
     ├── superlore-deploy/SKILL.md
     ├── superlore-connect-mcp/SKILL.md
-    └── superlore-canvas/SKILL.md
+    ├── superlore-canvas/SKILL.md
+    └── superlore-migrate/SKILL.md
 ```
 
 Each skill is its own folder with a `SKILL.md` in the established format (YAML frontmatter:
