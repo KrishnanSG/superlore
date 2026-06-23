@@ -1,6 +1,6 @@
 {
   "name": "superlore",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "The agent-native knowledge base — dual-representation components, theme, MCP, and auth. One corpus. Humans and agents.",
   "license": "Apache-2.0",
   "author": "Krishnan S G",
@@ -63,6 +63,10 @@
       "types": "./src/ui.tsx",
       "import": "./src/ui.tsx"
     },
+    "./runtime": {
+      "types": "./src/runtime.tsx",
+      "import": "./src/runtime.tsx"
+    },
     "./source": {
       "types": "./src/source.ts",
       "import": "./src/source.ts"
@@ -75,7 +79,8 @@
       "types": "./src/next.ts",
       "import": "./src/next.ts"
     },
-    "./css": "./src/theme/superlore.css"
+    "./css": "./src/theme/superlore.css",
+    "./runtime.css": "./src/theme/superlore.css"
   },
   "publishConfig": {
     "access": "public",
@@ -108,6 +113,10 @@
         "types": "./dist/ui.d.mts",
         "import": "./dist/ui.mjs"
       },
+      "./runtime": {
+        "types": "./dist/runtime.d.mts",
+        "import": "./dist/runtime.mjs"
+      },
       "./source": {
         "types": "./dist/source.d.mts",
         "import": "./dist/source.mjs"
@@ -124,18 +133,24 @@
     }
   },
   "scripts": {
-    "build": "tsdown && mkdir -p dist/css && cp src/theme/superlore.css dist/css/superlore.css",
+    "build": "tsdown && node scripts/build-css.mjs",
     "dev": "tsdown --watch",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
+    "@mdx-js/mdx": "^3.1.1",
+    "@shikijs/engine-javascript": "^4.2.0",
     "@xyflow/react": "^12.11.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "elkjs": "^0.11.1",
     "lucide-react": "^1.21.0",
+    "rehype-slug": "^6.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-mdx-frontmatter": "^5.2.0",
     "roughjs": "^4.6.6",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3"
@@ -171,6 +186,7 @@
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "@tailwindcss/cli": "^4.3.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/mdx": "^2.0.14",

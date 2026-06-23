@@ -19,6 +19,7 @@ export default defineConfig({
     mdx: "src/mdx.ts",
     search: "src/search.ts",
     ui: "src/ui.tsx",
+    runtime: "src/runtime.tsx",
     source: "src/source.ts",
     config: "src/config.ts",
     next: "src/next.ts",
