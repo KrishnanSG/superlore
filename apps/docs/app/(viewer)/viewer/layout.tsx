@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { ThemeToggle, BuiltWithSuperlore } from "superlore";
+import { ThemeToggle } from "superlore";
 import { SuperloreMark } from "@/lib/logo";
 
-/** Viewer chrome: a slim top bar (the real mark + wordmark + theme toggle), NO docs sidebar, and
- *  the mandatory "Built with superlore" footer. */
+/** Viewer chrome: a slim top bar (the real mark + wordmark + theme toggle), NO docs sidebar. The
+ *  "Built with superlore" badge is baked into RootProvider, so it shows here without being added. */
 export default function ViewerLayout({ children }: LayoutProps<"/viewer">) {
   return (
     <div className="flex min-h-screen flex-col">
@@ -18,9 +18,6 @@ export default function ViewerLayout({ children }: LayoutProps<"/viewer">) {
         <ThemeToggle />
       </header>
       <main className="flex-1">{children}</main>
-      <footer className="flex items-center justify-center border-t border-fd-border px-4 py-4">
-        <BuiltWithSuperlore />
-      </footer>
     </div>
   );
 }

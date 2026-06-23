@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ThemeToggle, BuiltWithSuperlore } from "superlore";
+import { ThemeToggle } from "superlore";
 import { superlore } from "@/superlore.config";
 
 import { FoldMark } from "./_fold-mark";
@@ -72,7 +72,6 @@ export function Footer() {
     <footer className="border-t border-fd-border bg-fd-background">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 py-10 sm:flex-row sm:justify-between">
         <div className="flex flex-wrap items-center gap-3">
-          <BuiltWithSuperlore />
           <span className="text-sm text-fd-muted-foreground">{superlore.footer.note}</span>
         </div>
         <nav className="flex items-center gap-5" aria-label="Footer">

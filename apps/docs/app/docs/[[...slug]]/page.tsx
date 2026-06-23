@@ -1,7 +1,7 @@
 import { source } from "@/lib/source";
 import { DocsBody, DocsPage } from "superlore/ui";
 import { notFound } from "next/navigation";
-import { getMDXComponents, PageHero, BuiltWithSuperlore } from "superlore";
+import { getMDXComponents, PageHero } from "superlore";
 import { createRelativeLink } from "superlore/ui";
 import { superlore } from "@/superlore.config";
 import type { Metadata } from "next";
@@ -34,10 +34,6 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
       <DocsBody>
         <MDX components={getMDXComponents({ a: createRelativeLink(source, page) })} />
       </DocsBody>
-      {/* Mandatory "Built with superlore" attribution — present on every screen. */}
-      <footer className="mt-10 flex justify-center border-t border-fd-border pt-6">
-        <BuiltWithSuperlore />
-      </footer>
     </DocsPage>
   );
 }
