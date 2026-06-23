@@ -53,8 +53,26 @@ jobs:
         run: |
           node -e "const{execSync}=require('child_process');const j=execSync('tar -xzOf '+process.env.SUPERLORE_TGZ+' package/package.json').toString();const e=JSON.stringify(JSON.parse(j).exports);if(/\/src\//.test(e)){console.error('exports still point at src!');process.exit(1)}console.log('exports OK (dist)')"
 
-      - name: Scaffold a ${{ matrix.type }} KB
-        run: node packages/cli/dist/index.js init /tmp/kb --name "CI ${{ matrix.type }}" --type ${{ matrix.type }} --yes --no-connect
+      # Install the CLI globally from its packed tarball, so we run `superlore` through the global bin
+      # SYMLINK — exactly how npx / `npm i -g` / node_modules/.bin invoke it for a real user. Invoking
+      # the real dist path directly (node packages/cli/dist/index.js) masks symlink-entrypoint bugs.
+      - name: Pack + globally install the CLI
+        run: |
+          pnpm --filter superlore-cli pack --pack-destination /tmp
+          CLI_TGZ=$(ls /tmp/superlore-cli-*.tgz)
+          npm install -g "$CLI_TGZ"
+
+      - name: Assert the global bin actually runs (not a silent no-op)
+        run: |
+          OUT=$(superlore --version)
+          echo "superlore --version -> $OUT"
+          case "$OUT" in
+            superlore/*) ;;
+            *) echo "::error::global 'superlore' produced no version — the bin is a no-op via symlink"; exit 1 ;;
+          esac
+
+      - name: Scaffold a ${{ matrix.type }} KB (via the global bin symlink)
+        run: superlore init /tmp/kb --name "CI ${{ matrix.type }}" --type ${{ matrix.type }} --yes --no-connect
 
       - name: Point the scaffold at the packed superlore
         working-directory: /tmp/kb

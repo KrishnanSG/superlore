@@ -8,6 +8,7 @@
  * The CLI body runs only when invoked as the program entrypoint (the shebang'd `dist/index.js`),
  * guarded so a plain `import` never triggers a process exit.
  */
+import { realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 
@@ -24,7 +25,7 @@ import { banner, log } from "./lib/log.js";
 export * from "./config.js";
 
 /** The CLI version, kept in sync with package.json at build time. */
-export const VERSION = "0.5.0";
+export const VERSION = "0.5.1";
 
 /** Build the argument parser. Exported for tests; `run()` wires it to argv. */
 export function buildCli(argv: readonly string[] = process.argv) {
@@ -142,8 +143,24 @@ export async function run(argv: readonly string[] = process.argv): Promise<void>
   }
 }
 
-// Run only when executed as the program entrypoint, never on import.
-const isEntrypoint = Boolean(process.argv[1]) && fileURLToPath(import.meta.url) === process.argv[1];
-if (isEntrypoint) {
+/**
+ * True when this module is the process entrypoint, never on a plain `import`.
+ *
+ * npm installs a CLI's `bin` as a **symlink** (`node_modules/.bin/superlore`, a global install, or
+ * an npx shim), so `process.argv[1]` is the symlink path while `import.meta.url` resolves to the real
+ * file — a raw `===` compares unequal and the CLI silently no-ops for every real user. Canonicalise
+ * both with `realpathSync` before comparing so symlinked invocation still counts as the entrypoint.
+ */
+function isEntrypoint(): boolean {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  try {
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(entry);
+  } catch {
+    return false;
+  }
+}
+
+if (isEntrypoint()) {
   void run();
 }
