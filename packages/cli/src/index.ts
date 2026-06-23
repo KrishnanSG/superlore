@@ -25,7 +25,7 @@ import { banner, log } from "./lib/log.js";
 export * from "./config.js";
 
 /** The CLI version, kept in sync with package.json at build time. */
-export const VERSION = "0.7.0";
+export const VERSION = "0.7.1";
 
 /** Build the argument parser. Exported for tests; `run()` wires it to argv. */
 export function buildCli(argv: readonly string[] = process.argv) {
