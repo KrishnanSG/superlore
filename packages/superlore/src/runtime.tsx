@@ -34,7 +34,7 @@ import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
 import { DocsBody } from "fumadocs-ui/page";
 import type { MDXComponents } from "mdx/types";
 import { getMDXComponents } from "./components/mdx";
-import { remarkSuperloreCanvas } from "./mdx";
+import { remarkSuperlore } from "./mdx";
 import { cn } from "./lib/cn";
 
 /**
@@ -73,7 +73,9 @@ const CORE_REMARK: RuntimePlugin[] = [
   remarkFrontmatter,
   remarkMdxFrontmatter,
   remarkGfm,
-  remarkSuperloreCanvas,
+  // After GFM (which parses task-list checkboxes): canvas fences → <Canvas>, task lists →
+  // <Checklist>, GitHub alerts → Callouts. One plugin, the whole markdown-first upgrade set.
+  remarkSuperlore,
 ];
 const CORE_REHYPE: RuntimePlugin[] = [
   rehypeSlug,

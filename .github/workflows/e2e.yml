@@ -88,6 +88,28 @@ jobs:
             npm install --no-audit --no-fund
           fi
 
+      # Every documented export must resolve to a file that actually ships — catches the class of
+      # bug where an export is added to the dev map but not publishConfig (e.g. `./runtime.css`), so
+      # the documented import throws "not exported" for a real consumer. Asserts on the INSTALLED
+      # (published-shape) package, not the source.
+      - name: Assert every export resolves to a shipped file
+        working-directory: /tmp/kb
+        run: |
+          node -e "
+            const fs=require('fs'), path=require('path');
+            const root=path.dirname(require.resolve('superlore/package.json'));
+            const exps=require('superlore/package.json').exports || {};
+            const missing=[];
+            for (const [key,val] of Object.entries(exps)) {
+              const t = typeof val==='string' ? val : (val.import||val.default||val.types);
+              if (t && !fs.existsSync(path.join(root, t))) missing.push(key+' -> '+t);
+            }
+            for (const need of ['.','./runtime','./runtime.css','./css','./mdx','./ui'])
+              if (!exps[need]) missing.push('MISSING export key: '+need);
+            if (missing.length) { console.error('::error::broken exports:', missing.join(' | ')); process.exit(1); }
+            console.log('all '+Object.keys(exps).length+' exports resolve to shipped files OK');
+          "
+
       - name: Production build
         working-directory: /tmp/kb
         run: ./node_modules/.bin/next build

@@ -37,6 +37,17 @@ export interface LaidOut {
   height: number;
   /** Per-edge orthogonal routes (absolute points) from ELK, so connectors avoid nodes. */
   routes?: Record<string, { x: number; y: number }[]>;
+  /** Per-edge label centre (absolute) from ELK — it reserves space so labels never overlap. */
+  labelPos?: Record<string, { x: number; y: number }>;
+}
+
+/**
+ * Approx pixel size of an edge-label pill (the `text-[10.5px]` chip with `px-2 py-0.5` in edges.tsx).
+ * Fed to ELK as the edge's label dimensions so the layered algorithm reserves a lane for it and
+ * positions it — the fix for labels stacking on top of each other where edges converge.
+ */
+function edgeLabelSize(text: string): { width: number; height: number } {
+  return { width: Math.ceil(text.length * 6.2) + 16, height: 20 };
 }
 
 const elk = new ELK();
@@ -648,9 +659,19 @@ async function layoutFlowBoard(
       "elk.layered.crossingMinimization.strategy": "LAYER_SWEEP",
       "elk.layered.considerModelOrder.strategy": "NODES_AND_EDGES",
       "elk.hierarchyHandling": "INCLUDE_CHILDREN",
+      // Edge labels: ELK reserves a lane for each (as a label dummy node) and positions it, so
+      // labels never stack on top of one another or a node where edges converge (fan-in/out).
+      "elk.edgeLabels.placement": "CENTER",
+      "elk.spacing.edgeLabel": "6",
+      "elk.layered.spacing.edgeLabelBetweenLayers": "12",
     },
     children: topChildren,
-    edges: canvas.edges.map((e, i) => ({ id: `e${i}`, sources: [e.from], targets: [e.to] })),
+    edges: canvas.edges.map((e, i) => ({
+      id: `e${i}`,
+      sources: [e.from],
+      targets: [e.to],
+      ...(e.label ? { labels: [{ id: `e${i}l`, text: e.label, ...edgeLabelSize(e.label) }] } : {}),
+    })),
   };
 
   const res = await elk.layout(graph);
@@ -704,6 +725,7 @@ async function layoutFlowBoard(
   // (elkjs occasionally emits a hierarchical edge in the wrong coordinate space — drop those, so
   // the connector falls back to a clean handle-to-handle path instead of floating off in space).
   const routes: Record<string, { x: number; y: number }[]> = {};
+  const labelPos: Record<string, { x: number; y: number }> = {};
   const near = (p: { x: number; y: number } | undefined, id: string, tol = 48) => {
     const b = absBox.get(id);
     if (!b || !p) return false;
@@ -725,7 +747,18 @@ async function layoutFlowBoard(
       const ok =
         spec &&
         ((near(a, spec.from) && near(b, spec.to)) || (near(a, spec.to) && near(b, spec.from)));
-      if (ok) routes[e.id] = pts;
+      if (ok) {
+        routes[e.id] = pts;
+        // ELK placed the label (same coord space as the section it validated) — use its centre so
+        // converging edges' labels sit in their own reserved lanes instead of piling up.
+        const lab = e.labels?.[0];
+        if (lab && lab.x != null && lab.y != null) {
+          labelPos[e.id] = {
+            x: lab.x + offX + (lab.width ?? 0) / 2,
+            y: lab.y + offY + (lab.height ?? 0) / 2,
+          };
+        }
+      }
     }
     for (const c of node.children ?? []) collectRoutes(c, offX + (c.x ?? 0), offY + (c.y ?? 0));
   }
@@ -737,6 +770,7 @@ async function layoutFlowBoard(
     width: res.width ?? 0,
     height: res.height ?? 0,
     routes,
+    labelPos,
   };
 }
 

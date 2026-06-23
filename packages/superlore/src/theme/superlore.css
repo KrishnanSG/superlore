@@ -606,3 +606,17 @@ html {
   background: var(--kp-accent);
   border-color: var(--kp-accent);
 }
+
+/* ══ Code blocks are ALWAYS dark — regardless of the page theme ═══════════════════
+   A deliberate, universal rule: code is most legible on a dark surface, and a code block
+   that flips to light-on-white in light mode reads worse and is visually noisy. Shiki's
+   dual-theme output emits the LIGHT colour inline and the DARK colour as `--shiki-dark`
+   (with `--shiki-dark-bg` on the <pre>); we force the dark variant on every fenced block
+   so it stays dark in light mode too. Inline `code` in prose is untouched. */
+.shiki,
+.shiki span {
+  color: var(--shiki-dark) !important;
+}
+.shiki {
+  background-color: var(--shiki-dark-bg) !important;
+}

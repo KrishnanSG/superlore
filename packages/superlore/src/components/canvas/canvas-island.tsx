@@ -263,7 +263,8 @@ export default function CanvasIsland({
         sourceHandle,
         targetHandle,
         // ELK's orthogonal route for this edge (if any) — KEdge draws along it to avoid nodes.
-        data: { ...e.data, route: laid.routes?.[e.id] },
+        // labelPos is ELK's reserved label slot, so labels don't pile up where edges converge.
+        data: { ...e.data, route: laid.routes?.[e.id], labelPos: laid.labelPos?.[e.id] },
         markerEnd: kind === "line" ? undefined : marker,
         markerStart: kind === "bidirectional" ? marker : undefined,
       } as Edge;

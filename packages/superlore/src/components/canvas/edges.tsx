@@ -52,6 +52,8 @@ export function KEdge({
   const stroke = edgeColor(data?.intent as CanvasIntent | undefined);
   // A precomputed ELK route (orthogonal, node-avoiding) wins — draw the connector along it.
   const route = data?.route as Pt[] | undefined;
+  // ELK's reserved label slot (centre), so converging labels never overlap. Wins over the midpoint.
+  const labelSlot = data?.labelPos as Pt | undefined;
   // Sketch + curved connectors follow a bezier; everything else takes the tidy orthogonal elbow.
   const curved = kind === "curved" || sketch;
   let path: string;
@@ -76,11 +78,16 @@ export function KEdge({
         });
   }
 
-  // Nudge the label off the line toward the midpoint between endpoints, so it never sits
-  // on a segment that hugs a node. Small bias along the dominant axis keeps it legible.
+  // Nudge the FALLBACK midpoint label off the line so it doesn't sit on a node-hugging segment.
+  // When ELK gave us a reserved slot we trust it verbatim (no nudge — it already avoids overlap).
   const dx = targetX - sourceX;
   const dy = targetY - sourceY;
   const horizontal = Math.abs(dx) >= Math.abs(dy);
+  if (labelSlot) {
+    labelX = labelSlot.x;
+    labelY = labelSlot.y;
+  }
+  const nudgeY = labelSlot ? 0 : horizontal ? -10 : 0;
 
   return (
     <>
@@ -115,7 +122,7 @@ export function KEdge({
                 : "pointer-events-none absolute z-10 rounded-md border border-fd-border bg-fd-card px-2 py-0.5 text-[10.5px] font-medium tracking-tight whitespace-nowrap text-fd-muted-foreground shadow-[var(--kp-canvas-shadow)] select-none"
             }
             style={{
-              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY + (horizontal ? -10 : 0)}px)`,
+              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY + nudgeY}px)`,
               ...(hand
                 ? {
                     fontFamily: "var(--font-hand), ui-rounded, cursive",

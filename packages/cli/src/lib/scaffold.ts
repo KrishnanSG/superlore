@@ -119,7 +119,7 @@ function writeSkeleton(root: string, config: SuperloreJson): void {
           "fumadocs-core": "^16.8.2",
           "fumadocs-mdx": "^14.3.1",
           "fumadocs-ui": "^16.8.2",
-          superlore: "^0.6.0",
+          superlore: "^0.9.0",
           "lucide-react": "^1.21.0",
           ...(mcpEnabled
             ? // mcp-handler pins an EXACT sdk peer (1.26.0); npm errors on anything else (pnpm only
@@ -198,7 +198,7 @@ export default withMDX(config);
     "source.config.ts",
     `import { defineConfig, defineDocs } from "fumadocs-mdx/config";
 import { superloreFrontmatterSchema } from "superlore/frontmatter";
-import { remarkSuperloreCanvas } from "superlore/mdx";
+import { remarkSuperlore } from "superlore/mdx";
 
 // Extend the superlore frontmatter schema in ONE place if you add custom fields.
 export const docs = defineDocs({
@@ -208,9 +208,9 @@ export const docs = defineDocs({
 
 export default defineConfig({
   mdxOptions: {
-    // Turn fenced \`\`\`superlore-canvas JSON blocks into <Canvas json="…" /> — the headline
-    // authoring path: write a whiteboard as a code block, get a rendered + serialized canvas.
-    remarkPlugins: [remarkSuperloreCanvas],
+    // Markdown-first authoring, one plugin: \`\`\`superlore-canvas fences → <Canvas>, \`- [ ]\` task
+    // lists → <Checklist>, and \`> [!NOTE]\` GitHub alerts → Callouts. Write natural markdown.
+    remarkPlugins: [remarkSuperlore],
   },
 });
 `,

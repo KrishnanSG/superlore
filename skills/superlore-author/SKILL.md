@@ -3,7 +3,7 @@ name: superlore-author
 description: Author and edit content into an existing superlore knowledge base — "vibe your docs". Turns intent ("add a page about X", "document our onboarding", "make a roadmap") into well-structured MDX with dual-representation components (cards, timelines, boards, entity cards, tables, a Canvas), so humans get a clean page and agents get a typed knowledge face from one source. Use when adding, writing, editing, or restructuring pages, components, or a Canvas in a superlore KB.
 metadata:
   author: superlore
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Authoring superlore content ("vibe your docs")
@@ -27,6 +27,23 @@ If you're about to write a Markdown table or a bulleted list of facts, reach for
 `KeyFacts` instead so the data survives into the knowledge face. If you're about to describe a
 system, a flow, or a brainstorm visually, use a **Canvas** — and invoke the **superlore-canvas** skill,
 which knows the full Canvas spec.
+
+## Write the natural markdown — superlore upgrades it
+
+Don't reach for a verbose component when plain markdown says it. superlore auto-upgrades the markdown
+everyone already writes into the styled, dual-representation component — same knowledge face, zero
+props to remember:
+
+- **Task list → `Checklist`.** Write `- [ ] todo` / `- [x] done`. (Reach for `<Checklist items={…}>`
+  only for owners, groups, or refs.)
+- **GitHub alert → Callout.** Write `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`,
+  `> [!CAUTION]` → `Note` / `Tip` / `Info` / `Warning` / `Danger`.
+- **Fenced ` ```superlore-canvas `` → `Canvas`** (the headline visual path).
+- A **code block** is always rendered dark, in any page theme — just fence it with its language.
+
+So: prefer the markdown form first; use the explicit component only when you need a capability the
+markdown can't express (typed columns, owners, a custom title). A plain Markdown table still renders,
+but `DataTable` is better when the rows are real data an agent should read.
 
 ## Lead with a visual — always include a Canvas
 

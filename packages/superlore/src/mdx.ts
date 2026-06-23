@@ -45,3 +45,114 @@ export function remarkSuperloreCanvas() {
     walk(tree);
   };
 }
+
+/** Flatten an mdast node's inline text (text + inline code + nested inlines) to a plain string. */
+function inlineText(node: MdNode): string {
+  if (!node) return "";
+  if (node.type === "text" || node.type === "inlineCode") return String(node.value ?? "");
+  if (Array.isArray(node.children)) return node.children.map(inlineText).join("");
+  return "";
+}
+
+/**
+ * remark plugin: upgrade a plain markdown **task list** (`- [ ]` / `- [x]`) into a dual-representation
+ * `<Checklist>` — so an author (or agent) writes the natural markdown and still gets the styled
+ * component AND the typed knowledge face the MCP serves. Only fires on a list whose items are ALL
+ * task items (GFM sets `checked` to a boolean on those); ordinary lists pass through untouched. Run
+ * after `remark-gfm` (which parses the checkboxes). Items carry forward as a JSON string.
+ */
+export function remarkSuperloreChecklist() {
+  return (tree: MdNode): void => {
+    const walk = (node: MdNode): void => {
+      if (!node || !Array.isArray(node.children)) return;
+      for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i];
+        if (!child) continue;
+        const items = child.type === "list" ? (child.children ?? []) : [];
+        const isTaskList = items.length > 0 && items.every((li) => typeof li.checked === "boolean");
+        if (isTaskList) {
+          const data = items.map((li) => {
+            const para = (li.children ?? []).find((c) => c?.type === "paragraph");
+            return { text: inlineText(para ?? li).trim(), done: li.checked === true };
+          });
+          node.children[i] = {
+            type: "mdxJsxFlowElement",
+            name: "Checklist",
+            attributes: [{ type: "mdxJsxAttribute", name: "json", value: JSON.stringify(data) }],
+            children: [],
+          } as unknown as MdNode;
+        } else {
+          walk(child);
+        }
+      }
+    };
+    walk(tree);
+  };
+}
+
+const ALERT_RE = /^\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*/i;
+const ALERT_COMPONENT: Record<string, string> = {
+  note: "Note",
+  tip: "Tip",
+  important: "Info",
+  warning: "Warning",
+  caution: "Danger",
+};
+
+/**
+ * remark plugin: upgrade a GitHub-style alert blockquote (`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`,
+ * `[!WARNING]`, `[!CAUTION]`) into the matching superlore Callout (`Note`/`Tip`/`Info`/`Warning`/
+ * `Danger`). The natural markdown an author already knows becomes the styled, dual-rep callout — no
+ * `<Note>` tag to remember. A plain blockquote (no marker) stays a blockquote.
+ */
+export function remarkSuperloreCallouts() {
+  return (tree: MdNode): void => {
+    const walk = (node: MdNode): void => {
+      if (!node || !Array.isArray(node.children)) return;
+      for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i];
+        if (!child) continue;
+        const firstPara = child.type === "blockquote" ? (child.children ?? [])[0] : undefined;
+        const marker = firstPara?.type === "paragraph" ? (firstPara.children ?? [])[0] : undefined;
+        const m = marker?.type === "text" ? ALERT_RE.exec(String(marker.value)) : null;
+        if (child.type === "blockquote" && firstPara && marker && m) {
+          const name = ALERT_COMPONENT[m[1]!.toLowerCase()] ?? "Note";
+          const rest = String(marker.value).replace(ALERT_RE, "");
+          if (rest) {
+            marker.value = rest;
+          } else {
+            const pc = firstPara.children!;
+            pc.shift(); // drop the marker text node
+            if (pc[0]?.type === "break") pc.shift(); // and the line break after it
+            if (pc.length === 0) child.children!.shift(); // empty first paragraph → drop it
+          }
+          node.children[i] = {
+            type: "mdxJsxFlowElement",
+            name,
+            attributes: [],
+            children: child.children ?? [],
+          } as unknown as MdNode;
+        } else {
+          walk(child);
+        }
+      }
+    };
+    walk(tree);
+  };
+}
+
+/**
+ * The one remark plugin a superlore KB registers: applies every superlore markdown upgrade —
+ * `superlore-canvas` fences → `<Canvas>`, task lists → `<Checklist>`, GitHub alerts → Callouts.
+ * Register this (after `remark-gfm`) instead of the individual plugins.
+ */
+export function remarkSuperlore() {
+  const canvas = remarkSuperloreCanvas();
+  const checklist = remarkSuperloreChecklist();
+  const callouts = remarkSuperloreCallouts();
+  return (tree: MdNode): void => {
+    canvas(tree);
+    checklist(tree);
+    callouts(tree);
+  };
+}
