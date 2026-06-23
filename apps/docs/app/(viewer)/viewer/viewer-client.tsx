@@ -10,7 +10,7 @@ import rehypeSlug from "rehype-slug";
 import rehypeHighlight from "rehype-highlight";
 import { DocsBody } from "superlore/ui";
 import { getMDXComponents, cn } from "superlore";
-import { AlertTriangle, Code2, Download, Eye, FileText, Upload } from "lucide-react";
+import { AlertTriangle, Cloud, Code2, Download, Eye, FileText, Share2, Upload } from "lucide-react";
 import { remarkSuperloreCanvas } from "@/lib/remark-superlore-canvas.mjs";
 import { rehypeKpBlockIds } from "@/lib/rehype-kp-block-ids.mjs";
 import { SuperloreMark } from "@/lib/logo";
@@ -277,8 +277,12 @@ export function ViewerClient() {
   const [composingFor, setComposingFor] = useState<string | null>(null);
   const [blocks, setBlocks] = useState<BlockInfo[]>([]);
   const [importNote, setImportNote] = useState<string>("");
+  /** Share menu (bundle vs comments-only + the Cloud hook). */
+  const [shareOpen, setShareOpen] = useState(false);
 
   const docRef = useRef<HTMLDivElement>(null);
+  /** A bundle's embedded comments, held until the freshly loaded doc's blocks are scanned. */
+  const pendingComments = useRef<unknown>(null);
 
   const load = useCallback(async (src: string, name: string) => {
     setStatus("compiling");
@@ -304,7 +308,25 @@ export function ViewerClient() {
   const onFile = useCallback(
     async (file: File | undefined) => {
       if (!file) return;
-      await load(await file.text(), file.name);
+      const text = await file.text();
+      // A superlore bundle (.superlore.json) carries the MDX source + comments in one file.
+      if (/\.json$/i.test(file.name)) {
+        try {
+          const data = JSON.parse(text) as { source?: unknown; filename?: unknown };
+          if (data && typeof data.source === "string") {
+            pendingComments.current = data; // applied once the loaded doc's blocks are scanned
+            await load(
+              data.source,
+              (typeof data.filename === "string" && data.filename) ||
+                file.name.replace(/\.superlore\.json$/i, ".mdx"),
+            );
+            return;
+          }
+        } catch {
+          /* not a bundle — fall through and treat it as a document */
+        }
+      }
+      await load(text, file.name);
     },
     [load],
   );
@@ -492,25 +514,47 @@ export function ViewerClient() {
     downloadJson(`${base}.superlore-comments.json`, toSidecar(comments, { filename, title }));
   }, [comments, filename, title]);
 
+  // Bundle the doc AND its comments into one file — the seamless "send it to a teammate" path. The
+  // object is a valid comment sidecar with the MDX `source` embedded, so opening it restores both.
+  const exportBundle = useCallback(() => {
+    const base = (filename || "document").replace(/\.(md|mdx|markdown)$/i, "");
+    downloadJson(`${base}.superlore.json`, { ...toSidecar(comments, { filename, title }), source });
+  }, [comments, filename, title, source]);
+
+  // Apply a parsed sidecar (manual import, or the comments carried inside a bundle) to live blocks.
+  const importComments = useCallback(
+    (raw: unknown) => {
+      const liveIds = new Set(blocks.map((b) => b.id));
+      const { comments: imported, missing } = fromSidecar(raw, liveIds);
+      setComments(imported);
+      setImportNote(
+        missing.size > 0
+          ? `Imported ${imported.length} comment${imported.length === 1 ? "" : "s"}; ${missing.size} need relocation (their block is gone).`
+          : `Imported ${imported.length} comment${imported.length === 1 ? "" : "s"}.`,
+      );
+    },
+    [blocks],
+  );
+
   const onImportFile = useCallback(
     async (file: File | undefined) => {
       if (!file) return;
       try {
-        const raw = JSON.parse(await file.text());
-        const liveIds = new Set(blocks.map((b) => b.id));
-        const { comments: imported, missing } = fromSidecar(raw, liveIds);
-        setComments(imported);
-        setImportNote(
-          missing.size > 0
-            ? `Imported ${imported.length} comment${imported.length === 1 ? "" : "s"}; ${missing.size} need relocation (their block is gone).`
-            : `Imported ${imported.length} comment${imported.length === 1 ? "" : "s"}.`,
-        );
+        importComments(JSON.parse(await file.text()));
       } catch (e) {
         setImportNote(`Couldn't import: ${e instanceof Error ? e.message : String(e)}`);
       }
     },
-    [blocks],
+    [importComments],
   );
+
+  // A bundle carries its comments inline; apply them once the loaded doc's blocks are scanned.
+  useEffect(() => {
+    if (status === "ready" && blocks.length > 0 && pendingComments.current) {
+      importComments(pendingComments.current);
+      pendingComments.current = null;
+    }
+  }, [status, blocks, importComments]);
 
   // ── Build ordered comment groups for the rail (document order). ────────
   const groups = useMemo<CommentGroup[]>(() => {
@@ -601,14 +645,82 @@ export function ViewerClient() {
                 >
                   <Upload className="size-3" /> Import
                 </button>
-                <button
-                  type="button"
-                  onClick={exportSidecar}
-                  disabled={comments.length === 0}
-                  className={cn(toolbarBtn, "disabled:opacity-40")}
-                >
-                  <Download className="size-3" /> Export ({comments.length})
-                </button>
+                <div className="relative">
+                  <button
+                    type="button"
+                    aria-expanded={shareOpen}
+                    onClick={() => setShareOpen((v) => !v)}
+                    className={toolbarBtn}
+                  >
+                    <Share2 className="size-3" /> Share
+                  </button>
+                  {shareOpen && (
+                    <>
+                      <button
+                        type="button"
+                        aria-label="Close share menu"
+                        className="fixed inset-0 z-40 cursor-default"
+                        onClick={() => setShareOpen(false)}
+                      />
+                      <div className="absolute right-0 z-50 mt-1.5 w-72 rounded-lg border border-fd-border bg-fd-card p-1.5 shadow-lg">
+                        <p className="px-2 py-1.5 text-[11px] font-medium tracking-wide text-fd-muted-foreground uppercase">
+                          Sending to a teammate?
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            exportBundle();
+                            setShareOpen(false);
+                          }}
+                          className="flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left hover:bg-fd-accent"
+                        >
+                          <Download className="mt-0.5 size-3.5 shrink-0 text-kp-accent-text" />
+                          <span>
+                            <span className="block text-xs font-medium text-fd-foreground">
+                              Bundle the doc + comments
+                            </span>
+                            <span className="block text-[11px] text-fd-muted-foreground">
+                              One file ({comments.length} comment{comments.length === 1 ? "" : "s"})
+                              — they open it and see everything.
+                            </span>
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={comments.length === 0}
+                          onClick={() => {
+                            exportSidecar();
+                            setShareOpen(false);
+                          }}
+                          className="flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left hover:bg-fd-accent disabled:opacity-40"
+                        >
+                          <FileText className="mt-0.5 size-3.5 shrink-0 text-fd-muted-foreground" />
+                          <span>
+                            <span className="block text-xs font-medium text-fd-foreground">
+                              Comments only
+                            </span>
+                            <span className="block text-[11px] text-fd-muted-foreground">
+                              A sidecar — when they already have the doc.
+                            </span>
+                          </span>
+                        </button>
+                        <div className="my-1 border-t border-fd-border" />
+                        <a
+                          href="/cloud"
+                          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-foreground"
+                        >
+                          <Cloud className="size-3.5 shrink-0 text-kp-accent-text" />
+                          <span>
+                            Skip the files —{" "}
+                            <span className="font-medium text-kp-accent-text">
+                              join superlore Cloud →
+                            </span>
+                          </span>
+                        </a>
+                      </div>
+                    </>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => {
@@ -734,7 +846,7 @@ export function ViewerClient() {
         <input
           ref={inputRef}
           type="file"
-          accept=".md,.mdx,.markdown,text/markdown"
+          accept=".md,.mdx,.markdown,text/markdown,.json,application/json"
           className="hidden"
           onChange={(e) => void onFile(e.target.files?.[0])}
         />

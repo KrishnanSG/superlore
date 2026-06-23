@@ -1,0 +1,83 @@
+---
+title: A single doc — no site needed
+description: superlore isn't only for full docs sites. Author one superlore-compatible .mdx and open it instantly in the editor preview or the online Viewer — no deploy, no KB.
+summary: superlore works for a single document, not just a full knowledge base. Any superlore-compatible .mdx renders instantly in the VS Code extension preview or the public Viewer (superlore.vercel.app/viewer) — the lowest-friction way to use superlore, with no deploy or project setup.
+tags: [share, viewer, single-doc, adoption]
+---
+
+<PageHero
+  kicker="Share"
+  title="A single doc — no site needed"
+  description="You don't need a full KB to get superlore's value. One superlore-compatible .mdx renders instantly in the editor or the Viewer — author once, hand it over, done."
+  icon="file-text"
+/>
+
+A superlore KB is the full experience — a deployed site + an MCP. But the **atom** is a single
+`.mdx`. Any one superlore doc — a spec, a brief, an architecture write-up, a runbook — opens and
+renders on its own, no project and no deploy required.
+
+## Two ways to open one doc
+
+<FeatureList
+  items={[
+    {
+      icon: "panel-right",
+      title: "The editor extension",
+      description:
+        "Open any .mdx in VS Code / Cursor / Windsurf and the superlore preview renders it live — Canvas, Timeline, Board and all — beside the source. Install with `superlore connect`.",
+    },
+    {
+      icon: "globe",
+      title: "The online Viewer",
+      description:
+        "Drag a .mdx onto superlore.vercel.app/viewer (or paste the source) and it renders in the browser — nothing to install. Add comments and share them back.",
+    },
+  ]}
+/>
+
+## Why this matters
+
+<KeyFacts
+  items={[
+    {
+      label: "Lowest friction",
+      value: "One file is the on-ramp — try superlore without scaffolding a project.",
+    },
+    {
+      label: "Hand it over",
+      value:
+        "Send a teammate the .mdx (or a bundle with your comments); they open it in the Viewer and see exactly what you see.",
+    },
+    {
+      label: "Agent-ready already",
+      value:
+        "Even a single doc is dual-representation — the rendered page and the typed knowledge are the same source.",
+    },
+    {
+      label: "Grows up cleanly",
+      value: "When one doc becomes many, scaffold a KB and drop the files into content/docs.",
+    },
+  ]}
+/>
+
+<Note title="It just has to be superlore-compatible MDX">
+  Any `.mdx` using superlore components (or plain Markdown) works — there's no project boilerplate
+  to satisfy. The [Viewer](/viewer) and the editor extension both render the same component set this
+  site uses.
+</Note>
+
+## When you outgrow one file
+
+<Steps>
+  <Step>
+    ### Start with one doc Author a `.mdx`, preview it in the editor or the Viewer, iterate.
+  </Step>
+  <Step>
+    ### Scaffold a KB when you have a few Run the superlore scaffold (or ask your agent), then move
+    your `.mdx` files into `content/docs/`.
+  </Step>
+  <Step>
+    ### Deploy + connect the MCP Ship it anywhere; your agents read the whole corpus over
+    `/api/mcp`.
+  </Step>
+</Steps>
