@@ -98,9 +98,6 @@ an agent the typed knowledge node behind it. This is the moat: one authored sour
   <Card title="DataTable" icon="table" href="/docs/components/data-table">
     Typed columns and rows an agent can sort and compare.
   </Card>
-  <Card title="Diagram" icon="workflow" href="/docs/components/diagram">
-    A theme-aware Mermaid flow, with lossless source.
-  </Card>
 </CardGroup>
 
 <Note title="Two faces, one source">
@@ -140,8 +137,11 @@ an agent the typed knowledge node behind it. This is the moat: one authored sour
     { name: "Timeline", category: "Structural", use: "Dated, ordered events with status" },
     { name: "EntityCard", category: "Structural", use: "A typed thing with fields + relations" },
     { name: "DataTable", category: "Structural", use: "Typed columns + rows an agent can sort" },
-    { name: "Diagram", category: "Structural", use: "A flow/sequence/graph from Mermaid" },
-    { name: "Canvas", category: "Rich viz", use: "A FigJam-style whiteboard from a spec" },
+    {
+      name: "Canvas",
+      category: "Rich viz",
+      use: "A FigJam-style whiteboard / diagram from a spec",
+    },
   ]}
 />
 

@@ -22,7 +22,6 @@
     "fumadocs-ui": "16.8.2",
     "lucide-react": "^1.21.0",
     "mcp-handler": "^1.1.0",
-    "mermaid": "^11.15.0",
     "next": "16.2.4",
     "next-themes": "^0.4.6",
     "react": "^19.2.7",
@@ -32,7 +31,7 @@
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.1",
     "remark-mdx-frontmatter": "^5.2.0",
-    "superlore": "^0.5.6",
+    "superlore": "^0.6.0",
     "unist-util-visit": "^5.1.0",
     "zod": "^4.4.3"
   },
