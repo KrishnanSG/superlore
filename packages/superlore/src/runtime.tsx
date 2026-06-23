@@ -36,6 +36,7 @@ import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
 import { DocsBody } from "fumadocs-ui/page";
 import type { MDXComponents } from "mdx/types";
 import { getMDXComponents } from "./components/mdx";
+import { BuiltWithSuperlore } from "./components/built-with";
 import { remarkSuperlore } from "./mdx";
 import { cn } from "./lib/cn";
 
@@ -200,6 +201,11 @@ export interface SuperloreDocProps extends SuperloreRuntimeOptions {
    * to a surrounding {@link SuperloreTheme}'s `theme`.
    */
   theme?: "light" | "dark";
+  /**
+   * Show the floating "Powered by superlore" badge in the doc's bottom-right corner (links to the
+   * superlore site). On by default — small, low-opacity, non-distracting. Set `false` to hide it.
+   */
+  badge?: boolean;
   /** Called with the parsed frontmatter after each successful compile (e.g. to render a host hero). */
   onFrontmatter?: (frontmatter: Record<string, unknown>) => void;
   /** Called with the message when a compile fails. */
@@ -223,6 +229,7 @@ export function SuperloreDoc({
   className,
   tokens,
   theme,
+  badge = true,
   components,
   remarkPlugins,
   rehypePlugins,
@@ -262,11 +269,20 @@ export function SuperloreDoc({
 
   if (!Content) return <>{fallback}</>;
 
+  // `position: relative` anchors the floating badge to the doc surface's bottom-right (not the host
+  // viewport), so the branding stays inside the doc and never overlaps the host's own chrome.
+  const wrapperStyle: CSSProperties = { position: "relative", ...(mergedStyle ?? {}) };
   return (
-    <div className={cn("superlore-doc", className)} data-theme={resolvedTheme} style={mergedStyle}>
+    <div className={cn("superlore-doc", className)} data-theme={resolvedTheme} style={wrapperStyle}>
       <DocsBody>
         <Content components={getMDXComponents(components)} />
       </DocsBody>
+      {badge && (
+        <BuiltWithSuperlore
+          label="Powered by"
+          className="absolute right-4 bottom-4 z-10 opacity-60 transition-opacity hover:opacity-100"
+        />
+      )}
     </div>
   );
 }

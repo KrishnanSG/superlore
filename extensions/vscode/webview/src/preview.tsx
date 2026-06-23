@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ComponentType } from "react";
 import { compileMdxSource } from "superlore/runtime";
 import { DocsBody } from "fumadocs-ui/page";
-import { getMDXComponents, PageHero } from "superlore";
+import { getMDXComponents, PageHero, BuiltWithSuperlore } from "superlore";
 import { rehypeKpBlockIds } from "./lib/rehype-kp-block-ids.mjs";
 import { getVsCodeApi } from "./vscode-api";
 import { CommentLayer, CommentRail } from "./comments/comment-layer";
@@ -170,6 +170,12 @@ export function Preview(): React.ReactNode {
           {Content && <Content components={getMDXComponents()} />}
         </div>
       </DocsBody>
+
+      {/* Floating "Powered by superlore" branding — bottom-right of the doc surface, low-key. */}
+      <BuiltWithSuperlore
+        label="Powered by"
+        className="absolute right-5 bottom-5 z-10 opacity-60 transition-opacity hover:opacity-100"
+      />
 
       <CommentLayer
         wrapRef={wrapRef}

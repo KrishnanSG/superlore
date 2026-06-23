@@ -55,4 +55,16 @@ describe("SuperloreDoc theming", () => {
     expect(el.style.getPropertyValue("--kp-accent").trim()).toBe("rgb(7, 8, 9)");
     expect(el.getAttribute("data-theme")).toBe("light");
   });
+
+  it("stamps the 'Powered by superlore' badge by default, linking to the site", async () => {
+    const el = await docEl(<SuperloreDoc source={MDX} />);
+    const badge = el.querySelector('a[aria-label="Powered by superlore"]');
+    expect(badge).toBeTruthy();
+    expect(badge?.getAttribute("href")).toContain("superlore");
+  });
+
+  it("hides the badge when badge={false}", async () => {
+    const el = await docEl(<SuperloreDoc source={MDX} badge={false} />);
+    expect(el.querySelector('a[aria-label="Powered by superlore"]')).toBeNull();
+  });
 });
