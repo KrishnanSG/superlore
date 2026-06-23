@@ -1,0 +1,9 @@
+{
+  "name": "superlore",
+  "type": "product-docs",
+  "accent": "#6D5CF0",
+  "mcp": {
+    "enabled": true,
+    "path": "/api/mcp"
+  }
+}

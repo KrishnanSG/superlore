@@ -1,6 +1,6 @@
 {
   "name": "superlore",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "The agent-native knowledge base — dual-representation components, theme, MCP, and auth. One corpus. Humans and agents.",
   "license": "Apache-2.0",
   "author": "Krishnan S G",
@@ -51,6 +51,10 @@
       "types": "./src/knowledge/frontmatter.ts",
       "import": "./src/knowledge/frontmatter.ts"
     },
+    "./mdx": {
+      "types": "./src/mdx.ts",
+      "import": "./src/mdx.ts"
+    },
     "./ui": {
       "types": "./src/ui.tsx",
       "import": "./src/ui.tsx"
@@ -87,6 +91,10 @@
       "./frontmatter": {
         "types": "./dist/frontmatter.d.mts",
         "import": "./dist/frontmatter.mjs"
+      },
+      "./mdx": {
+        "types": "./dist/mdx.d.mts",
+        "import": "./dist/mdx.mjs"
       },
       "./ui": {
         "types": "./dist/ui.d.mts",

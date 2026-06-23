@@ -16,6 +16,7 @@ export default defineConfig({
     mcp: "src/mcp/index.ts",
     auth: "src/auth/index.ts",
     frontmatter: "src/knowledge/frontmatter.ts",
+    mdx: "src/mdx.ts",
     ui: "src/ui.tsx",
     source: "src/source.ts",
     config: "src/config.ts",
