@@ -1,5 +1,5 @@
-import { existsSync } from "node:fs";
-import { basename, resolve } from "node:path";
+import { existsSync, readdirSync, statSync } from "node:fs";
+import { basename, join, resolve } from "node:path";
 
 import { cancel, confirm, intro, isCancel, outro, select, text } from "@clack/prompts";
 
@@ -184,10 +184,51 @@ export async function initCommand(dir: string | undefined, flags: InitFlags): Pr
     );
   }
 
+  printStructure(root);
   printNextSteps(root, config);
 
   // Part of the one get-started path: scaffold → set up the editor (extension) → wire the MCP.
   await maybeConnectEditor(flags, interactive);
+}
+
+/**
+ * Print the scaffolded `content/docs` tree, then invite the owner to bring their content in. A fresh
+ * KB ships a full, realistic structure with placeholder content — so the next move isn't "write a
+ * page from scratch", it's "replace what's here, section by section" (by hand, or via an agent).
+ */
+function printStructure(root: string): void {
+  const docs = join(root, "content", "docs");
+  if (!existsSync(docs)) return;
+
+  const lines: string[] = [];
+  const walk = (dir: string, depth: number): void => {
+    let names: string[];
+    try {
+      names = readdirSync(dir).sort((a, b) => a.localeCompare(b));
+    } catch {
+      return;
+    }
+    // Folders first, then .mdx pages; meta.json and dotfiles are plumbing, not structure.
+    const dirs = names.filter((n) => !n.startsWith(".") && statSync(join(dir, n)).isDirectory());
+    const pages = names.filter((n) => n.endsWith(".mdx"));
+    for (const name of dirs) {
+      lines.push(`${"  ".repeat(depth)}${cyan(`${name}/`)}`);
+      walk(join(dir, name), depth + 1);
+    }
+    for (const name of pages) {
+      lines.push(`${"  ".repeat(depth)}${name}`);
+    }
+  };
+  walk(docs, 1);
+
+  log.blank();
+  log.info(bold("Your starter structure"));
+  log.info(`${dim("  content/docs/")} ${dim("— a full KB, pre-filled with placeholder content:")}`);
+  for (const line of lines) log.info(line);
+  log.blank();
+  log.info(
+    `${bold("Now bring your content in.")} Keep the structure and replace the placeholder pages with what's true for you — page by page, or ask your agent: ${cyan('"fill in my superlore KB"')}.`,
+  );
 }
 
 /**
