@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "superlore",
-      "source": "./skills",
+      "source": ".",
       "description": "Scaffold, author, deploy, and connect a superlore knowledge base. Say \"Make me a docs using superlore\" to start.",
       "category": "Documentation",
       "keywords": ["superlore", "knowledge-base", "docs", "mdx", "mcp", "agent"]
