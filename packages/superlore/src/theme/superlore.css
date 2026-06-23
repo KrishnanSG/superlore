@@ -612,11 +612,16 @@ html {
    that flips to light-on-white in light mode reads worse and is visually noisy. Shiki's
    dual-theme output emits the LIGHT colour inline and the DARK colour as `--shiki-dark`
    (with `--shiki-dark-bg` on the <pre>); we force the dark variant on every fenced block
-   so it stays dark in light mode too. Inline `code` in prose is untouched. */
+   so it stays dark in light mode too. Inline `code` in prose is untouched.
+
+   Each `var()` carries a LITERAL tokyo-night fallback: some hosts (notably a VS Code/Cursor
+   webview) drop these inline custom properties, which would leave `.shiki` with no background
+   (it falls through to the grey wrapper — the "grey code block" bug). The fallback guarantees the
+   midnight surface everywhere, even when the variable is missing. */
 .shiki,
 .shiki span {
-  color: var(--shiki-dark) !important;
+  color: var(--shiki-dark, #c0caf5) !important;
 }
 .shiki {
-  background-color: var(--shiki-dark-bg) !important;
+  background-color: var(--shiki-dark-bg, #1a1b26) !important;
 }
