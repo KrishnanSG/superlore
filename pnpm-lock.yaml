@@ -117,8 +117,8 @@ importers:
         specifier: ^5.2.0
         version: 5.2.0
       superlore:
-        specifier: ^0.9.0
-        version: 0.9.0(97f43a67cb0a20ef13638ce2bcded313)
+        specifier: ^0.9.1
+        version: 0.9.1(97f43a67cb0a20ef13638ce2bcded313)
       unist-util-visit:
         specifier: ^5.1.0
         version: 5.1.0
@@ -5558,8 +5558,8 @@ packages:
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
 
-  superlore@0.9.0:
-    resolution: {integrity: sha512-b7et6zNUp0C/mSOPkomCCvAHoAdO0T460pUm/VX9ZwdgRNiZq/B4OD1zSRI8uWJ/YGFVt4fboc1muoyS4hBw6A==}
+  superlore@0.9.1:
+    resolution: {integrity: sha512-vdrGlUkcguR+C7lyLDN6vSiVAPPw/VbplSjh/JfKzEOFpcM+lF4Kd/FZX6IVZgwGssSJULkRITFBKPCQFsZBfg==}
     engines: {node: '>=20'}
     peerDependencies:
       '@modelcontextprotocol/sdk': ^1
@@ -8243,7 +8243,7 @@ snapshots:
       obug: 2.1.3
       std-env: 4.1.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.9(@types/node@25.9.4)(@vitest/coverage-v8@4.1.9)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.4)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))
+      vitest: 4.1.9(@types/node@25.9.4)(@vitest/coverage-v8@4.1.9)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.9.4)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
 
   '@vitest/expect@4.1.9':
     dependencies:
@@ -11746,7 +11746,7 @@ snapshots:
       tinyglobby: 0.2.17
       ts-interface-checker: 0.1.13
 
-  superlore@0.9.0(97f43a67cb0a20ef13638ce2bcded313):
+  superlore@0.9.1(97f43a67cb0a20ef13638ce2bcded313):
     dependencies:
       '@mdx-js/mdx': 3.1.1
       '@shikijs/engine-javascript': 4.2.0
