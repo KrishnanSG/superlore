@@ -31,5 +31,8 @@ export default defineConfig({
     // Markdown-first authoring: ```superlore-canvas → <Canvas>, `- [ ]` task lists → <Checklist>,
     // and `> [!NOTE]` GitHub alerts → Callouts. Runs after fumadocs' built-in remark-gfm.
     remarkPlugins: [remarkSuperlore],
+    // Code blocks render in one polished midnight theme (both slots) — always dark, matching the
+    // runtime renderer (superlore/runtime) so a built page and a live-rendered string look identical.
+    rehypeCodeOptions: { themes: { light: "tokyo-night", dark: "tokyo-night" } },
   },
 });

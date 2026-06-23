@@ -246,7 +246,7 @@ and an agent can understand not just *what* was chosen but *why*.
     "A cache-invalidation discipline we have to keep honest.",
     "The system must stay correct when the cache is cold or down.",
   ]}
-  refs={[{ rel: "see", target: "/docs/engineering/architecture", label: "Where the cache sits" }]}
+  refs={[{ rel: "see-also", target: "/docs/engineering/architecture", label: "Where the cache sits" }]}
 />
 `,
   );
@@ -368,7 +368,8 @@ tags: [product, releases, changelog]
   description="The changelog, as structured data. Replace with your real release notes."
 />
 
-<Releases
+<Releases>
+<Release
   version="1.2.0"
   date="2024-05-20"
   status="done"
@@ -380,8 +381,7 @@ tags: [product, releases, changelog]
     { type: "fixed", text: "Rare double-charge on retried payments." },
   ]}
 />
-
-<Releases
+<Release
   version="1.1.0"
   date="2024-04-02"
   status="done"
@@ -391,6 +391,7 @@ tags: [product, releases, changelog]
     { type: "fixed", text: "Invite emails occasionally landing in spam." },
   ]}
 />
+</Releases>
 `,
   );
 
@@ -493,7 +494,7 @@ tags: [team, people, directory]
     { key: "Time zone", value: "UTC+0" },
     { key: "Best reached", value: "Async, in the team channel" },
   ]}
-  refs={[{ rel: "see", target: "/docs/engineering/architecture", label: "What they own" }]}
+  refs={[{ rel: "see-also", target: "/docs/engineering/architecture", label: "What they own" }]}
 />
 `,
   );

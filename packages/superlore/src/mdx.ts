@@ -71,10 +71,24 @@ export function remarkSuperloreChecklist() {
         const items = child.type === "list" ? (child.children ?? []) : [];
         const isTaskList = items.length > 0 && items.every((li) => typeof li.checked === "boolean");
         if (isTaskList) {
-          const data = items.map((li) => {
-            const para = (li.children ?? []).find((c) => c?.type === "paragraph");
-            return { text: inlineText(para ?? li).trim(), done: li.checked === true };
-          });
+          // Flatten the list (incl. nested task sub-lists) so nested items aren't dropped — the agent
+          // sees every item a human reading the markdown would. Nested items carry a depth marker so
+          // the dual-rep face keeps the structure.
+          const data: { text: string; done: boolean }[] = [];
+          const collect = (list: MdNode, depth: number): void => {
+            for (const li of list.children ?? []) {
+              if (typeof li.checked !== "boolean") continue;
+              const para = (li.children ?? []).find((c) => c?.type === "paragraph");
+              const text = inlineText(para ?? li).trim();
+              data.push({
+                text: depth > 0 ? `${"— ".repeat(depth)}${text}` : text,
+                done: li.checked === true,
+              });
+              const sub = (li.children ?? []).find((c) => c?.type === "list");
+              if (sub) collect(sub, depth + 1);
+            }
+          };
+          collect(child, 0);
           node.children[i] = {
             type: "mdxJsxFlowElement",
             name: "Checklist",

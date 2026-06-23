@@ -65,6 +65,9 @@ export interface CompiledSuperloreDoc {
 // VS Code webview's CSP) with no `wasm-unsafe-eval`. `forgiving` degrades an unsupported grammar
 // rather than throwing. Created once for the module — the highlighter is reused across compiles.
 const shikiEngine = createJavaScriptRegexEngine({ forgiving: true });
+// Code blocks render in ONE polished midnight theme in both theme slots — always dark (a deliberate
+// rule: code reads best dark), with a designed palette rather than the flat default grey.
+const CODE_THEME = "tokyo-night";
 
 // superlore's core MDX pipeline — identical in shape to the docs build, so a runtime-rendered string
 // matches a published page: frontmatter + GFM + the `superlore-canvas` fence on the remark side;
@@ -79,7 +82,14 @@ const CORE_REMARK: RuntimePlugin[] = [
 ];
 const CORE_REHYPE: RuntimePlugin[] = [
   rehypeSlug,
-  [rehypeCode, { ...rehypeCodeDefaultOptions, engine: shikiEngine }],
+  [
+    rehypeCode,
+    {
+      ...rehypeCodeDefaultOptions,
+      engine: shikiEngine,
+      themes: { light: CODE_THEME, dark: CODE_THEME },
+    },
+  ],
 ];
 
 /**

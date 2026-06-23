@@ -65,8 +65,8 @@ this and understand what you'd care about in a decision.
     { key: "Allergic to", value: "Meetings that should have been a doc" },
   ]}
   refs={[
-    { rel: "see", target: "/docs/working-style", label: "How I work" },
-    { rel: "see", target: "/docs/voice", label: "How I write" },
+    { rel: "see-also", target: "/docs/working-style", label: "How I work" },
+    { rel: "see-also", target: "/docs/voice", label: "How I write" },
   ]}
 />
 

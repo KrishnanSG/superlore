@@ -356,7 +356,8 @@ tags: [changelog, releases]
   description="Versioned, categorized changes. Replace with your real release notes."
 />
 
-<Releases
+<Releases>
+<Release
   version="1.1.0"
   date="2024-05-20"
   status="done"
@@ -368,16 +369,14 @@ tags: [changelog, releases]
     { type: "fixed", text: "Retries no longer double-create on timeout." },
   ]}
 />
-
-<Releases
+<Release
   version="1.0.0"
   date="2024-04-01"
   status="done"
   title="General availability"
-  changes={[
-    { type: "added", text: "Stable v1 API and the official SDK." },
-  ]}
+  changes={[{ type: "added", text: "Stable v1 API and the official SDK." }]}
 />
+</Releases>
 `,
   );
 }

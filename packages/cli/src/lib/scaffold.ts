@@ -211,6 +211,8 @@ export default defineConfig({
     // Markdown-first authoring, one plugin: \`\`\`superlore-canvas fences → <Canvas>, \`- [ ]\` task
     // lists → <Checklist>, and \`> [!NOTE]\` GitHub alerts → Callouts. Write natural markdown.
     remarkPlugins: [remarkSuperlore],
+    // Code blocks render in one polished midnight theme, always dark — matches superlore/runtime.
+    rehypeCodeOptions: { themes: { light: "tokyo-night", dark: "tokyo-night" } },
   },
 });
 `,
