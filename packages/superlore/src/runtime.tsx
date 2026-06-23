@@ -17,6 +17,8 @@
  */
 import * as jsxRuntime from "react/jsx-runtime";
 import {
+  createContext,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -167,12 +169,37 @@ export function useSuperloreMdx(
   return state;
 }
 
+/** Theme tokens + light/dark choice shared from a {@link SuperloreTheme} ancestor to a `SuperloreDoc`. */
+interface SuperloreThemeContextValue {
+  /** Brand tokens compiled to CSS custom properties, applied on the doc element itself. */
+  style?: CSSProperties;
+  /** Light/dark for the container — set on `.superlore-doc[data-theme]`, no class on `<html>`. */
+  theme?: "light" | "dark";
+}
+
+// Published by SuperloreTheme, consumed by SuperloreDoc. The tokens must land on the SAME element that
+// carries `.superlore-doc` — the scoped `superlore/runtime.css` defines default tokens ON `.superlore-doc`,
+// so an ancestor's tokens would be overridden for the doc subtree. Applying them on the doc element wins.
+const SuperloreThemeContext = createContext<SuperloreThemeContextValue | null>(null);
+
 /** Props for {@link SuperloreDoc}. */
 export interface SuperloreDocProps extends SuperloreRuntimeOptions {
   /** The superlore MDX string to render. */
   source: string;
   /** Class added to the doc surface wrapper (alongside `superlore-doc`). */
   className?: string;
+  /**
+   * Render the doc in the host's brand. Maps onto superlore's palette as CSS variables set on the
+   * `.superlore-doc` element. Equivalent to wrapping in {@link SuperloreTheme}; props win over a
+   * surrounding `SuperloreTheme`'s tokens.
+   */
+  tokens?: SuperloreThemeTokens;
+  /**
+   * Light or dark for THIS doc — sets `data-theme` on the `.superlore-doc` container (no class on
+   * `<html>`), so two docs can render in different themes on one page. Defaults to light; falls back
+   * to a surrounding {@link SuperloreTheme}'s `theme`.
+   */
+  theme?: "light" | "dark";
   /** Called with the parsed frontmatter after each successful compile (e.g. to render a host hero). */
   onFrontmatter?: (frontmatter: Record<string, unknown>) => void;
   /** Called with the message when a compile fails. */
@@ -186,10 +213,16 @@ export interface SuperloreDocProps extends SuperloreRuntimeOptions {
  * app, give it `source`, and the doc renders with superlore's components, Canvas, and Shiki code —
  * the same as a published page. Wraps the body in fumadocs' `DocsBody` so prose styling applies; the
  * portable `superlore/runtime.css` makes it look right outside a superlore site.
+ *
+ * The outer `.superlore-doc` element is the contract `superlore/runtime.css` is scoped to: it carries
+ * the brand tokens (from `tokens` or a surrounding {@link SuperloreTheme}) and `data-theme` for
+ * light/dark. Don't wrap this in your own `.superlore-doc` — it renders one for you.
  */
 export function SuperloreDoc({
   source,
   className,
+  tokens,
+  theme,
   components,
   remarkPlugins,
   rehypePlugins,
@@ -202,6 +235,15 @@ export function SuperloreDoc({
     remarkPlugins,
     rehypePlugins,
   });
+
+  // Brand tokens + theme: own props win over a surrounding SuperloreTheme. Tokens are applied as inline
+  // CSS variables on the `.superlore-doc` element itself (not an ancestor) — the scoped stylesheet sets
+  // default tokens on `.superlore-doc`, which would otherwise override a parent's values for the subtree.
+  const themeCtx = useContext(SuperloreThemeContext);
+  const ownStyle = tokens ? tokensToStyle(tokens) : null;
+  const mergedStyle =
+    themeCtx?.style || ownStyle ? { ...(themeCtx?.style ?? {}), ...(ownStyle ?? {}) } : undefined;
+  const resolvedTheme = theme ?? themeCtx?.theme;
 
   // Fire host callbacks as compile state settles, without coupling them into render. Latest-ref
   // pattern, written in an effect (never during render) and declared before the firing effects.
@@ -221,9 +263,11 @@ export function SuperloreDoc({
   if (!Content) return <>{fallback}</>;
 
   return (
-    <DocsBody className={cn("superlore-doc", className)}>
-      <Content components={getMDXComponents(components)} />
-    </DocsBody>
+    <div className={cn("superlore-doc", className)} data-theme={resolvedTheme} style={mergedStyle}>
+      <DocsBody>
+        <Content components={getMDXComponents(components)} />
+      </DocsBody>
+    </div>
   );
 }
 
@@ -309,6 +353,8 @@ function tokensToStyle(tokens: SuperloreThemeTokens): CSSProperties {
 export interface SuperloreThemeProps {
   /** Brand tokens to apply to everything inside. */
   tokens: SuperloreThemeTokens;
+  /** Light or dark for nested docs — sets `data-theme` on each `.superlore-doc` (no `<html>` class). */
+  theme?: "light" | "dark";
   /** Class added to the theme wrapper. */
   className?: string;
   children: ReactNode;
@@ -316,9 +362,13 @@ export interface SuperloreThemeProps {
 
 /**
  * Render superlore in the **host's** brand. Wrap a {@link SuperloreDoc} (or any superlore content) and
- * the tokens cascade as CSS variables — links, accents, focus rings, and surfaces all adopt your
- * palette instead of superlore's defaults. Sugar over a plain CSS-variable contract: you can set the
- * same `--kp-*` / `--color-fd-*` variables yourself anywhere above the doc and get the identical result.
+ * the tokens adopt your palette — links, accents, focus rings, and surfaces — instead of superlore's
+ * defaults. Sugar over a plain CSS-variable contract: you can also pass `tokens` straight to
+ * `SuperloreDoc`, or set the same `--kp-*` / `--color-fd-*` variables on the `.superlore-doc` element.
+ *
+ * A nested `SuperloreDoc` applies these tokens on its own `.superlore-doc` element (via context), so
+ * they win over the scoped stylesheet's per-container defaults. For non-doc children, the tokens also
+ * cascade from this wrapper.
  *
  * ```tsx
  * <SuperloreTheme tokens={{ accent: "var(--brand)", accentText: "var(--brand)" }}>
@@ -326,10 +376,18 @@ export interface SuperloreThemeProps {
  * </SuperloreTheme>
  * ```
  */
-export function SuperloreTheme({ tokens, className, children }: SuperloreThemeProps): ReactNode {
+export function SuperloreTheme({
+  tokens,
+  theme,
+  className,
+  children,
+}: SuperloreThemeProps): ReactNode {
+  const style = tokensToStyle(tokens);
   return (
-    <div className={cn("superlore-theme", className)} style={tokensToStyle(tokens)}>
-      {children}
-    </div>
+    <SuperloreThemeContext.Provider value={{ style, theme }}>
+      <div className={cn("superlore-theme", className)} style={style}>
+        {children}
+      </div>
+    </SuperloreThemeContext.Provider>
   );
 }

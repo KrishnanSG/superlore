@@ -4,16 +4,19 @@
 //                            What `superlore/css` resolves to.
 //   superlore-runtime.css  — a SELF-CONTAINED, precompiled stylesheet: the theme tokens, fumadocs
 //                            preset, Shiki code styles, and every utility class superlore's components
-//                            use, all emitted as static CSS. A host imports this ONE file (`superlore/
-//                            runtime.css`) and the runtime renderer looks right with NO Tailwind on
-//                            their side. Dark mode rides a `.dark` ancestor class (next-themes convention).
+//                            use, all emitted as static CSS, then SCOPED so every selector only matches
+//                            inside `<div class="superlore-doc">`. A host imports this ONE file
+//                            (`superlore/runtime.css`) app-wide with zero global leakage — the runtime
+//                            renderer looks right with NO Tailwind on their side. Dark mode rides
+//                            `.superlore-doc[data-theme="dark"]` (container-local — no `<html>` class).
 //
 // Runs after tsdown (which emits the component JS the precompile scans via the theme's @source glob).
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
-import { cpSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { cpSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { scopeCss, assertScoped } from "./scope-runtime-css.mjs";
 
 const pkgDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const distCss = join(pkgDir, "dist", "css");
@@ -45,4 +48,11 @@ try {
   rmSync(input, { force: true });
 }
 
-console.log("✓ dist/css/superlore.css + dist/css/superlore-runtime.css");
+// 3) Scope the runtime sheet to `.superlore-doc` so a host can import it app-wide, leak-free. Then
+//    ASSERT no global root/element/preflight selector survived — the build fails loudly if it does,
+//    rather than shipping a sheet that regresses a host's UI (the bug class this whole change fixes).
+const scoped = scopeCss(readFileSync(output, "utf8"));
+assertScoped(scoped);
+writeFileSync(output, scoped);
+
+console.log("✓ dist/css/superlore.css + dist/css/superlore-runtime.css (scoped to .superlore-doc)");

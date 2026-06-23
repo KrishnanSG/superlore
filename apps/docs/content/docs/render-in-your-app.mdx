@@ -46,13 +46,22 @@ npm install superlore
 ```
 
 ```tsx
-// once, at your app's root (or the route that renders docs)
+// once, anywhere — every rule is scoped to .superlore-doc, so an app-wide import is inert
+// outside the container (no reset of your *, html, body; no token or utility collisions).
 import "superlore/runtime.css";
 ```
 
-<Note title="Dark mode">
-  `superlore/runtime.css` ships light and dark as co-equal themes. Dark mode rides a `.dark` class
-  on an ancestor (the next-themes convention) — toggle that class and the doc surface follows.
+<Note title="Self-scoped — safe to import app-wide">
+  Every selector in `superlore/runtime.css` is rooted at a `.superlore-doc` container. Import it
+  once, app-wide, and it changes **zero pixels** outside a superlore doc — it never touches your
+  `:root` tokens, `body`, or utility classes. `SuperloreDoc` renders the `.superlore-doc` wrapper
+  for you; don't add your own.
+</Note>
+
+<Note title="Dark mode rides the container">
+  Light and dark are co-equal. Dark mode is **container-local**: it rides `data-theme="dark"` on the
+  `.superlore-doc` element (set it with `<SuperloreDoc theme="dark" />`), **not** a class on `<html>`.
+  So a doc can render dark while your app is light — and two docs can show different themes on one page.
 </Note>
 
 ## Render a doc
@@ -73,18 +82,21 @@ That's the same renderer the docs site and the [Viewer](/viewer) use — a `Time
 
 ## Match your brand
 
-By default a doc renders in superlore's violet. Wrap it in `SuperloreTheme` to render in **your**
-palette instead — links, accents, focus rings, and surfaces all follow your tokens.
+By default a doc renders in superlore's violet. Pass `tokens` to render in **your** palette instead —
+links, accents, focus rings, and surfaces all follow your tokens. Pair it with `theme` to pick
+light/dark per doc.
 
 ```tsx
 "use client";
-import { SuperloreDoc, SuperloreTheme } from "superlore/runtime";
+import { SuperloreDoc } from "superlore/runtime";
 
-export function Doc({ mdx }: { mdx: string }) {
+export function Doc({ mdx, dark }: { mdx: string; dark?: boolean }) {
   return (
-    <SuperloreTheme tokens={{ accent: "var(--brand)", accentText: "var(--brand)" }}>
-      <SuperloreDoc source={mdx} />
-    </SuperloreTheme>
+    <SuperloreDoc
+      source={mdx}
+      theme={dark ? "dark" : "light"}
+      tokens={{ accent: "var(--brand)", accentText: "var(--brand)" }}
+    />
   );
 }
 ```
@@ -92,6 +104,18 @@ export function Doc({ mdx }: { mdx: string }) {
 Pass plain colors, or — better — your own CSS variables (`var(--brand)`). Because the tokens resolve
 as CSS custom properties, your app's existing light/dark switch re-colors the doc **for free**, with
 nothing to re-pass on a theme change.
+
+Wrapping several docs? `SuperloreTheme` applies the same `tokens`/`theme` to every `SuperloreDoc`
+inside it:
+
+```tsx
+import { SuperloreDoc, SuperloreTheme } from "superlore/runtime";
+
+<SuperloreTheme tokens={{ accent: "var(--brand)" }} theme={dark ? "dark" : "light"}>
+  <SuperloreDoc source={a} />
+  <SuperloreDoc source={b} />
+</SuperloreTheme>;
+```
 
 | Token                                          | Drives                                                              |
 | ---------------------------------------------- | ------------------------------------------------------------------- |
@@ -105,15 +129,18 @@ nothing to re-pass on a theme change.
 | `vars`                                         | escape hatch — set any `--kp-*` / `--color-fd-*` variable directly  |
 
 <Note title="It's just CSS variables">
-  `SuperloreTheme` is sugar — it writes these tokens as custom properties on a wrapper. You can set
-  the same `--kp-*` / `--color-fd-*` variables anywhere above the doc (a layout, a `[data-theme]`
-  block) and get the identical result, so it composes with whatever theming your app already has.
+  `tokens` (on `SuperloreDoc` or `SuperloreTheme`) is sugar — it writes these as custom properties
+  on the `.superlore-doc` element itself. You can set the same `--kp-*` / `--color-fd-*` variables
+  on that element yourself and get the identical result, so it composes with whatever theming your
+  app has.
 </Note>
 
 ## Lower-level: the hook and the compiler
 
 Need the parsed frontmatter, your own loading state, or a custom wrapper? Use the hook, or call the
-compiler directly.
+compiler directly. With the lower-level API you render the `Content` yourself, so wrap it in a
+`.superlore-doc` element (`data-theme="dark"` for dark) — that's the container `superlore/runtime.css`
+is scoped to. `SuperloreDoc` does this for you.
 
 ```tsx
 "use client";
@@ -123,7 +150,7 @@ function Doc({ mdx }: { mdx: string }) {
   const { Content, frontmatter, error } = useSuperloreMdx(mdx);
   if (!Content) return <Spinner />;
   return (
-    <article>
+    <article className="superlore-doc">
       <h1>{frontmatter.title as string}</h1>
       <Content />
       {error && <p role="alert">{error}</p>}
