@@ -170,6 +170,110 @@ body {
   overflow-x: auto;
 }
 
+/* ══ Code syntax highlighting (highlight.js via rehype-highlight) ═════════════
+   The runtime MDX compile has no build-time Shiki, so fenced code is highlighted
+   with highlight.js. GitHub palette — light is the default; dark overrides under
+   the next-themes `.dark` root class. Covers all common languages. */
+.kp-viewer-doc .hljs {
+  color: var(--color-fd-foreground);
+}
+.kp-viewer-doc .hljs-comment,
+.kp-viewer-doc .hljs-quote {
+  color: #6e7781;
+  font-style: italic;
+}
+.kp-viewer-doc .hljs-keyword,
+.kp-viewer-doc .hljs-selector-tag,
+.kp-viewer-doc .hljs-doctag {
+  color: #cf222e;
+}
+.kp-viewer-doc .hljs-string,
+.kp-viewer-doc .hljs-regexp,
+.kp-viewer-doc .hljs-meta .hljs-string {
+  color: #0a3069;
+}
+.kp-viewer-doc .hljs-number,
+.kp-viewer-doc .hljs-literal {
+  color: #0550ae;
+}
+.kp-viewer-doc .hljs-title,
+.kp-viewer-doc .hljs-title.function_,
+.kp-viewer-doc .hljs-section {
+  color: #8250df;
+}
+.kp-viewer-doc .hljs-built_in,
+.kp-viewer-doc .hljs-type,
+.kp-viewer-doc .hljs-class .hljs-title {
+  color: #953800;
+}
+.kp-viewer-doc .hljs-attr,
+.kp-viewer-doc .hljs-attribute,
+.kp-viewer-doc .hljs-variable,
+.kp-viewer-doc .hljs-template-variable {
+  color: #0550ae;
+}
+.kp-viewer-doc .hljs-name,
+.kp-viewer-doc .hljs-tag,
+.kp-viewer-doc .hljs-meta {
+  color: #116329;
+}
+.kp-viewer-doc .hljs-symbol,
+.kp-viewer-doc .hljs-bullet,
+.kp-viewer-doc .hljs-link {
+  color: #0550ae;
+}
+.kp-viewer-doc .hljs-emphasis {
+  font-style: italic;
+}
+.kp-viewer-doc .hljs-strong {
+  font-weight: 600;
+}
+
+.dark .kp-viewer-doc .hljs-comment,
+.dark .kp-viewer-doc .hljs-quote {
+  color: #8b949e;
+}
+.dark .kp-viewer-doc .hljs-keyword,
+.dark .kp-viewer-doc .hljs-selector-tag,
+.dark .kp-viewer-doc .hljs-doctag {
+  color: #ff7b72;
+}
+.dark .kp-viewer-doc .hljs-string,
+.dark .kp-viewer-doc .hljs-regexp,
+.dark .kp-viewer-doc .hljs-meta .hljs-string {
+  color: #a5d6ff;
+}
+.dark .kp-viewer-doc .hljs-number,
+.dark .kp-viewer-doc .hljs-literal {
+  color: #79c0ff;
+}
+.dark .kp-viewer-doc .hljs-title,
+.dark .kp-viewer-doc .hljs-title.function_,
+.dark .kp-viewer-doc .hljs-section {
+  color: #d2a8ff;
+}
+.dark .kp-viewer-doc .hljs-built_in,
+.dark .kp-viewer-doc .hljs-type,
+.dark .kp-viewer-doc .hljs-class .hljs-title {
+  color: #ffa657;
+}
+.dark .kp-viewer-doc .hljs-attr,
+.dark .kp-viewer-doc .hljs-attribute,
+.dark .kp-viewer-doc .hljs-variable,
+.dark .kp-viewer-doc .hljs-template-variable {
+  color: #79c0ff;
+}
+.dark .kp-viewer-doc .hljs-name,
+.dark .kp-viewer-doc .hljs-tag,
+.dark .kp-viewer-doc .hljs-meta {
+  color: #7ee787;
+}
+.dark .kp-viewer-doc .hljs-symbol,
+.dark .kp-viewer-doc .hljs-bullet,
+.dark .kp-viewer-doc .hljs-link {
+  color: #79c0ff;
+}
+
 /* ══ Comments — FigJam-style pins, popovers, rail ════════════════════════════ */
 
 /* Click-catcher shown in comment mode — covers the whole doc, crosshair cursor. */

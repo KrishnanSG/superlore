@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import rehypeSlug from "rehype-slug";
+import rehypeHighlight from "rehype-highlight";
 import { DocsBody } from "fumadocs-ui/page";
 import { getMDXComponents, PageHero } from "superlore";
 import { remarkSuperloreCanvas } from "./lib/remark-superlore-canvas.mjs";
@@ -38,7 +39,9 @@ async function compileMdx(source: string): Promise<Compiled> {
   const mod = await evaluate(source, {
     ...runtime,
     remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm, remarkSuperloreCanvas],
-    rehypePlugins: [rehypeSlug, rehypeKpBlockIds],
+    // rehypeHighlight (highlight.js) gives fenced code blocks real syntax highlighting for all the
+    // common languages — the runtime evaluate has no build-time Shiki, so without this code is flat.
+    rehypePlugins: [rehypeSlug, rehypeHighlight, rehypeKpBlockIds],
   });
   return {
     Content: mod.default as MdxComponent,
