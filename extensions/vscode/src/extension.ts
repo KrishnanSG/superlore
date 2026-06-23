@@ -354,6 +354,14 @@ export function activate(context: vscode.ExtensionContext): void {
       corpus.refresh();
       refreshStatus();
     }),
+    // Re-resolve the KB when the user points `superlore.root` somewhere new.
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration("superlore.root")) {
+        corpus.refresh();
+        pageOutline.refresh();
+        refreshStatus();
+      }
+    }),
 
     watcher.onDidCreate(() => corpus.refresh()),
     watcher.onDidDelete(() => corpus.refresh()),

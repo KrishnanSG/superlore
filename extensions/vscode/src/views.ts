@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { readdirSync, statSync, readFileSync, existsSync } from "node:fs";
-import { join, basename } from "node:path";
+import { join, basename, isAbsolute } from "node:path";
 
 /**
  * Phase 1 of the first-class extension: a home in the Activity Bar.
@@ -18,14 +18,62 @@ const PAGE_RE = /\.mdx$/i;
 const CONTENT_DIRS = ["content/docs", "content"] as const;
 const SKIP = new Set(["node_modules", ".git", ".next", ".source", "dist", "out"]);
 
-/** The KB project root: the nearest workspace folder carrying a `superlore.json`, else the first. */
+/**
+ * The KB project root — the directory carrying `superlore.json`. Resolution order:
+ *   1. the `superlore.root` setting (explicit override — absolute, or relative to the first folder);
+ *   2. a `superlore.json` at any workspace-folder root;
+ *   3. a `superlore.json` nested a couple levels down (the monorepo case — `apps/*`, `packages/*`);
+ *   4. the first workspace folder (so the welcome view can offer to scaffold one).
+ */
 export function findProjectRoot(): string | undefined {
   const folders = vscode.workspace.workspaceFolders;
   if (!folders?.length) return undefined;
+
+  // 1. Explicit override.
+  const configured = vscode.workspace.getConfiguration("superlore").get<string>("root")?.trim();
+  if (configured) {
+    const abs = isAbsolute(configured) ? configured : join(folders[0].uri.fsPath, configured);
+    if (existsSync(join(abs, "superlore.json"))) return abs;
+  }
+
+  // 2. A superlore.json at a workspace-folder root.
   for (const f of folders) {
     if (existsSync(join(f.uri.fsPath, "superlore.json"))) return f.uri.fsPath;
   }
+
+  // 3. A superlore.json nested a couple of levels down — find the KB inside a monorepo.
+  for (const f of folders) {
+    const nested = findNestedConfig(f.uri.fsPath, 2);
+    if (nested) return nested;
+  }
+
+  // 4. Nothing found — the welcome view handles the empty state.
   return folders[0].uri.fsPath;
+}
+
+/** Shallow breadth-first scan for the directory of a nested `superlore.json` (skips heavy dirs). */
+function findNestedConfig(root: string, maxDepth: number): string | undefined {
+  let frontier = [root];
+  for (let depth = 0; depth < maxDepth && frontier.length; depth++) {
+    const next: string[] = [];
+    for (const dir of frontier) {
+      let names: string[];
+      try {
+        names = readdirSync(dir);
+      } catch {
+        continue;
+      }
+      for (const name of names) {
+        if (name.startsWith(".") || SKIP.has(name)) continue;
+        const full = join(dir, name);
+        if (!safeIsDir(full)) continue;
+        if (existsSync(join(full, "superlore.json"))) return full;
+        next.push(full);
+      }
+    }
+    frontier = next;
+  }
+  return undefined;
 }
 
 /** The content directory we list pages from (`content/docs`, then `content`). */

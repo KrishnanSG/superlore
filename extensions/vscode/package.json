@@ -1,7 +1,7 @@
 {
   "name": "superlore-preview",
   "displayName": "superlore Preview",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Live, dual-representation preview for superlore .mdx — renders every component (Canvas/whiteboard, Timeline, Board, Table, …) as you type, with FigJam-style comment pins and Copy to Agent.",
   "license": "Apache-2.0",
   "author": "Krishnan S G",
@@ -20,8 +20,21 @@
   "engines": {
     "vscode": "^1.90.0"
   },
-  "categories": ["Visualization", "Notebooks", "Other"],
-  "keywords": ["superlore", "mdx", "preview", "whiteboard", "canvas", "knowledge base", "mcp", "agent"],
+  "categories": [
+    "Visualization",
+    "Notebooks",
+    "Other"
+  ],
+  "keywords": [
+    "superlore",
+    "mdx",
+    "preview",
+    "whiteboard",
+    "canvas",
+    "knowledge base",
+    "mcp",
+    "agent"
+  ],
   "galleryBanner": {
     "color": "#0B0C0E",
     "theme": "dark"
@@ -61,9 +74,19 @@
     "viewsWelcome": [
       {
         "view": "superlore.corpus",
-        "contents": "No superlore knowledge base found in this workspace.\n\nA superlore KB is a folder with a `superlore.json` and your pages in `content/`.\n\n[Scaffold a KB](command:superlore.scaffoldHint)\n\n[Open the docs](https://superlore.vercel.app/docs)"
+        "contents": "No superlore knowledge base found in this workspace.\n\nsuperlore looks for a `superlore.json` at the workspace root, then a couple of levels down (so it finds a KB inside a monorepo). If yours lives somewhere else, point at it with the `superlore.root` setting.\n\n[Scaffold a KB](command:superlore.scaffoldHint)\n\n[Set the KB location](command:workbench.action.openSettings?%22superlore.root%22)\n\n[Open the docs](https://superlore.vercel.app/docs)"
       }
     ],
+    "configuration": {
+      "title": "superlore",
+      "properties": {
+        "superlore.root": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Path to your superlore KB (the folder containing `superlore.json`), absolute or relative to the first workspace folder. Leave empty to auto-detect — superlore checks the workspace root, then a couple of levels down for a monorepo."
+        }
+      }
+    },
     "commands": [
       {
         "command": "superlore.openPreview",
