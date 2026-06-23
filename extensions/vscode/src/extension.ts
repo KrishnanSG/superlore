@@ -188,13 +188,15 @@ export function activate(context: vscode.ExtensionContext): void {
 
   const ensurePanel = (): vscode.WebviewPanel => {
     if (panel) {
-      panel.reveal(vscode.ViewColumn.Beside, true);
+      panel.reveal(vscode.ViewColumn.Active);
       return panel;
     }
     const created = vscode.window.createWebviewPanel(
       "superlorePreview",
       "superlore Preview",
-      { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true },
+      // Open in the active editor group (full, centered) rather than split to the side — the rendered
+      // page is the main thing you want to read; split the editor yourself if you want side-by-side.
+      { viewColumn: vscode.ViewColumn.Active, preserveFocus: false },
       {
         enableScripts: true,
         retainContextWhenHidden: true,
