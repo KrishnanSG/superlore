@@ -36,7 +36,6 @@ import {
   SectionHead,
   StatGrid,
 } from "./polish";
-import { Diagram, Mermaid } from "./diagram";
 import { Canvas, Whiteboard } from "./canvas";
 import { Walkthrough } from "./walkthrough";
 import { Timeline } from "./timeline";
@@ -109,8 +108,6 @@ const superloreComponents = {
   KeyFacts,
   SectionHead,
   // Rich visualization
-  Diagram,
-  Mermaid,
   Canvas,
   Whiteboard,
   Walkthrough,

@@ -119,10 +119,8 @@ function writeSkeleton(root: string, config: SuperloreJson): void {
           "fumadocs-core": "^16.8.2",
           "fumadocs-mdx": "^14.3.1",
           "fumadocs-ui": "^16.8.2",
-          superlore: "^0.5.3",
+          superlore: "^0.6.0",
           "lucide-react": "^1.21.0",
-          // superlore peers the rendered components pull in: Mermaid (Diagram), themes.
-          mermaid: "^11.15.0",
           ...(mcpEnabled
             ? // mcp-handler pins an EXACT sdk peer (1.26.0); npm errors on anything else (pnpm only
               // warns). Pin the sdk to match so `npm install` resolves cleanly for every package manager.

@@ -1,6 +1,6 @@
 {
   "name": "superlore",
-  "version": "0.5.6",
+  "version": "0.6.0",
   "description": "The agent-native knowledge base — dual-representation components, theme, MCP, and auth. One corpus. Humans and agents.",
   "license": "Apache-2.0",
   "author": "Krishnan S G",
@@ -145,7 +145,6 @@
     "fumadocs-core": "^16",
     "fumadocs-mdx": "^14",
     "fumadocs-ui": "^16",
-    "mermaid": "^11",
     "next": "^16",
     "next-auth": "^5.0.0-beta.25",
     "next-themes": "^0.4",
@@ -158,9 +157,6 @@
       "optional": true
     },
     "fumadocs-mdx": {
-      "optional": true
-    },
-    "mermaid": {
       "optional": true
     },
     "next": {
@@ -187,7 +183,6 @@
     "fumadocs-mdx": "^14.3.2",
     "fumadocs-ui": "16.8.2",
     "jsdom": "^29.1.1",
-    "mermaid": "^11.15.0",
     "next": "16.2.4",
     "next-auth": "5.0.0-beta.31",
     "next-themes": "^0.4.6",

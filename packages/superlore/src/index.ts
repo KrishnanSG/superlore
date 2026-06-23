@@ -9,7 +9,6 @@ export { cn } from "./lib/cn";
 // the structural-knowledge differentiators (each dual-representation).
 export * from "./components/mintlify";
 export * from "./components/polish";
-export * from "./components/diagram";
 export * from "./components/canvas";
 export * from "./components/walkthrough";
 export * from "./components/timeline";
