@@ -23,16 +23,22 @@ import process from "node:process";
 export const EXTENSION_ID = "superlore.superlore-preview";
 
 /**
- * superlore isn't on the VS Code Marketplace by design — distribution is CLI/curl-driven. We host
- * the packaged extension on the public docs site and install it from the `.vsix` directly, which
- * VS Code, Cursor, and Windsurf all accept. (Hosted on the site, not a GitHub Release, because the
- * repo is private pre-launch and release assets aren't publicly downloadable — revisit post-launch.)
+ * Open VSX is the single source of truth for the extension — `connect` installs from it by id so the
+ * editor auto-updates it. The `.vsix` download below is only a FALLBACK for an editor whose
+ * marketplace doesn't carry the id (e.g. VS Code proper). It resolves the LATEST published `.vsix`
+ * from the Open VSX API, so the fallback can never serve a stale build (the old self-hosted,
+ * bot-committed `.vsix` could, and did — that's why it's gone).
  */
-export const DEFAULT_VSIX_URL = "https://superlore.vercel.app/superlore-preview.vsix";
+export const OPENVSX_LATEST_API = "https://open-vsx.org/api/superlore/superlore-preview/latest";
 
-/** Download the published `.vsix` to a temp file and return its path. Throws on a non-OK response. */
-export async function downloadVsix(url: string = DEFAULT_VSIX_URL): Promise<string> {
-  const res = await fetch(url, { redirect: "follow" });
+/** Resolve + download the latest published `.vsix` from Open VSX to a temp file. Throws on failure. */
+export async function downloadVsix(metaUrl: string = OPENVSX_LATEST_API): Promise<string> {
+  const meta = await fetch(metaUrl, { redirect: "follow" });
+  if (!meta.ok) throw new Error(`couldn't reach Open VSX (${meta.status} ${meta.statusText})`);
+  const info = (await meta.json()) as { files?: { download?: string } };
+  const download = info.files?.download;
+  if (!download) throw new Error("Open VSX returned no download URL for the extension");
+  const res = await fetch(download, { redirect: "follow" });
   if (!res.ok) throw new Error(`couldn't fetch the extension (${res.status} ${res.statusText})`);
   const bytes = Buffer.from(await res.arrayBuffer());
   const path = join(tmpdir(), "superlore-preview.vsix");

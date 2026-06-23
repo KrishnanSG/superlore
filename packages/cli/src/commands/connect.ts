@@ -105,10 +105,10 @@ function report(result: InstallResult): InstallResult {
 function printManualInstall(): void {
   log.blank();
   log.info(
-    `${dim("Install it by hand: download")} ${cyan("superlore.vercel.app/superlore-preview.vsix")}${dim(",")}`,
+    `${dim("Install it by hand: open your editor's Extensions panel and search")} ${cyan('"superlore Preview"')}${dim(" (it's on Open VSX),")}`,
   );
   log.info(
-    `${dim("then run")} ${cyan('"Extensions: Install from VSIX…"')} ${dim("in your editor (or")} ${cyan("code --install-extension <file>.vsix")}${dim(").")}`,
+    `${dim("or run")} ${cyan("code --install-extension superlore.superlore-preview")} ${dim("(Cursor/Windsurf/VSCodium).")}`,
   );
 }
 
