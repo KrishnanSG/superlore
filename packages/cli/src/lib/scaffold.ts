@@ -340,6 +340,57 @@ export const { GET } = createFromSource(source);
 `,
   );
 
+  // Ship a CLAUDE.md so the owner's agent authors in superlore MDX (dual-representation components),
+  // not raw markdown, and looks up patterns via the superlore-docs MCP. This is the adoption lever:
+  // the agent maintaining this KB should produce rich, structured, agent-readable docs by default.
+  write(
+    "CLAUDE.md",
+    `# CLAUDE.md — ${config.name}
+
+This repo is a **superlore** knowledge base: author once in MDX, and humans get a clean visual site
+while agents read the same structured content over MCP. **One corpus. Humans and agents.**
+
+## Author in superlore MDX — not raw markdown
+
+When you create or edit anything in \`content/docs/\`, **use superlore's dual-representation
+components** wherever one fits. Each renders beautifully for humans AND serializes to typed data the
+MCP serves — so a diagram is never a flat picture an agent has to guess at; the agent gets the data
+behind it. Default to a component over plain prose, a bullet list, or an ASCII diagram:
+
+- **Canvas** (a fenced \`\`\`superlore-canvas JSON block) — architecture, system maps, request flows,
+  decision flows. The agent reads the typed { nodes, edges, groups } graph.
+- **Timeline / Schedule** — dated milestones, roadmaps, history, on-call.
+- **Board** — now / next / later, kanban.
+- **Decision** — architecture decision records (context · decision · consequences).
+- **Table / Comparison** — structured rows, option/criteria matrices.
+- **Roster / EntityCard** — people, teams, services, any entity.
+- **Checklist / Steps** — runbooks, procedures, onboarding.
+- **Releases** — changelog, version history.
+- **KeyFacts · StatGrid · FeatureList · MetaBar · PageHero · SectionHead** — editorial structure.
+
+## Look up patterns over MCP
+
+The superlore docs are available to you as an MCP server (\`superlore-docs\`, registered by the
+superlore Claude plugin). Use it for exact component props, the full Canvas vocabulary, and authoring
+patterns — \`search\`, \`get_page\`, \`list\`, \`navigate\`, \`get_component_data\`. Full reference:
+https://superlore.vercel.app/docs. Don't guess a component's props — query the MCP or the docs.
+
+## Layout
+
+- \`content/docs/**/*.mdx\` — the corpus. A \`meta.json\` per folder sets nav order, title, and icon.
+- \`superlore.json\` — KB config (type, MCP, auth). \`app/api/[transport]/route.ts\` — the MCP endpoint.
+- \`/\` redirects to \`/docs\` — a superlore KB *is* its docs.
+
+## Run
+
+- \`superlore dev\` — preview locally · \`superlore build\` — production build.
+- \`superlore connect\` — install the editor extension for the live dual-view preview + comments.
+
+**The contract:** every component must render for humans *and* serialize for agents. Keep it — it's
+the whole point.
+`,
+  );
+
   // Starter content — a full, realistic, populated structure for the KB's type (company / product
   // docs / personal), authored with real superlore components so a fresh scaffold renders rich and
   // serves clean knowledge to agents. The owner keeps the structure and replaces the dummy content.
