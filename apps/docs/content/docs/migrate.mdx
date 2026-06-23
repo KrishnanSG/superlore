@@ -1,0 +1,126 @@
+---
+title: Migrate to superlore
+description: Move your existing docs — Mintlify, Docusaurus, Fumadocs, Nextra, GitBook, or plain Markdown — into superlore. Plan-first, you review and comment, then it migrates and proves it built.
+summary: How to migrate an existing docs site (any framework — Mintlify, Docusaurus, Fumadocs, Nextra, GitBook, plain .md) to superlore using the superlore-migrate agent skill: it authors a migration plan you review and comment on, converts every page to dual-representation superlore MDX, verifies the build with Playwright, and writes a summary with screenshots.
+tags: [migrate, adoption, getting-started]
+---
+
+<PageHero
+  kicker="Adoption"
+  title="Migrate to superlore"
+  description="Bring your docs — from any framework — into superlore without a big-bang rewrite. Your agent plans it, you review and comment, then it migrates and proves it built."
+  icon="import"
+/>
+
+Migration is **plan-first**. Your agent doesn't bulk-convert blindly — it writes a migration plan
+_as a superlore doc_, you review and comment on it in the editor or the Viewer, and only then does it
+convert your content, verify the build, and hand you a summary with screenshots.
+
+```superlore-canvas
+{
+  "title": "How a migration runs",
+  "layout": "flow",
+  "direction": "right",
+  "nodes": [
+    { "id": "scan", "kind": "rounded", "intent": "blue", "icon": "search", "label": "Scan", "body": "Detect the source framework + inventory every page and the nav." },
+    { "id": "plan", "kind": "rounded", "intent": "accent", "icon": "map", "label": "Plan", "body": "A superlore doc: a Canvas of the migration + a page-by-page table." },
+    { "id": "review", "kind": "diamond", "intent": "orange", "label": "You review + comment" },
+    { "id": "migrate", "kind": "rounded", "intent": "purple", "icon": "sparkles", "label": "Migrate", "body": "Each page → superlore MDX with dual-rep components, led by a Canvas." },
+    { "id": "verify", "kind": "rounded", "intent": "green", "icon": "check", "label": "Verify", "body": "superlore build + Playwright render checks + screenshots." },
+    { "id": "summary", "kind": "rounded", "intent": "teal", "icon": "file-check", "label": "Summary", "body": "A doc with screenshots + per-page status." }
+  ],
+  "edges": [
+    { "from": "scan", "to": "plan", "intent": "blue" },
+    { "from": "plan", "to": "review", "intent": "accent" },
+    { "from": "review", "to": "migrate", "label": "approved", "intent": "green" },
+    { "from": "review", "to": "plan", "label": "comments", "kind": "dashed", "intent": "orange" },
+    { "from": "migrate", "to": "verify", "intent": "purple" },
+    { "from": "verify", "to": "summary", "intent": "green" }
+  ]
+}
+```
+
+## Start it
+
+Install the superlore Claude plugin, then just ask:
+
+```text
+Migrate my Mintlify docs to superlore
+```
+
+The **`superlore-migrate`** skill takes over from there. Point it at your existing docs repo (or run
+it from inside it).
+
+## Comes from anywhere
+
+<FeatureList
+  items={[
+    {
+      icon: "book",
+      title: "Mintlify",
+      description: "mint.json / docs.json, Cards, Steps, Tabs, Accordions, Frames.",
+    },
+    { icon: "book-open", title: "Docusaurus", description: "sidebars + :::note admonitions." },
+    {
+      icon: "layers",
+      title: "Fumadocs",
+      description: "Already MDX + meta.json — the closest jump.",
+    },
+    {
+      icon: "file-text",
+      title: "Nextra / GitBook / plain .md",
+      description: "_meta.js, SUMMARY.md, or just a folder of Markdown.",
+    },
+  ]}
+/>
+
+## What you get
+
+<KeyFacts
+  items={[
+    {
+      label: "Reviewed, not dumped",
+      value: "A plan you approve (or comment on) before anything converts.",
+    },
+    {
+      label: "Upgraded, not transliterated",
+      value:
+        "Markdown tables → DataTable, diagrams → Canvas, roadmaps → Timeline — real dual-representation.",
+    },
+    {
+      label: "Agent-ready",
+      value: "Every page serves a typed knowledge face over MCP, not a flat render.",
+    },
+    {
+      label: "Proven",
+      value:
+        "It builds + Playwright-renders key pages and screenshots them before calling it done.",
+    },
+  ]}
+/>
+
+<Note title="Diagrams become Canvas">
+  Mermaid blocks, PlantUML, and even images of diagrams are migrated to a real superlore **Canvas**
+  — typed nodes and edges an agent can read, not a picture. superlore does diagrams via Canvas.
+</Note>
+
+## The flow, in steps
+
+<Steps>
+  <Step>### Scan Your agent detects the framework and inventories every page + the nav order.</Step>
+  <Step>
+    ### Plan + review It writes a migration plan as a superlore doc — open it in the
+    [Viewer](/viewer) or the editor preview, leave comments, approve.
+  </Step>
+  <Step>
+    ### Migrate Each page becomes superlore MDX with the right components, led by a Canvas; nav and
+    links are preserved.
+  </Step>
+  <Step>
+    ### Verify + summarize It builds, Playwright-checks key pages, and writes a summary with
+    screenshots and per-page status.
+  </Step>
+</Steps>
+
+Already have just one file? You don't need to migrate a whole site — see
+[a single doc](/docs/single-doc).
