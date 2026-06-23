@@ -1,0 +1,63 @@
+name: extension-publish
+
+# Publish the superlore Preview extension to the Open VSX registry (https://open-vsx.org) so
+# OpenVSX-based editors (Cursor, Windsurf, VSCodium, …) install it like any marketplace extension and
+# AUTO-UPDATE it — no hand-installed .vsix, no "you're on a stale build" loop. Fires on a version bump
+# of the extension (or its bundled superlore source). Skips cleanly until the OVSX_TOKEN secret exists
+# and only publishes when package.json's version isn't already on Open VSX, so it's idempotent.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "extensions/vscode/**"
+      - "packages/superlore/src/**"
+  workflow_dispatch:
+
+concurrency:
+  group: extension-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Decide whether to publish (token present + version not already on Open VSX)
+        id: gate
+        env:
+          OVSX_TOKEN: ${{ secrets.OVSX_TOKEN }}
+        run: |
+          if [ -z "$OVSX_TOKEN" ]; then
+            echo "OVSX_TOKEN not set — skipping Open VSX publish (one-time setup not done yet)."
+            echo "go=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          LOCAL=$(node -p "require('./extensions/vscode/package.json').version")
+          PUBLISHED=$(curl -fsSL "https://open-vsx.org/api/superlore/superlore-preview" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(JSON.parse(s).version||'')}catch{console.log('')}})" || echo "")
+          echo "local=$LOCAL published=$PUBLISHED"
+          if [ "$LOCAL" = "$PUBLISHED" ]; then
+            echo "v$LOCAL already on Open VSX — nothing to publish."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install + build the extension
+        if: steps.gate.outputs.go == 'true'
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter superlore-preview package
+
+      - name: Publish to Open VSX
+        if: steps.gate.outputs.go == 'true'
+        env:
+          OVSX_TOKEN: ${{ secrets.OVSX_TOKEN }}
+        run: |
+          # The namespace is created once; tolerate "already exists" on every later run.
+          npx -y ovsx create-namespace superlore -p "$OVSX_TOKEN" || true
+          npx -y ovsx publish extensions/vscode/superlore-preview-*.vsix -p "$OVSX_TOKEN"

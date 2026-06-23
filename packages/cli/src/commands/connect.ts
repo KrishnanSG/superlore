@@ -49,20 +49,25 @@ export async function connectCommand(flags: ConnectFlags = {}): Promise<void> {
   log.step(`Found ${labels}. Installing the superlore Preview extension…`);
   log.blank();
 
-  // superlore isn't on the Marketplace — resolve a `.vsix` (a local --vsix, else download the
-  // published release asset once) and install that file into each detected editor.
-  let vsix: string;
-  try {
-    vsix = flags.vsix ?? (await downloadVsix());
-  } catch (error) {
-    log.error(
-      `Couldn't fetch the extension: ${error instanceof Error ? error.message : String(error)}`,
-    );
-    printManualInstall();
-    process.exit(flags.optional ? 0 : 1);
+  // Prefer the Open VSX registry: install by extension id so the EDITOR manages and auto-updates it
+  // (Cursor, Windsurf, VSCodium, … resolve ids from Open VSX) — no stale hand-installed build. Fall
+  // back to the hosted `.vsix` for an editor whose marketplace doesn't carry it (VS Code proper), or
+  // whenever a local `--vsix` was passed.
+  let results: InstallResult[];
+  if (flags.vsix) {
+    results = detected.map((editor) => report(installInto(editor, { vsix: flags.vsix })));
+  } else {
+    const byId = detected.map((editor) => installInto(editor)); // install by id → Open VSX
+    // Download the hosted .vsix once, only if some editor couldn't resolve it from a registry.
+    const vsix = byId.some((r) => r.status === "failed")
+      ? await downloadVsix().catch(() => undefined)
+      : undefined;
+    results = detected.map((editor, i) => {
+      const idResult = byId[i]!;
+      if (idResult.status !== "failed") return report(idResult);
+      return report(vsix ? installInto(editor, { vsix }) : idResult);
+    });
   }
-
-  const results = detected.map((editor) => report(installInto(editor, { vsix })));
 
   log.blank();
   const failed = results.filter((r) => r.status === "failed");
