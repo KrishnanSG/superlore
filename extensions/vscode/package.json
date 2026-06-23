@@ -1,7 +1,7 @@
 {
   "name": "superlore-preview",
   "displayName": "superlore Preview",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Live, dual-representation preview for superlore .mdx — renders every component (Canvas/whiteboard, Timeline, Board, Table, …) as you type, with FigJam-style comment pins and Copy to Agent.",
   "license": "Apache-2.0",
   "author": "Krishnan S G",
@@ -118,15 +118,15 @@
     "keybindings": [
       {
         "command": "superlore.openPreview",
-        "key": "ctrl+k v",
-        "mac": "cmd+k v",
+        "key": "ctrl+k s",
+        "mac": "cmd+k s",
         "when": "editorTextFocus && (editorLangId == mdx || resourceExtname == .mdx || resourceExtname == .superlore || resourceFilename =~ /\\.superlore\\.mdx$/)"
       },
       {
         "command": "superlore.openPreview",
-        "key": "ctrl+shift+v",
-        "mac": "cmd+shift+v",
-        "when": "editorTextFocus && (editorLangId == mdx || resourceExtname == .superlore || resourceFilename =~ /\\.superlore\\.mdx$/)"
+        "key": "ctrl+k v",
+        "mac": "cmd+k v",
+        "when": "editorTextFocus && (editorLangId == mdx || resourceExtname == .mdx || resourceExtname == .superlore || resourceFilename =~ /\\.superlore\\.mdx$/)"
       }
     ],
     "menus": {
