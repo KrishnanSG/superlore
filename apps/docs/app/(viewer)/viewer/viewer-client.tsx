@@ -7,7 +7,8 @@ import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import rehypeSlug from "rehype-slug";
-import rehypeHighlight from "rehype-highlight";
+import { rehypeCode, rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins/rehype-code";
+import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
 import { DocsBody } from "superlore/ui";
 import { getMDXComponents, cn } from "superlore";
 import { AlertTriangle, Cloud, Code2, Download, Eye, FileText, Share2, Upload } from "lucide-react";
@@ -219,13 +220,18 @@ const SAMPLES: readonly Sample[] = [
   { label: "System map", filename: "system-map.mdx", source: SAMPLE_CANVAS },
 ];
 
+// Highlight fenced code with Fumadocs' own Shiki plugin — the SAME one the docs build uses — so the
+// runtime preview feeds `<CodeBlock>` (from getMDXComponents) the Shiki HAST it expects, identical to
+// a published page. The no-WASM JS regex engine works in the browser without a wasm fetch; Shiki's
+// default lazy loading pulls each grammar on demand, so every bundled language highlights.
+const shikiEngine = createJavaScriptRegexEngine({ forgiving: true });
+const codeOptions = { ...rehypeCodeDefaultOptions, engine: shikiEngine };
+
 async function compileMdx(source: string): Promise<MdxComponent> {
   const mod = await evaluate(source, {
     ...runtime,
     remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm, remarkSuperloreCanvas],
-    // rehypeHighlight (highlight.js) — syntax highlighting for fenced code in the runtime-compiled
-    // preview (no build-time Shiki here). Covers all common languages.
-    rehypePlugins: [rehypeSlug, rehypeHighlight, rehypeKpBlockIds],
+    rehypePlugins: [rehypeSlug, [rehypeCode, codeOptions], rehypeKpBlockIds],
   });
   return mod.default as MdxComponent;
 }

@@ -5,7 +5,8 @@ import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import rehypeSlug from "rehype-slug";
-import rehypeHighlight from "rehype-highlight";
+import { rehypeCode, rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins/rehype-code";
+import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
 import { DocsBody } from "fumadocs-ui/page";
 import { getMDXComponents, PageHero } from "superlore";
 import { remarkSuperloreCanvas } from "./lib/remark-superlore-canvas.mjs";
@@ -30,18 +31,28 @@ interface Compiled {
 }
 
 /**
+ * Code highlighting must match the docs site exactly. The docs render fenced code through Fumadocs'
+ * `<CodeBlock>` (mapped via `getMDXComponents`), which expects **Shiki** HAST (`<span class="line">`
+ * per line). Feeding it highlight.js output instead broke layout (every token on its own line), so
+ * we run Fumadocs' own `rehypeCode` here too — the same plugin, themes, and structure as the build.
+ * The no-WASM JavaScript regex engine keeps it inside the webview CSP (no `wasm-unsafe-eval`); Shiki's
+ * default lazy loading then pulls each grammar on demand the first time a code block uses it, so every
+ * bundled language highlights without a big eager grammar load at startup.
+ */
+const shikiEngine = createJavaScriptRegexEngine({ forgiving: true });
+const codeOptions = { ...rehypeCodeDefaultOptions, engine: shikiEngine };
+
+/**
  * The SAME MDX pipeline the superlore Viewer uses (apps/docs/.../viewer-client.tsx `compileMdx`):
  * `evaluate` with remarkFrontmatter + remarkMdxFrontmatter + remarkGfm + remarkSuperloreCanvas, then
- * rehypeSlug + rehypeKpBlockIds. Runtime `evaluate` is why the webview CSP needs 'unsafe-eval'.
- * remark-mdx-frontmatter exposes the parsed frontmatter as the module's `frontmatter` export.
+ * rehypeSlug + rehypeCode (Shiki) + rehypeKpBlockIds. Runtime `evaluate` is why the webview CSP needs
+ * 'unsafe-eval'. remark-mdx-frontmatter exposes the parsed frontmatter as the module's `frontmatter` export.
  */
 async function compileMdx(source: string): Promise<Compiled> {
   const mod = await evaluate(source, {
     ...runtime,
     remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm, remarkSuperloreCanvas],
-    // rehypeHighlight (highlight.js) gives fenced code blocks real syntax highlighting for all the
-    // common languages — the runtime evaluate has no build-time Shiki, so without this code is flat.
-    rehypePlugins: [rehypeSlug, rehypeHighlight, rehypeKpBlockIds],
+    rehypePlugins: [rehypeSlug, [rehypeCode, codeOptions], rehypeKpBlockIds],
   });
   return {
     Content: mod.default as MdxComponent,
