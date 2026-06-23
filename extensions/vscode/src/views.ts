@@ -138,9 +138,11 @@ export class CorpusTreeProvider implements vscode.TreeDataProvider<CorpusNode> {
       item.resourceUri = node.uri;
       item.iconPath = new vscode.ThemeIcon("file");
       item.contextValue = "superlorePage";
+      // Primary click opens the rendered preview (not the raw .mdx); the inline "open source"
+      // action on the row opens the .mdx for editing.
       item.command = {
-        command: "vscode.open",
-        title: "Open page",
+        command: "superlore.openPreviewForUri",
+        title: "Open preview",
         arguments: [node.uri],
       };
     } else {

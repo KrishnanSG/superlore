@@ -328,6 +328,27 @@ export function activate(context: vscode.ExtensionContext): void {
         });
     }),
 
+    // Open the rendered preview for a page picked in the Corpus tree — load the document (no
+    // visible .mdx tab) and mirror it into the webview. This is the primary click action.
+    vscode.commands.registerCommand("superlore.openPreviewForUri", async (uri: vscode.Uri) => {
+      if (!uri) return;
+      const doc = await vscode.workspace.openTextDocument(uri);
+      ensurePanel();
+      postTheme();
+      postUpdate(doc);
+    }),
+
+    // The inline "open source" action on a Corpus row — open the raw .mdx for editing. VS Code
+    // invokes this with the tree node; accept either the node or a bare Uri.
+    vscode.commands.registerCommand(
+      "superlore.openSource",
+      (arg?: vscode.Uri | { resourceUri?: vscode.Uri; uri?: vscode.Uri }) => {
+        const uri =
+          arg instanceof vscode.Uri ? arg : (arg?.resourceUri ?? arg?.uri);
+        if (uri) void vscode.commands.executeCommand("vscode.open", uri);
+      },
+    ),
+
     // Jump the active editor to a line picked in the "This page" outline.
     vscode.commands.registerCommand("superlore.revealLine", (line: number) => {
       const editor = vscode.window.activeTextEditor;

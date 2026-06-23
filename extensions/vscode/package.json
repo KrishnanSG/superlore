@@ -1,7 +1,7 @@
 {
   "name": "superlore-preview",
   "displayName": "superlore Preview",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Live, dual-representation preview for superlore .mdx — renders every component (Canvas/whiteboard, Timeline, Board, Table, …) as you type, with FigJam-style comment pins and Copy to Agent.",
   "license": "Apache-2.0",
   "author": "Krishnan S G",
@@ -107,6 +107,12 @@
         "command": "superlore.scaffoldHint",
         "title": "Scaffold a Knowledge Base",
         "category": "superlore"
+      },
+      {
+        "command": "superlore.openSource",
+        "title": "Open Source (.mdx)",
+        "category": "superlore",
+        "icon": "$(go-to-file)"
       }
     ],
     "keybindings": [
@@ -142,6 +148,13 @@
           "command": "superlore.refreshCorpus",
           "when": "view == superlore.corpus",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "superlore.openSource",
+          "when": "view == superlore.corpus && viewItem == superlorePage",
+          "group": "inline"
         }
       ]
     }
