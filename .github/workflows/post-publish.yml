@@ -1,0 +1,59 @@
+name: post-publish
+
+# The truest check: after a release, do exactly what a stranger does. Install the LATEST
+# superlore-cli from npm, scaffold every KB type, npm-install the PUBLISHED superlore, and
+# production-build. Catches a broken publish (bad exports, peer ranges, missing files) that the
+# pre-publish gate somehow missed — and continuously re-validates the live packages.
+
+on:
+  workflow_run:
+    workflows: [release]
+    types: [completed]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 8 * * 1" # weekly — catches registry / transitive-dependency drift
+
+permissions:
+  contents: read
+
+concurrency:
+  group: post-publish
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    # Run after a *successful* release, or on a manual / scheduled trigger.
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    name: npm-latest · ${{ matrix.type }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [company-kb, product-docs, personal-kb]
+    steps:
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Wait for npm to serve superlore-cli
+        run: |
+          for i in $(seq 1 12); do
+            if npm view superlore-cli version >/dev/null 2>&1; then
+              echo "superlore-cli@$(npm view superlore-cli version) · superlore@$(npm view superlore version)"
+              break
+            fi
+            echo "waiting for npm propagation…"; sleep 15
+          done
+
+      - name: Scaffold from the published CLI
+        run: npx -y superlore-cli@latest init /tmp/kb --name "Smoke ${{ matrix.type }}" --type ${{ matrix.type }} --yes --no-connect
+
+      - name: Install (published superlore) + production build
+        working-directory: /tmp/kb
+        run: |
+          npm install --no-audit --no-fund
+          ./node_modules/.bin/next build
+
+      - name: Confirm superlore resolved from npm
+        working-directory: /tmp/kb
+        run: node -e "console.log('resolved superlore@'+require('./node_modules/superlore/package.json').version)"

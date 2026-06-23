@@ -15,7 +15,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Gate: scaffold every KB type and install + build it (npm AND pnpm) against the packed publish
+  # artifact. If any scaffold can't install or build, we do NOT publish a broken package.
+  e2e:
+    uses: ./.github/workflows/e2e.yml
+
   release:
+    needs: e2e
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

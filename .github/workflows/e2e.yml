@@ -1,0 +1,75 @@
+name: e2e
+
+# End-to-end scaffold gate. Builds the packages exactly as they'll publish, scaffolds a KB of every
+# type with the built CLI, then installs (npm AND pnpm) and production-builds it. This is what would
+# have caught the npm peer-resolution failures (mcp-handler's exact sdk peer; next-auth's prerelease
+# range) — npm is strict where pnpm only warns, so we test the strict path on purpose.
+#
+# Runs on PRs (gate) and is `workflow_call`-able so `release.yml` can require it before publishing.
+
+on:
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scaffold:
+    name: ${{ matrix.type }} · ${{ matrix.pm }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [company-kb, product-docs, personal-kb]
+        pm: [npm, pnpm]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install workspace
+        run: pnpm install --frozen-lockfile
+
+      # Build the consumed packages exactly as they ship.
+      - name: Build superlore + CLI
+        run: pnpm turbo run build --filter=superlore --filter=superlore-cli
+
+      # Pack superlore so the scaffold installs the REAL publish artifact (publishConfig swaps the
+      # exports to dist) — this catches src-pointing-exports and dist-shape regressions before npm.
+      - name: Pack superlore (publish artifact)
+        run: |
+          pnpm --filter superlore pack --pack-destination /tmp
+          echo "SUPERLORE_TGZ=$(ls /tmp/superlore-*.tgz)" >> "$GITHUB_ENV"
+
+      - name: Assert packed exports point at dist (not src)
+        run: |
+          node -e "const{execSync}=require('child_process');const j=execSync('tar -xzOf '+process.env.SUPERLORE_TGZ+' package/package.json').toString();const e=JSON.stringify(JSON.parse(j).exports);if(/\/src\//.test(e)){console.error('exports still point at src!');process.exit(1)}console.log('exports OK (dist)')"
+
+      - name: Scaffold a ${{ matrix.type }} KB
+        run: node packages/cli/dist/index.js init /tmp/kb --name "CI ${{ matrix.type }}" --type ${{ matrix.type }} --yes --no-connect
+
+      - name: Point the scaffold at the packed superlore
+        working-directory: /tmp/kb
+        run: |
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json'));p.dependencies.superlore='file:'+process.env.SUPERLORE_TGZ;fs.writeFileSync('package.json',JSON.stringify(p,null,2))"
+
+      - name: Install (${{ matrix.pm }})
+        working-directory: /tmp/kb
+        run: |
+          if [ "${{ matrix.pm }}" = "pnpm" ]; then
+            pnpm install --ignore-workspace
+          else
+            npm install --no-audit --no-fund
+          fi
+
+      - name: Production build
+        working-directory: /tmp/kb
+        run: ./node_modules/.bin/next build
