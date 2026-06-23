@@ -71,6 +71,44 @@ export function Doc({ mdx }: { mdx: string }) {
 That's the same renderer the docs site and the [Viewer](/viewer) use — a `Timeline`, a `Board`, a
 `DataTable`, or a `superlore-canvas` fence all render exactly as they would on a published page.
 
+## Match your brand
+
+By default a doc renders in superlore's violet. Wrap it in `SuperloreTheme` to render in **your**
+palette instead — links, accents, focus rings, and surfaces all follow your tokens.
+
+```tsx
+"use client";
+import { SuperloreDoc, SuperloreTheme } from "superlore/runtime";
+
+export function Doc({ mdx }: { mdx: string }) {
+  return (
+    <SuperloreTheme tokens={{ accent: "var(--brand)", accentText: "var(--brand)" }}>
+      <SuperloreDoc source={mdx} />
+    </SuperloreTheme>
+  );
+}
+```
+
+Pass plain colors, or — better — your own CSS variables (`var(--brand)`). Because the tokens resolve
+as CSS custom properties, your app's existing light/dark switch re-colors the doc **for free**, with
+nothing to re-pass on a theme change.
+
+| Token                                        | Drives                                                              |
+| -------------------------------------------- | ------------------------------------------------------------------- |
+| `accent`                                     | links, active state, focus ring (and fumadocs `--color-fd-primary`) |
+| `accentText`                                 | accent-colored text on a surface                                    |
+| `accentWeak`                                 | subtle accent backgrounds (chips, highlights)                       |
+| `accentBorder`                               | accent outlines                                                     |
+| `accentHover` / `accentInk`                  | accent hover; text/icon on the accent fill                          |
+| `background` / `surface` / `border` / `text` | the neutral surface scale                                           |
+| `vars`                                       | escape hatch — set any `--kp-*` / `--color-fd-*` variable directly  |
+
+<Note title="It's just CSS variables">
+  `SuperloreTheme` is sugar — it writes these tokens as custom properties on a wrapper. You can set
+  the same `--kp-*` / `--color-fd-*` variables anywhere above the doc (a layout, a `[data-theme]`
+  block) and get the identical result, so it composes with whatever theming your app already has.
+</Note>
+
 ## Lower-level: the hook and the compiler
 
 Need the parsed frontmatter, your own loading state, or a custom wrapper? Use the hook, or call the

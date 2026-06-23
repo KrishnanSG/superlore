@@ -16,7 +16,14 @@
  * component (the "use client" directive above marks the whole module).
  */
 import * as jsxRuntime from "react/jsx-runtime";
-import { useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { evaluate } from "@mdx-js/mdx";
 import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
@@ -205,5 +212,91 @@ export function SuperloreDoc({
     <DocsBody className={cn("superlore-doc", className)}>
       <Content components={getMDXComponents(components)} />
     </DocsBody>
+  );
+}
+
+/**
+ * Brand tokens a host maps onto superlore's palette. Every value is any CSS color string — including
+ * `var(--your-own-token)`, so a host's existing light/dark flip cascades into the doc for free (no
+ * re-passing tokens on theme change). All optional: set only the accent to rebrand, or surfaces too.
+ */
+export interface SuperloreThemeTokens {
+  /** Primary accent — links, active state, focus ring. */
+  accent?: string;
+  /** Accent hover state. */
+  accentHover?: string;
+  /** Accent-colored text on a surface. */
+  accentText?: string;
+  /** Subtle accent background (chips, highlights). */
+  accentWeak?: string;
+  /** Accent outline / border. */
+  accentBorder?: string;
+  /** Text/icon shown ON the accent fill. */
+  accentInk?: string;
+  /** Page background. */
+  background?: string;
+  /** Card / panel surface. */
+  surface?: string;
+  /** Default border. */
+  border?: string;
+  /** Primary text. */
+  text?: string;
+  /** Escape hatch — raw CSS-variable overrides, e.g. `{ "--kp-surface-2": "#…" }`. */
+  vars?: Record<string, string>;
+}
+
+// Friendly token → the superlore (`--kp-*`) and fumadocs (`--color-fd-*`) custom properties it drives.
+// Components read these via Tailwind's `@theme inline` (utilities inline `var(--kp-accent)` directly,
+// with no intermediate `--color-kp-accent`), so setting them on an ancestor recolors the subtree.
+const TOKEN_VARS: Record<keyof Omit<SuperloreThemeTokens, "vars">, readonly string[]> = {
+  accent: ["--kp-accent", "--color-fd-primary", "--color-fd-ring"],
+  accentHover: ["--kp-accent-hover"],
+  accentText: ["--kp-accent-text"],
+  accentWeak: ["--kp-accent-weak", "--color-fd-accent"],
+  accentBorder: ["--kp-accent-border"],
+  accentInk: ["--kp-accent-ink", "--color-fd-primary-foreground"],
+  background: ["--kp-bg-elev", "--color-fd-background"],
+  surface: ["--kp-surface", "--color-fd-card", "--color-fd-popover"],
+  border: ["--kp-border", "--color-fd-border"],
+  text: ["--color-fd-foreground"],
+};
+
+/** Turn friendly tokens into the CSS custom properties to set on the wrapper. */
+function tokensToStyle(tokens: SuperloreThemeTokens): CSSProperties {
+  const style: Record<string, string> = {};
+  for (const [key, value] of Object.entries(tokens)) {
+    if (key === "vars" || typeof value !== "string") continue;
+    for (const cssVar of TOKEN_VARS[key as keyof typeof TOKEN_VARS] ?? []) style[cssVar] = value;
+  }
+  if (tokens.vars) Object.assign(style, tokens.vars);
+  return style as CSSProperties;
+}
+
+/** Props for {@link SuperloreTheme}. */
+export interface SuperloreThemeProps {
+  /** Brand tokens to apply to everything inside. */
+  tokens: SuperloreThemeTokens;
+  /** Class added to the theme wrapper. */
+  className?: string;
+  children: ReactNode;
+}
+
+/**
+ * Render superlore in the **host's** brand. Wrap a {@link SuperloreDoc} (or any superlore content) and
+ * the tokens cascade as CSS variables — links, accents, focus rings, and surfaces all adopt your
+ * palette instead of superlore's defaults. Sugar over a plain CSS-variable contract: you can set the
+ * same `--kp-*` / `--color-fd-*` variables yourself anywhere above the doc and get the identical result.
+ *
+ * ```tsx
+ * <SuperloreTheme tokens={{ accent: "var(--brand)", accentText: "var(--brand)" }}>
+ *   <SuperloreDoc source={mdx} />
+ * </SuperloreTheme>
+ * ```
+ */
+export function SuperloreTheme({ tokens, className, children }: SuperloreThemeProps): ReactNode {
+  return (
+    <div className={cn("superlore-theme", className)} style={tokensToStyle(tokens)}>
+      {children}
+    </div>
   );
 }
