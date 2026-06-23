@@ -17,6 +17,7 @@ export default defineConfig({
     auth: "src/auth/index.ts",
     frontmatter: "src/knowledge/frontmatter.ts",
     mdx: "src/mdx.ts",
+    search: "src/search.ts",
     ui: "src/ui.tsx",
     source: "src/source.ts",
     config: "src/config.ts",

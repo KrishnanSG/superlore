@@ -329,6 +329,17 @@ export const source = loader({
 `,
   );
 
+  // Search backend — Fumadocs' ⌘K dialog fetches /api/search; without this route, search returns
+  // nothing. Indexes the same content source the site renders and the MCP serves.
+  write(
+    "app/api/search/route.ts",
+    `import { source } from "@/lib/source";
+import { createFromSource } from "superlore/search";
+
+export const { GET } = createFromSource(source);
+`,
+  );
+
   // Starter content — a full, realistic, populated structure for the KB's type (company / product
   // docs / personal), authored with real superlore components so a fresh scaffold renders rich and
   // serves clean knowledge to agents. The owner keeps the structure and replaces the dummy content.
