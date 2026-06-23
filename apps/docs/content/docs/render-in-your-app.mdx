@@ -93,15 +93,16 @@ Pass plain colors, or — better — your own CSS variables (`var(--brand)`). Be
 as CSS custom properties, your app's existing light/dark switch re-colors the doc **for free**, with
 nothing to re-pass on a theme change.
 
-| Token                                        | Drives                                                              |
-| -------------------------------------------- | ------------------------------------------------------------------- |
-| `accent`                                     | links, active state, focus ring (and fumadocs `--color-fd-primary`) |
-| `accentText`                                 | accent-colored text on a surface                                    |
-| `accentWeak`                                 | subtle accent backgrounds (chips, highlights)                       |
-| `accentBorder`                               | accent outlines                                                     |
-| `accentHover` / `accentInk`                  | accent hover; text/icon on the accent fill                          |
-| `background` / `surface` / `border` / `text` | the neutral surface scale                                           |
-| `vars`                                       | escape hatch — set any `--kp-*` / `--color-fd-*` variable directly  |
+| Token                                          | Drives                                                              |
+| ---------------------------------------------- | ------------------------------------------------------------------- |
+| `accent`                                       | links, active state, focus ring (and fumadocs `--color-fd-primary`) |
+| `accentText` / `accentInk`                     | accent text on a surface; text/icon on the accent fill              |
+| `accentMuted` / `accentBorder` / `accentHover` | subtle accent background; accent outline; hover                     |
+| `surface` / `surface2` / `background`          | card, nested/hover surface, page background                         |
+| `text` / `text2` / `text3`                     | primary, secondary, muted text                                      |
+| `border` / `borderSubtle`                      | default border; separators                                          |
+| `success` / `warning` / `danger`               | status colors (callouts, board lanes)                               |
+| `vars`                                         | escape hatch — set any `--kp-*` / `--color-fd-*` variable directly  |
 
 <Note title="It's just CSS variables">
   `SuperloreTheme` is sugar — it writes these tokens as custom properties on a wrapper. You can set

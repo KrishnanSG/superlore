@@ -228,7 +228,7 @@ export interface SuperloreThemeTokens {
   /** Accent-colored text on a surface. */
   accentText?: string;
   /** Subtle accent background (chips, highlights). */
-  accentWeak?: string;
+  accentMuted?: string;
   /** Accent outline / border. */
   accentBorder?: string;
   /** Text/icon shown ON the accent fill. */
@@ -237,11 +237,25 @@ export interface SuperloreThemeTokens {
   background?: string;
   /** Card / panel surface. */
   surface?: string;
+  /** Hover / nested surface. */
+  surface2?: string;
   /** Default border. */
   border?: string;
+  /** Separators / subtle borders. */
+  borderSubtle?: string;
   /** Primary text. */
   text?: string;
-  /** Escape hatch — raw CSS-variable overrides, e.g. `{ "--kp-surface-2": "#…" }`. */
+  /** Secondary text. */
+  text2?: string;
+  /** Muted text / icons. */
+  text3?: string;
+  /** Success / done. */
+  success?: string;
+  /** Warning / in-progress. */
+  warning?: string;
+  /** Danger / error. */
+  danger?: string;
+  /** Escape hatch — raw CSS-variable overrides, e.g. `{ "--kp-canvas-edge": "#…" }`. */
   vars?: Record<string, string>;
 }
 
@@ -252,13 +266,20 @@ const TOKEN_VARS: Record<keyof Omit<SuperloreThemeTokens, "vars">, readonly stri
   accent: ["--kp-accent", "--color-fd-primary", "--color-fd-ring"],
   accentHover: ["--kp-accent-hover"],
   accentText: ["--kp-accent-text"],
-  accentWeak: ["--kp-accent-weak", "--color-fd-accent"],
+  accentMuted: ["--kp-accent-weak", "--color-fd-accent"],
   accentBorder: ["--kp-accent-border"],
   accentInk: ["--kp-accent-ink", "--color-fd-primary-foreground"],
   background: ["--kp-bg-elev", "--color-fd-background"],
   surface: ["--kp-surface", "--color-fd-card", "--color-fd-popover"],
+  surface2: ["--kp-surface-2", "--color-fd-muted", "--color-fd-secondary"],
   border: ["--kp-border", "--color-fd-border"],
-  text: ["--color-fd-foreground"],
+  borderSubtle: ["--kp-border-subtle"],
+  text: ["--color-fd-foreground", "--color-fd-card-foreground", "--color-fd-popover-foreground"],
+  text2: ["--kp-text-2", "--color-fd-muted-foreground"],
+  text3: ["--kp-text-3"],
+  success: ["--kp-success"],
+  warning: ["--kp-warning"],
+  danger: ["--kp-danger"],
 };
 
 /** Turn friendly tokens into the CSS custom properties to set on the wrapper. */
