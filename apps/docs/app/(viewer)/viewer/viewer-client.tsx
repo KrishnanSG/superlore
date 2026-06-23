@@ -1,18 +1,10 @@
 "use client";
 
-import * as runtime from "react/jsx-runtime";
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from "react";
-import { evaluate } from "@mdx-js/mdx";
-import remarkGfm from "remark-gfm";
-import remarkFrontmatter from "remark-frontmatter";
-import remarkMdxFrontmatter from "remark-mdx-frontmatter";
-import rehypeSlug from "rehype-slug";
-import { rehypeCode, rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins/rehype-code";
-import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
+import { compileMdxSource } from "superlore/runtime";
 import { DocsBody } from "superlore/ui";
 import { getMDXComponents, cn } from "superlore";
 import { AlertTriangle, Cloud, Code2, Download, Eye, FileText, Share2, Upload } from "lucide-react";
-import { remarkSuperloreCanvas } from "@/lib/remark-superlore-canvas.mjs";
 import { rehypeKpBlockIds } from "@/lib/rehype-kp-block-ids.mjs";
 import { SuperloreMark } from "@/lib/logo";
 import { CommentRail, type CommentGroup } from "./comment-rail";
@@ -220,20 +212,13 @@ const SAMPLES: readonly Sample[] = [
   { label: "System map", filename: "system-map.mdx", source: SAMPLE_CANVAS },
 ];
 
-// Highlight fenced code with Fumadocs' own Shiki plugin — the SAME one the docs build uses — so the
-// runtime preview feeds `<CodeBlock>` (from getMDXComponents) the Shiki HAST it expects, identical to
-// a published page. The no-WASM JS regex engine works in the browser without a wasm fetch; Shiki's
-// default lazy loading pulls each grammar on demand, so every bundled language highlights.
-const shikiEngine = createJavaScriptRegexEngine({ forgiving: true });
-const codeOptions = { ...rehypeCodeDefaultOptions, engine: shikiEngine };
-
+// Compile through superlore's runtime renderer — the SAME pipeline a published page uses (frontmatter
+// + GFM + the superlore-canvas fence + Shiki code highlighting). We append the Viewer-only block-id
+// rehype plugin so comment anchors attach to blocks. The rendered output is identical to authoring
+// the doc on the site; superlore owns the pipeline so the Viewer never drifts from the build.
 async function compileMdx(source: string): Promise<MdxComponent> {
-  const mod = await evaluate(source, {
-    ...runtime,
-    remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm, remarkSuperloreCanvas],
-    rehypePlugins: [rehypeSlug, [rehypeCode, codeOptions], rehypeKpBlockIds],
-  });
-  return mod.default as MdxComponent;
+  const { Content } = await compileMdxSource(source, { rehypePlugins: [rehypeKpBlockIds] });
+  return Content as MdxComponent;
 }
 
 /** Pull a short, single-line quote from a block element for anchor labels / sidecar. */

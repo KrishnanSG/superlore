@@ -1,15 +1,7 @@
-import * as runtime from "react/jsx-runtime";
 import { useEffect, useRef, useState, type ComponentType } from "react";
-import { evaluate } from "@mdx-js/mdx";
-import remarkGfm from "remark-gfm";
-import remarkFrontmatter from "remark-frontmatter";
-import remarkMdxFrontmatter from "remark-mdx-frontmatter";
-import rehypeSlug from "rehype-slug";
-import { rehypeCode, rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins/rehype-code";
-import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
+import { compileMdxSource } from "superlore/runtime";
 import { DocsBody } from "fumadocs-ui/page";
 import { getMDXComponents, PageHero } from "superlore";
-import { remarkSuperloreCanvas } from "./lib/remark-superlore-canvas.mjs";
 import { rehypeKpBlockIds } from "./lib/rehype-kp-block-ids.mjs";
 import { getVsCodeApi } from "./vscode-api";
 import { CommentLayer, CommentRail } from "./comments/comment-layer";
@@ -31,33 +23,17 @@ interface Compiled {
 }
 
 /**
- * Code highlighting must match the docs site exactly. The docs render fenced code through Fumadocs'
- * `<CodeBlock>` (mapped via `getMDXComponents`), which expects **Shiki** HAST (`<span class="line">`
- * per line). Feeding it highlight.js output instead broke layout (every token on its own line), so
- * we run Fumadocs' own `rehypeCode` here too — the same plugin, themes, and structure as the build.
- * The no-WASM JavaScript regex engine keeps it inside the webview CSP (no `wasm-unsafe-eval`); Shiki's
- * default lazy loading then pulls each grammar on demand the first time a code block uses it, so every
- * bundled language highlights without a big eager grammar load at startup.
- */
-const shikiEngine = createJavaScriptRegexEngine({ forgiving: true });
-const codeOptions = { ...rehypeCodeDefaultOptions, engine: shikiEngine };
-
-/**
- * The SAME MDX pipeline the superlore Viewer uses (apps/docs/.../viewer-client.tsx `compileMdx`):
- * `evaluate` with remarkFrontmatter + remarkMdxFrontmatter + remarkGfm + remarkSuperloreCanvas, then
- * rehypeSlug + rehypeCode (Shiki) + rehypeKpBlockIds. Runtime `evaluate` is why the webview CSP needs
- * 'unsafe-eval'. remark-mdx-frontmatter exposes the parsed frontmatter as the module's `frontmatter` export.
+ * Compile through superlore's runtime renderer — the SAME pipeline a published page uses (frontmatter
+ * + GFM + the superlore-canvas fence + Shiki code, fed to Fumadocs' `<CodeBlock>` via getMDXComponents).
+ * We append the webview-only block-id rehype plugin so comment pins anchor to blocks. superlore owns
+ * the pipeline, so the preview can never drift from the docs build. (The runtime `evaluate` inside is
+ * why the webview CSP needs 'unsafe-eval'.)
  */
 async function compileMdx(source: string): Promise<Compiled> {
-  const mod = await evaluate(source, {
-    ...runtime,
-    remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm, remarkSuperloreCanvas],
-    rehypePlugins: [rehypeSlug, [rehypeCode, codeOptions], rehypeKpBlockIds],
+  const { Content, frontmatter } = await compileMdxSource(source, {
+    rehypePlugins: [rehypeKpBlockIds],
   });
-  return {
-    Content: mod.default as MdxComponent,
-    frontmatter: ((mod as { frontmatter?: Frontmatter }).frontmatter ?? {}) as Frontmatter,
-  };
+  return { Content: Content as MdxComponent, frontmatter: frontmatter as Frontmatter };
 }
 
 function baseName(p: string): string {
