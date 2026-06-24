@@ -3,6 +3,9 @@ import "./global.css";
 import { Inter, JetBrains_Mono, Caveat } from "next/font/google";
 import type { Metadata } from "next";
 import { ThemeStyle } from "@/lib/theme-style";
+// superlore.json is the KB config the CLI scaffolds; `theme` selects the visual skin. The package
+// ships each skin's CSS scoped to `[data-sl-theme="…"]`, so flipping this flag is all it takes.
+import siteConfig from "@/superlore.json";
 
 const inter = Inter({ subsets: ["latin"] });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
@@ -44,15 +47,14 @@ export default function Layout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${inter.className} ${mono.variable} ${hand.variable}`}
+      data-sl-theme={siteConfig.theme === "mint" ? "mint" : undefined}
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col">
         {/* Optional brand accent from superlore.config — derives the family for light + dark. */}
         <ThemeStyle />
         {/* superlore's own docs default to dark; the toggle still offers light + system. */}
-        <RootProvider theme={{ defaultTheme: "dark", enableSystem: true }}>
-          {children}
-        </RootProvider>
+        <RootProvider theme={{ defaultTheme: "dark", enableSystem: true }}>{children}</RootProvider>
       </body>
     </html>
   );
