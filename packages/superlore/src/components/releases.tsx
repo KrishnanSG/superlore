@@ -57,16 +57,19 @@ const changeMeta: Record<ReleaseChangeType, { label: string; cls: string }> = {
   security: { label: "Security", cls: "bg-red-500/14 text-red-700 dark:text-red-400" },
 };
 
-const statusCls: Record<Status, string> = {
-  planned: "border-fd-border bg-fd-muted text-fd-muted-foreground",
-  "in-progress": "border-kp-accent-border bg-kp-accent-weak text-kp-accent-text",
-  blocked: "border-kp-danger/40 bg-kp-danger/10 text-kp-danger",
-  done: "border-kp-success/40 bg-kp-success/10 text-kp-success",
-  deprecated: "border-fd-border bg-fd-muted text-fd-muted-foreground",
-  proposed: "border-kp-accent-border bg-kp-accent-weak text-kp-accent-text",
-  accepted: "border-kp-success/40 bg-kp-success/10 text-kp-success",
-  rejected: "border-kp-danger/40 bg-kp-danger/10 text-kp-danger",
-  superseded: "border-fd-border bg-fd-muted text-fd-muted-foreground",
+// Status reads as a quiet dot + label in the rail — NOT a filled pill. A single calm marker that
+// neither competes with the change badges nor adds another pill shape. Dot hues are chosen to be
+// distinct from the tag swatches so "shipped" green never reads as a tag.
+const statusMark: Record<Status, { label: string; dot: string }> = {
+  planned: { label: "Planned", dot: "bg-fd-muted-foreground/45" },
+  "in-progress": { label: "In progress", dot: "bg-kp-accent" },
+  blocked: { label: "Blocked", dot: "bg-kp-danger" },
+  done: { label: "Shipped", dot: "bg-kp-success" },
+  deprecated: { label: "Deprecated", dot: "bg-fd-muted-foreground/45" },
+  proposed: { label: "Proposed", dot: "bg-kp-accent" },
+  accepted: { label: "Accepted", dot: "bg-kp-success" },
+  rejected: { label: "Rejected", dot: "bg-kp-danger" },
+  superseded: { label: "Superseded", dot: "bg-fd-muted-foreground/45" },
 };
 
 /** Render a full ISO day nicely (e.g. 2026-06-15 → "June 15, 2026"); pass coarser dates through. */
@@ -112,9 +115,10 @@ function anchorId(version: string): string {
 }
 
 /**
- * One changelog entry: a sticky left rail (big version + date + status + tag pills) beside a right
- * column with the headline, an optional rich body, and the typed changes. Stamps data-attributes
- * (`data-version`, `data-date`, `data-tags`) so the surrounding `Releases` can build its timeline.
+ * One changelog entry: a sticky left rail (version anchor + quiet date / status / tag metadata —
+ * no pills) beside a right column with the headline, an optional rich body, and the typed changes.
+ * Stamps data-attributes (`data-version`, `data-date`, `data-tags`) so the surrounding `Releases`
+ * can build its timeline.
  */
 export function Release({
   version,
@@ -135,43 +139,27 @@ export function Release({
       data-date={date}
       data-status={status ?? ""}
       data-tags={(tags ?? []).join("|")}
-      className="not-prose relative grid scroll-mt-24 gap-6 border-t border-fd-border py-10 first:border-t-0 first:pt-0 lg:grid-cols-[200px_1fr]"
+      className="not-prose relative grid scroll-mt-24 gap-6 border-t border-fd-border py-10 first:border-t-0 first:pt-0 lg:grid-cols-[168px_1fr]"
     >
-      <aside className="flex flex-col gap-3 lg:sticky lg:top-24 lg:self-start">
-        <div className="font-mono text-3xl font-bold tracking-tight text-fd-foreground">
-          {version}
-        </div>
+      <aside className="flex flex-col gap-1.5 lg:sticky lg:top-24 lg:self-start">
         <a
           href={`#${anchor}`}
-          className="inline-flex w-fit items-center gap-2 rounded-full border border-fd-border bg-fd-muted px-3 py-1 text-xs font-medium text-fd-muted-foreground no-underline"
+          className="w-fit font-mono text-2xl font-bold tracking-tight text-fd-foreground no-underline transition-colors hover:text-kp-accent-text"
         >
-          <span className="inline-block size-1.5 rounded-full bg-kp-accent" />
-          {displayDate(date)}
+          {version}
         </a>
+        <time dateTime={date} className="text-[13px] text-fd-muted-foreground">
+          {displayDate(date)}
+        </time>
         {status && (
-          <span
-            className={cn(
-              "inline-flex w-fit rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize",
-              statusCls[status],
-            )}
-          >
-            {status}
-          </span>
+          <div className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-fd-muted-foreground">
+            <span className={cn("inline-block size-2 rounded-full", statusMark[status].dot)} />
+            {statusMark[status].label}
+          </div>
         )}
         {tags && tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {tags.map((t) => (
-              <span
-                key={t}
-                className="inline-flex items-center gap-1.5 rounded-full border border-fd-border px-2.5 py-1 text-[11.5px] font-medium text-fd-muted-foreground"
-              >
-                <span
-                  className="inline-block size-1.5 rounded-full"
-                  style={{ background: tagColor(t) }}
-                />
-                {t}
-              </span>
-            ))}
+          <div className="mt-0.5 text-[12.5px] text-fd-muted-foreground/75">
+            {tags.join("  ·  ")}
           </div>
         )}
       </aside>
@@ -190,7 +178,7 @@ export function Release({
               <li key={i} className="flex items-start gap-3 text-[15px] text-fd-foreground/90">
                 <span
                   className={cn(
-                    "mt-px inline-flex w-[74px] shrink-0 justify-center rounded-md px-2 py-1 text-[10.5px] font-semibold tracking-wide uppercase",
+                    "mt-0.5 inline-flex w-[72px] shrink-0 justify-center rounded-md px-2 py-1 text-[10px] font-semibold tracking-wide uppercase",
                     changeMeta[c.type].cls,
                   )}
                 >
@@ -202,7 +190,7 @@ export function Release({
                     <a
                       key={ri}
                       href={r.target}
-                      className="ml-1.5 inline-flex items-center rounded-full border border-kp-accent-border bg-kp-accent-weak px-2 py-0.5 text-[11px] text-kp-accent-text no-underline"
+                      className="ml-1.5 font-medium text-kp-accent-text underline decoration-kp-accent/35 underline-offset-2 transition hover:decoration-kp-accent"
                     >
                       {r.label ?? r.target}
                     </a>
