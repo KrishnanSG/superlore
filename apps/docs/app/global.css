@@ -461,16 +461,93 @@ html:not(.dark) .kp-hero-aurora::before {
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   mint skin (branch demo) — elevate the docs toward Mintlify-grade, on the real
-   site, CSS-only. Preview of what the packaged `theme: "mint"` would ship.
+   mint theme (branch preview) — the full Mintlify-grade look on the real docs:
+   chrome (navbar + sidebar), airy type, and component skins. Targets the live
+   fumadocs selectors (#nd-subnav, #nd-sidebar, #nd-page). Preview of what the
+   packaged `superlore.json → theme: "mint"` ships.
    ════════════════════════════════════════════════════════════════════════════ */
 
-/* 1 · Flat, airy hero — a big plain title instead of the tinted gradient card. */
+/* ── tokens: a touch more radius + the mint accent everywhere ──────────────── */
+:root {
+  --mint-radius: 12px;
+}
+
+/* ── 1 · Top navbar (#nd-subnav): airier, cleaner, with refined tabs ───────── */
+#nd-subnav {
+  background: color-mix(in oklab, var(--color-fd-background) 82%, transparent) !important;
+  backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--color-fd-border);
+}
+/* the search/brand row — give it more height + breathing room */
+#nd-subnav > div:first-child {
+  height: 3.75rem;
+  padding-inline: 1.25rem;
+}
+/* search pill — rounder, hairline, soft */
+#nd-subnav input,
+#nd-subnav button[aria-label*="Search" i] {
+  border-radius: 10px;
+}
+/* the tabs row (Guide / Canvas / …) — taller, roomier */
+#nd-subnav .border-b.px-6 {
+  height: 3rem;
+  padding-inline: 1.25rem;
+  gap: 1.5rem;
+  border-color: var(--color-fd-border);
+}
+/* tab links — quiet by default, accent + underline when active */
+#nd-subnav a[class*="border-b-2"] {
+  font-size: 0.875rem;
+  color: var(--color-fd-muted-foreground);
+  border-bottom-width: 2px;
+  padding-bottom: 0.5rem;
+  transition:
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+#nd-subnav a[class*="border-b-2"]:hover {
+  color: var(--color-fd-foreground);
+}
+#nd-subnav a[class*="border-b-2"][data-active="true"],
+#nd-subnav a[class*="border-b-2"].text-fd-primary {
+  color: var(--kp-accent-text);
+  border-bottom-color: var(--kp-accent);
+}
+
+/* ── 2 · Sidebar (#nd-sidebar): grouped, roomy, accent-active ──────────────── */
+#nd-sidebar {
+  padding-inline: 0.5rem;
+}
+#nd-sidebar a[data-active] {
+  border-radius: 10px;
+  padding-block: 0.45rem;
+  margin-inline-start: 0.25rem;
+  font-size: 0.875rem;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+#nd-sidebar a[data-active="false"]:hover {
+  background: var(--color-fd-muted);
+  color: var(--color-fd-foreground);
+}
+#nd-sidebar a[data-active="true"] {
+  color: var(--kp-accent-text);
+  font-weight: 550;
+}
+html:not(.dark) #nd-sidebar a[data-active="true"] {
+  background: var(--kp-accent-weak);
+}
+#nd-sidebar svg {
+  opacity: 0.8;
+}
+
+/* ── 3 · Flat, airy hero — a big plain title instead of the tinted card ───── */
 .kp-page-hero {
   border: 0 !important;
   background: none !important;
   padding: 0 !important;
-  margin: 0 0 2.4rem !important;
+  margin: 0 0 2.6rem !important;
   overflow: visible !important;
 }
 .kp-page-hero::before {
@@ -497,7 +574,7 @@ html:not(.dark) .kp-hero-aurora::before {
   max-width: 64ch;
 }
 
-/* 2 · Airier reading type + rhythm. */
+/* ── 4 · Airier reading type + rhythm ──────────────────────────────────────── */
 #nd-page .prose {
   font-size: 16px;
   line-height: 1.72;
@@ -514,4 +591,24 @@ html:not(.dark) .kp-hero-aurora::before {
   font-weight: 620;
   letter-spacing: -0.015em;
 }
-/* (Releases styling now lives in the redesigned component itself — rail, tags, jump-strip, filter.) */
+
+/* ── 5 · Component skins — cards lift, callouts get a clean left bar ────────── */
+/* fumadocs Card / CardGroup render as bordered <a>/<div>; add a subtle hover lift */
+#nd-page a[class*="rounded-lg"][class*="border"],
+#nd-page div[class*="rounded-lg"][class*="border"]:has(> svg) {
+  border-radius: var(--mint-radius);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+#nd-page a[class*="rounded-lg"][class*="border"]:hover {
+  transform: translateY(-2px);
+  border-color: var(--kp-accent-border);
+  box-shadow: 0 10px 30px -14px color-mix(in oklab, var(--kp-accent) 30%, transparent);
+}
+/* callouts — clean accent left bar + tint (already close; refine radius + bar) */
+#nd-page [class*="callout" i] {
+  border-radius: var(--mint-radius);
+}
+/* (Releases styling — timeline, rail, tags, badges — lives in the component.) */

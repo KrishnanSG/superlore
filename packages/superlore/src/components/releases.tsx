@@ -360,7 +360,7 @@ export function Releases({ children, label = "Changelog" }: ReleasesProps) {
                   onMouseEnter={() => setHover(it.id)}
                   onMouseLeave={() => setHover(null)}
                   onClick={() => jump(it.id)}
-                  className="group absolute top-0 bottom-7 z-10 -translate-x-1/2 cursor-pointer"
+                  className="group absolute top-0 bottom-7 z-10 flex -translate-x-1/2 cursor-pointer flex-col items-center"
                   style={{ left: `${xOf(it.t)}%` }}
                   aria-label={`Jump to ${it.v}`}
                 >
@@ -389,22 +389,19 @@ export function Releases({ children, label = "Changelog" }: ReleasesProps) {
                       {it.dateLabel}
                     </span>
                   </span>
-                  {/* connector */}
+                  {/* connector — fills the gap from card bottom to the axis dot (no overlap) */}
                   <span
                     className={cn(
-                      "absolute bottom-7 left-1/2 w-px -translate-x-1/2 transition-colors",
+                      "my-1 flex-1 transition-colors",
                       it.up
-                        ? "border-l border-dashed border-kp-accent-border"
-                        : on
-                          ? "bg-kp-accent"
-                          : "bg-fd-border",
+                        ? "w-0 border-l border-dashed border-kp-accent-border"
+                        : cn("w-px", on ? "bg-kp-accent" : "bg-fd-border"),
                     )}
-                    style={{ top: 44 }}
                   />
                   {/* axis dot — filled when shipped, hollow ring when upcoming */}
                   <span
                     className={cn(
-                      "absolute bottom-7 left-1/2 size-2.5 -translate-x-1/2 translate-y-1/2 rounded-full ring-2 ring-fd-card transition-colors",
+                      "size-2.5 translate-y-1/2 rounded-full ring-2 ring-fd-card transition-colors",
                       it.up
                         ? "bg-fd-card ring-kp-accent"
                         : on
