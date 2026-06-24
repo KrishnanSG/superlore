@@ -15,13 +15,14 @@ import {
 /**
  * Release / Changelog — a versioned release with a date, status, tags, an optional rich body, and a
  * list of changes each typed by kind (added / changed / fixed / removed / deprecated / security).
- * The human reads a Mintlify-grade changelog entry (sticky version/date/tag rail beside a rich body);
- * the agent gets `{ kind:"release", version, date, changes:[{ type, text }] }` so it can answer
- * "what changed in 2.0?" without parsing prose. The rich `children` body is human-only enrichment —
- * the typed `changes` remain the queryable knowledge face.
+ * The human reads a Mintlify-grade changelog (a release-timeline jump-strip + sticky version/date/tag
+ * rail beside a rich body); the agent gets `{ kind:"release", version, date, changes }` so it can
+ * answer "what changed in 2.0?" without parsing prose. The rich `children` body is human-only — the
+ * typed `changes` remain the queryable knowledge face.
  *
- * `Releases` / `Changelog` is the surrounding stack — it adds a version jump-strip and a tag filter
- * (driven from each Release's stamped data-attributes), then renders its `Release` children.
+ * `Releases` / `Changelog` is the surrounding stack — it renders a **release timeline** (versions
+ * plotted on a date axis, hover + click-to-jump) and a tag filter, both driven from each Release's
+ * stamped data-attributes, then renders its `Release` children.
  */
 
 type ReleaseRef = { rel?: string; target: string; label?: string };
@@ -45,19 +46,15 @@ export interface ReleaseProps {
   changes?: ReleaseChangeInput[];
 }
 
+// Each change kind gets its OWN calm hue (Changed ≠ Fixed) — flat tint + matching text, no chunky
+// border. Light/dark via the `dark:` variant. Reads as a quiet label, not a loud pill.
 const changeMeta: Record<ReleaseChangeType, { label: string; cls: string }> = {
-  added: { label: "Added", cls: "border-kp-success/40 bg-kp-success/10 text-kp-success" },
-  changed: {
-    label: "Changed",
-    cls: "border-kp-accent-border bg-kp-accent-weak text-kp-accent-text",
-  },
-  fixed: { label: "Fixed", cls: "border-kp-accent-border bg-kp-accent-weak text-kp-accent-text" },
-  removed: { label: "Removed", cls: "border-kp-danger/40 bg-kp-danger/10 text-kp-danger" },
-  deprecated: {
-    label: "Deprecated",
-    cls: "border-kp-warning/40 bg-kp-warning/10 text-kp-warning",
-  },
-  security: { label: "Security", cls: "border-kp-danger/40 bg-kp-danger/10 text-kp-danger" },
+  added: { label: "Added", cls: "bg-emerald-500/12 text-emerald-700 dark:text-emerald-400" },
+  changed: { label: "Changed", cls: "bg-blue-500/12 text-blue-700 dark:text-blue-400" },
+  fixed: { label: "Fixed", cls: "bg-violet-500/12 text-violet-700 dark:text-violet-400" },
+  removed: { label: "Removed", cls: "bg-rose-500/12 text-rose-700 dark:text-rose-400" },
+  deprecated: { label: "Deprecated", cls: "bg-amber-500/14 text-amber-700 dark:text-amber-400" },
+  security: { label: "Security", cls: "bg-red-500/14 text-red-700 dark:text-red-400" },
 };
 
 const statusCls: Record<Status, string> = {
@@ -81,6 +78,32 @@ function displayDate(date: string): string {
   return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 }
 
+/** A short axis label for a date — "Jun 18" for a day, "May" for a month, "2026" for a year. */
+function shortDate(date: string): string {
+  const day = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (day) {
+    const d = new Date(Number(day[1]), Number(day[2]) - 1, Number(day[3]));
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  }
+  const mon = /^(\d{4})-(\d{2})$/.exec(date);
+  if (mon) {
+    const d = new Date(Number(mon[1]), Number(mon[2]) - 1, 1);
+    return d.toLocaleDateString("en-US", { month: "short" });
+  }
+  return date;
+}
+
+/** Parse a coarse-or-precise date to a timestamp (month/year start when coarse); 0 if unparseable. */
+function parseTime(date: string): number {
+  const day = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (day) return new Date(Number(day[1]), Number(day[2]) - 1, Number(day[3])).getTime();
+  const mon = /^(\d{4})-(\d{2})$/.exec(date);
+  if (mon) return new Date(Number(mon[1]), Number(mon[2]) - 1, 1).getTime();
+  const yr = /^(\d{4})$/.exec(date);
+  if (yr) return new Date(Number(yr[1]), 0, 1).getTime();
+  return 0;
+}
+
 function anchorId(version: string): string {
   return version
     .toLowerCase()
@@ -90,8 +113,8 @@ function anchorId(version: string): string {
 
 /**
  * One changelog entry: a sticky left rail (big version + date + status + tag pills) beside a right
- * column with the headline, an optional rich body, and the typed changes. Stamps `data-sl-release`,
- * `data-version`, and `data-tags` so the surrounding `Releases` can build its jump-strip + filter.
+ * column with the headline, an optional rich body, and the typed changes. Stamps data-attributes
+ * (`data-version`, `data-date`, `data-tags`) so the surrounding `Releases` can build its timeline.
  */
 export function Release({
   version,
@@ -109,6 +132,8 @@ export function Release({
       id={anchor}
       data-sl-release=""
       data-version={version}
+      data-date={date}
+      data-status={status ?? ""}
       data-tags={(tags ?? []).join("|")}
       className="not-prose relative grid scroll-mt-24 gap-6 border-t border-fd-border py-10 first:border-t-0 first:pt-0 lg:grid-cols-[200px_1fr]"
     >
@@ -160,18 +185,18 @@ export function Release({
         {summary && <div className="mb-4 text-[15px] text-fd-muted-foreground">{summary}</div>}
         {children && <div className="mb-4 text-[15px] [&>*:first-child]:mt-0">{children}</div>}
         {changes && changes.length > 0 && (
-          <ul className="space-y-2">
+          <ul className="space-y-2.5">
             {changes.map((c, i) => (
-              <li key={i} className="flex items-start gap-2.5 text-[15px] text-fd-foreground/90">
+              <li key={i} className="flex items-start gap-3 text-[15px] text-fd-foreground/90">
                 <span
                   className={cn(
-                    "mt-0.5 inline-flex shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase",
+                    "mt-px inline-flex w-[74px] shrink-0 justify-center rounded-md px-2 py-1 text-[10.5px] font-semibold tracking-wide uppercase",
                     changeMeta[c.type].cls,
                   )}
                 >
                   {changeMeta[c.type].label}
                 </span>
-                <span className="min-w-0 flex-1">
+                <span className="min-w-0 flex-1 pt-0.5">
                   {c.text}
                   {c.refs?.map((r, ri) => (
                     <a
@@ -200,6 +225,20 @@ function tagColor(tag: string): string {
   return hues[h % hues.length]!;
 }
 
+interface TimelineItem {
+  v: string;
+  id: string;
+  t: number;
+  dateLabel: string;
+  /** Upcoming = not yet shipped (status planned / in-progress); plotted past the Now marker. */
+  up: boolean;
+}
+
+/** Has this release shipped yet? Planned + in-progress are "upcoming" (roadmap); the rest are shipped. */
+function isUpcoming(status?: string): boolean {
+  return status === "planned" || status === "in-progress";
+}
+
 export interface ReleasesProps {
   children?: React.ReactNode;
   /** Accessible name for the changelog. */
@@ -207,21 +246,33 @@ export interface ReleasesProps {
 }
 
 /**
- * A vertical changelog with a Mintlify-grade header: a version jump-strip and a tag filter, built
- * from the `data-version` / `data-tags` each child `Release` stamps. The filter toggles entries
- * client-side; the jump-strip scrolls to a release. Falls back to a plain stack if JS is off.
+ * A vertical changelog led by a **release timeline** — each version plotted on a date axis with a
+ * connector to a tick, hover-to-highlight and click-to-jump — plus a tag filter. Both are built from
+ * the `data-version` / `data-date` / `data-tags` each child `Release` stamps. Falls back to a plain
+ * stack if JS is off.
  */
 export function Releases({ children, label = "Changelog" }: ReleasesProps) {
   const ref = React.useRef<HTMLElement>(null);
-  const [versions, setVersions] = React.useState<{ v: string; id: string }[]>([]);
+  const [items, setItems] = React.useState<TimelineItem[]>([]);
   const [tags, setTags] = React.useState<string[]>([]);
   const [active, setActive] = React.useState<string>("All");
+  const [hover, setHover] = React.useState<string | null>(null);
+  // Client-only (avoids an SSR/hydration time mismatch) — anchors the "Now" marker on the axis.
+  const [now, setNow] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     const root = ref.current;
     if (!root) return;
     const rels = Array.from(root.querySelectorAll<HTMLElement>("[data-sl-release]"));
-    setVersions(rels.map((r) => ({ v: r.dataset.version ?? "", id: r.id })));
+    setItems(
+      rels.map((r) => ({
+        v: r.dataset.version ?? "",
+        id: r.id,
+        t: parseTime(r.dataset.date ?? ""),
+        dateLabel: shortDate(r.dataset.date ?? ""),
+        up: isUpcoming(r.dataset.status),
+      })),
+    );
     const all = new Set<string>();
     rels.forEach((r) =>
       (r.dataset.tags ?? "")
@@ -230,6 +281,7 @@ export function Releases({ children, label = "Changelog" }: ReleasesProps) {
         .forEach((t) => all.add(t)),
     );
     setTags([...all]);
+    setNow(Date.now());
   }, []);
 
   React.useEffect(() => {
@@ -241,53 +293,182 @@ export function Releases({ children, label = "Changelog" }: ReleasesProps) {
     }
   }, [active]);
 
+  const jump = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  // Timeline geometry — position each dated release along a min→max axis (incl. "now", clamped off
+  // the edges) so shipped releases sit left of the Now marker and upcoming ones to its right.
+  const dated = items.filter((i) => i.t > 0);
+  const ts = dated.map((i) => i.t);
+  const lo = ts.length ? Math.min(...ts) : 0;
+  const hi = ts.length ? Math.max(...ts) : 1;
+  const min = now != null ? Math.min(lo, now) : lo;
+  const max = now != null ? Math.max(hi, now) : hi;
+  const span = Math.max(max - min, 1);
+  const xOf = (t: number) => 5 + ((t - min) / span) * 90;
+  const months = monthTicks(min, max).map((m) => ({ ...m, x: xOf(m.t) }));
+  const upcomingCount = dated.filter((i) => i.up).length;
+  const rangeLabel =
+    dated.length >= 2
+      ? `${dated.length} releases · ${monthYear(lo)} – ${monthYear(hi)}${upcomingCount ? ` · ${upcomingCount} upcoming` : ""}`
+      : `${items.length} release${items.length === 1 ? "" : "s"}`;
+
   return (
     <section ref={ref} aria-label={label} className="not-prose my-6">
-      {(versions.length > 0 || tags.length > 0) && (
-        <div className="mb-8 flex flex-col gap-4">
-          {versions.length > 1 && (
-            <div className="flex flex-wrap gap-2">
-              {versions.map(({ v, id }) => (
-                <a
-                  key={id}
-                  href={`#${id}`}
-                  className="rounded-lg border border-fd-border px-2.5 py-1.5 font-mono text-[13px] font-medium text-fd-muted-foreground no-underline transition hover:border-kp-accent-border hover:bg-kp-accent-weak hover:text-kp-accent-text"
-                >
-                  {v}
-                </a>
-              ))}
-            </div>
-          )}
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {["All", ...tags].map((t) => (
+      {dated.length >= 2 && (
+        <div className="mb-7 rounded-2xl border border-fd-border bg-fd-card p-5 shadow-sm">
+          <div className="mb-1 flex items-center justify-between">
+            <span className="font-mono text-[11px] font-semibold tracking-widest text-kp-accent-text uppercase">
+              Release timeline
+            </span>
+            <span className="hidden text-[10px] tracking-widest text-fd-muted-foreground uppercase sm:inline">
+              Hover · click to jump
+            </span>
+          </div>
+          <div className="mb-5 text-[13px] text-fd-muted-foreground">{rangeLabel}</div>
+          <div className="relative h-[120px]">
+            {/* axis */}
+            <div className="absolute right-0 bottom-7 left-0 h-px bg-fd-border" />
+            {months.map((m) => (
+              <div
+                key={m.label}
+                className="absolute bottom-2 -translate-x-1/2 text-[10px] font-medium tracking-wider text-fd-muted-foreground/70 uppercase"
+                style={{ left: `${m.x}%` }}
+              >
+                {m.label}
+              </div>
+            ))}
+            {/* "Now" marker — shipped sits to its left, upcoming to its right. */}
+            {now != null && now > min && now < max && (
+              <div
+                className="pointer-events-none absolute top-1 bottom-7 z-0 -translate-x-1/2"
+                style={{ left: `${xOf(now)}%` }}
+              >
+                <span className="text-kp-accent-ink absolute -top-1 left-1/2 -translate-x-1/2 rounded bg-kp-accent px-1.5 py-0.5 text-[9px] font-bold tracking-wider uppercase">
+                  Now
+                </span>
+                <div className="mt-4 h-full w-px border-l border-dashed border-kp-accent/45" />
+              </div>
+            )}
+            {dated.map((it) => {
+              const on = hover === it.id;
+              return (
                 <button
-                  key={t}
+                  key={it.id}
                   type="button"
-                  onClick={() => setActive(t)}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition",
-                    active === t
-                      ? "border-kp-accent-border bg-kp-accent-weak text-kp-accent-text"
-                      : "border-fd-border text-fd-muted-foreground hover:text-fd-foreground",
-                  )}
+                  onMouseEnter={() => setHover(it.id)}
+                  onMouseLeave={() => setHover(null)}
+                  onClick={() => jump(it.id)}
+                  className="group absolute top-0 bottom-7 z-10 -translate-x-1/2 cursor-pointer"
+                  style={{ left: `${xOf(it.t)}%` }}
+                  aria-label={`Jump to ${it.v}`}
                 >
-                  {t !== "All" && (
+                  {/* version card — solid dark when shipped, dashed accent outline when upcoming */}
+                  <span
+                    className={cn(
+                      "block rounded-lg px-2.5 py-1.5 text-center font-mono leading-tight whitespace-nowrap transition",
+                      it.up
+                        ? cn(
+                            "border border-dashed border-kp-accent-border bg-kp-accent-weak text-kp-accent-text",
+                            on && "-translate-y-0.5 border-kp-accent",
+                          )
+                        : cn(
+                            "bg-[#1a1b26] text-white shadow-sm ring-1",
+                            on ? "-translate-y-0.5 ring-kp-accent" : "ring-black/10",
+                          ),
+                    )}
+                  >
+                    <span className="block text-[13px] font-bold">{it.v}</span>
                     <span
-                      className="inline-block size-2 rounded-full"
-                      style={{ background: tagColor(t) }}
-                    />
-                  )}
-                  {t}
+                      className={cn(
+                        "block text-[10px]",
+                        it.up ? "text-kp-accent-text/70" : "text-white/55",
+                      )}
+                    >
+                      {it.dateLabel}
+                    </span>
+                  </span>
+                  {/* connector */}
+                  <span
+                    className={cn(
+                      "absolute bottom-7 left-1/2 w-px -translate-x-1/2 transition-colors",
+                      it.up
+                        ? "border-l border-dashed border-kp-accent-border"
+                        : on
+                          ? "bg-kp-accent"
+                          : "bg-fd-border",
+                    )}
+                    style={{ top: 44 }}
+                  />
+                  {/* axis dot — filled when shipped, hollow ring when upcoming */}
+                  <span
+                    className={cn(
+                      "absolute bottom-7 left-1/2 size-2.5 -translate-x-1/2 translate-y-1/2 rounded-full ring-2 ring-fd-card transition-colors",
+                      it.up
+                        ? "bg-fd-card ring-kp-accent"
+                        : on
+                          ? "bg-kp-accent"
+                          : "bg-fd-muted-foreground/60",
+                    )}
+                  />
                 </button>
-              ))}
-            </div>
-          )}
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {tags.length > 0 && (
+        <div className="mb-8 flex flex-wrap gap-2">
+          {["All", ...tags].map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setActive(t)}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition",
+                active === t
+                  ? "border-kp-accent-border bg-kp-accent-weak text-kp-accent-text"
+                  : "border-fd-border text-fd-muted-foreground hover:text-fd-foreground",
+              )}
+            >
+              {t !== "All" && (
+                <span
+                  className="inline-block size-2 rounded-full"
+                  style={{ background: tagColor(t) }}
+                />
+              )}
+              {t}
+            </button>
+          ))}
         </div>
       )}
       {children}
     </section>
   );
+}
+
+/** "Jun 2026" for a timestamp. */
+function monthYear(t: number): string {
+  return new Date(t).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
+/** Month-boundary ticks (uppercase "MAR 2026") spanning a range, capped so the axis stays uncluttered. */
+function monthTicks(min: number, max: number): { label: string; t: number }[] {
+  if (!min || max <= min) return [];
+  const out: { label: string; t: number }[] = [];
+  const d = new Date(min);
+  d.setDate(1);
+  if (d.getTime() < min) d.setMonth(d.getMonth() + 1);
+  while (d.getTime() <= max && out.length < 8) {
+    out.push({
+      label: d.toLocaleDateString("en-US", { month: "short", year: "numeric" }).toUpperCase(),
+      t: d.getTime(),
+    });
+    d.setMonth(d.getMonth() + 1);
+  }
+  return out;
 }
 
 /** Alias for authors who prefer `<Changelog>`. */

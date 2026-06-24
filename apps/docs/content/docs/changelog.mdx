@@ -1,12 +1,37 @@
 ---
 title: Changelog
 icon: Tag
-description: What's new in superlore — every release, with typed changes an agent can query.
-summary: A product changelog rendered with Releases — each entry a sticky version/date/tag rail beside a rich body and typed added/changed/fixed changes, serialized to a release knowledge node for the MCP.
-tags: [changelog, releases]
+description: What's new in superlore — every release, with typed changes an agent can query, and what's coming next.
+summary: A product changelog rendered with Releases — a release timeline (shipped left of Now, upcoming to the right), a tag filter, and each entry a sticky version/date/tag rail beside a rich body and typed changes, serialized to a release knowledge node for the MCP.
+tags: [changelog, releases, roadmap]
 ---
 
 <Releases label="superlore changelog">
+  <Release
+    version="0.12"
+    date="2026-07-15"
+    status="in-progress"
+    title="The mint theme"
+    tags={["Theme", "Design"]}
+    summary="A Mintlify-grade look for any superlore KB — opt in with theme: mint. Shipping soon."
+  >
+    <CardGroup cols={2}>
+      <Card icon="panels-top-left" title="Top navbar + chrome">
+        Logo, page tabs, links, and a primary CTA — airy type and a grouped sidebar.
+      </Card>
+      <Card icon="git-branch" title="Release timeline">
+        This timeline, the tag filter, and rich release bodies — backed by typed, queryable data.
+      </Card>
+    </CardGroup>
+    <Checklist
+      items={[
+        { text: "mint token set (type scale, spacing, radii)", done: true },
+        { text: "Release timeline + tag filter + rich bodies", done: true },
+        { text: "Configurable navbar / banner / footer", done: false },
+        { text: "theme: mint flag in superlore.json", done: false },
+      ]}
+    />
+  </Release>
   <Release
     version="0.11"
     date="2026-06-23"
@@ -45,7 +70,8 @@ tags: [changelog, releases]
   </Release>
   <Release
     version="0.10"
-    date="2026-06-22"
+    date="2026-05-22"
+    status="done"
     title="Host-native rendering"
     tags={["Runtime"]}
     summary="The runtime renderer and theme API a companion app needs to render superlore docs in its own brand."
@@ -67,7 +93,8 @@ tags: [changelog, releases]
   />
   <Release
     version="0.9"
-    date="2026-06-21"
+    date="2026-04-21"
+    status="done"
     title="Markdown-first authoring"
     tags={["Authoring", "Canvas"]}
     changes={[
