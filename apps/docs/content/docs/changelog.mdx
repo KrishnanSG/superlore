@@ -1,0 +1,92 @@
+---
+title: Changelog
+icon: Tag
+description: What's new in superlore — every release, with typed changes an agent can query.
+summary: A product changelog rendered with Releases — each entry a sticky version/date/tag rail beside a rich body and typed added/changed/fixed changes, serialized to a release knowledge node for the MCP.
+tags: [changelog, releases]
+---
+
+<Releases label="superlore changelog">
+  <Release
+    version="0.11"
+    date="2026-06-23"
+    status="done"
+    title="Embeddable runtime + Powered-by badge"
+    tags={["Runtime", "Branding"]}
+    summary="Drop a superlore doc into any host app — now with zero global CSS leakage and a floating brand badge."
+    changes={[
+      {
+        type: "added",
+        text: "superlore/runtime.css is fully scoped to a .superlore-doc container — import it app-wide with a 0-pixel host diff.",
+      },
+      {
+        type: "added",
+        text: "SuperloreDoc stamps a floating 'Powered by superlore' badge (opt-out with badge={false}).",
+      },
+      {
+        type: "changed",
+        text: "Dark mode is container-local via data-theme on the doc — two docs can render different themes on one page.",
+      },
+      {
+        type: "fixed",
+        text: "Code blocks keep their tokyo-night surface even when a host webview drops Shiki's CSS variables.",
+      },
+    ]}
+  >
+    <CardGroup cols={2}>
+      <Card icon="shield" title="Zero leakage">
+        Every rule is scoped to the doc container — import it app-wide and the host's own pages
+        don't move a pixel.
+      </Card>
+      <Card icon="badge-check" title="Powered by superlore">
+        A small floating badge on every embedded doc — branding by default, one prop to remove.
+      </Card>
+    </CardGroup>
+  </Release>
+  <Release
+    version="0.10"
+    date="2026-06-22"
+    title="Host-native rendering"
+    tags={["Runtime"]}
+    summary="The runtime renderer and theme API a companion app needs to render superlore docs in its own brand."
+    changes={[
+      {
+        type: "added",
+        text: "superlore/runtime — render an MDX string live in any React app (SuperloreDoc, useSuperloreMdx, compileMdxSource).",
+      },
+      {
+        type: "added",
+        text: "SuperloreTheme — render superlore in the host's palette via a CSS-variable contract.",
+      },
+      {
+        type: "changed",
+        text: "The extension now installs from the Open VSX registry, so it auto-updates.",
+        refs: [{ rel: "related", target: "/docs/agents/mcp/connect", label: "Connect" }],
+      },
+    ]}
+  />
+  <Release
+    version="0.9"
+    date="2026-06-21"
+    title="Markdown-first authoring"
+    tags={["Authoring", "Canvas"]}
+    changes={[
+      {
+        type: "added",
+        text: "- [ ] task lists render as a Checklist; > [!NOTE] alerts render as Callouts — natural markdown, dual-rep components.",
+      },
+      {
+        type: "added",
+        text: "Canvas edge labels reserve a lane in layout, so fan-in connectors never overlap.",
+      },
+      {
+        type: "fixed",
+        text: "Code blocks are always dark, in any page theme, on a tokyo-night surface.",
+      },
+      {
+        type: "deprecated",
+        text: "Verbose component tags for the common cases — author the markdown instead.",
+      },
+    ]}
+  />
+</Releases>

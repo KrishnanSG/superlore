@@ -7,6 +7,8 @@
 @source "../content";
 @source "../lib";
 @source "../node_modules/fumadocs-ui/dist";
+/* BRANCH (mint dev): consuming the local workspace superlore (src .tsx), so scan it for utilities. */
+@source "../../../packages/superlore/src/**/*.{ts,tsx}";
 
 /* ── Viewer: block-level comment affordances ──────────────────────────────
    The Viewer stamps `data-kp-block` on commentable blocks (see lib/rehype-kp-block-ids.mjs)
@@ -457,3 +459,59 @@ html:not(.dark) .kp-hero-aurora::before {
   --kp-code-string: #7ee0a6;
   --kp-code-number: #e3b341;
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   mint skin (branch demo) — elevate the docs toward Mintlify-grade, on the real
+   site, CSS-only. Preview of what the packaged `theme: "mint"` would ship.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* 1 · Flat, airy hero — a big plain title instead of the tinted gradient card. */
+.kp-page-hero {
+  border: 0 !important;
+  background: none !important;
+  padding: 0 !important;
+  margin: 0 0 2.4rem !important;
+  overflow: visible !important;
+}
+.kp-page-hero::before {
+  display: none !important;
+}
+.kp-page-hero__kicker {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-bottom: 12px;
+  color: var(--color-fd-muted-foreground);
+  letter-spacing: 0.13em;
+}
+.kp-page-hero__title {
+  font-size: 2.7rem;
+  font-weight: 720;
+  letter-spacing: -0.034em;
+  line-height: 1.06;
+  margin-bottom: 0.6rem;
+}
+.kp-page-hero__description {
+  font-size: 1.18rem;
+  line-height: 1.6;
+  max-width: 64ch;
+}
+
+/* 2 · Airier reading type + rhythm. */
+#nd-page .prose {
+  font-size: 16px;
+  line-height: 1.72;
+}
+#nd-page .prose h2 {
+  font-size: 1.55rem;
+  font-weight: 660;
+  letter-spacing: -0.021em;
+  margin-top: 2.7em;
+  margin-bottom: 0.7em;
+}
+#nd-page .prose h3 {
+  font-size: 1.2rem;
+  font-weight: 620;
+  letter-spacing: -0.015em;
+}
+/* (Releases styling now lives in the redesigned component itself — rail, tags, jump-strip, filter.) */
