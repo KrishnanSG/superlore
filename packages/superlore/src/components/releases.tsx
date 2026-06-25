@@ -41,8 +41,6 @@ export interface ReleaseChangeInput {
 export type ReleaseVariant = "feature" | "timeline" | "compact";
 
 const VariantCtx = React.createContext<ReleaseVariant>("feature");
-/** The union of every release's areas, so a hover card can show all areas with this one's lit. */
-const AreasCtx = React.createContext<string[]>([]);
 
 export interface ReleaseProps {
   version: string;
@@ -700,12 +698,15 @@ interface TimelineItem {
   dateLabel: string;
   title: string;
   areas: string[];
+  tags: string[];
   up: boolean;
-  /** Assigned lane (0 = highest card). */
+  /** Assigned lane (0 = highest card sits highest). */
   lane: number;
-  /** x position in percent. */
+  /** x position in px within the scrollable track. */
   x: number;
 }
+
+const DAYS_IN_MONTH = (y: number, m: number) => new Date(y, m + 1, 0).getDate();
 
 function isUpcoming(status?: string): boolean {
   return status === "planned" || status === "in-progress";
@@ -713,22 +714,6 @@ function isUpcoming(status?: string): boolean {
 function monthYear(t: number): string {
   return new Date(t).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 }
-function monthTicks(min: number, max: number): { label: string; t: number }[] {
-  if (!min || max <= min) return [];
-  const out: { label: string; t: number }[] = [];
-  const d = new Date(min);
-  d.setDate(1);
-  if (d.getTime() < min) d.setMonth(d.getMonth() + 1);
-  while (d.getTime() <= max && out.length < 10) {
-    out.push({
-      label: d.toLocaleDateString("en-US", { month: "short", year: "numeric" }).toUpperCase(),
-      t: d.getTime(),
-    });
-    d.setMonth(d.getMonth() + 1);
-  }
-  return out;
-}
-
 export interface ReleasesProps {
   children?: React.ReactNode;
   /** Accessible name for the changelog. */
@@ -737,16 +722,25 @@ export interface ReleasesProps {
   variant?: ReleaseVariant;
 }
 
+/** Hover popover state — the item plus the fixed viewport coords to draw it at. */
+interface PopState {
+  it: TimelineItem;
+  left: number;
+  top: number;
+}
+
 export function Releases({ children, label = "Changelog", variant = "feature" }: ReleasesProps) {
   const ref = React.useRef<HTMLElement>(null);
-  const stageRef = React.useRef<HTMLDivElement>(null);
+  const scRef = React.useRef<HTMLDivElement>(null);
+  const thumbRef = React.useRef<HTMLDivElement>(null);
+  const leftBtn = React.useRef<HTMLButtonElement>(null);
+  const rightBtn = React.useRef<HTMLButtonElement>(null);
   const [raw, setRaw] = React.useState<Omit<TimelineItem, "lane" | "x">[]>([]);
   const [tags, setTags] = React.useState<string[]>([]);
-  const [allAreas, setAllAreas] = React.useState<string[]>([]);
   const [active, setActive] = React.useState<string>("All");
-  const [hover, setHover] = React.useState<string | null>(null);
+  const [filterOpen, setFilterOpen] = React.useState(false);
+  const [pop, setPop] = React.useState<PopState | null>(null);
   const [now, setNow] = React.useState<number | null>(null);
-  const [stageW, setStageW] = React.useState(0);
 
   React.useEffect(() => {
     const root = ref.current;
@@ -760,300 +754,565 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
         dateLabel: shortDate(r.dataset.date ?? ""),
         title: r.dataset.title ?? "",
         areas: (r.dataset.areas ?? "").split("|").filter(Boolean),
+        tags: (r.dataset.tags ?? "").split("|").filter(Boolean),
         up: isUpcoming(r.dataset.status),
       })),
     );
     const tg = new Set<string>();
-    const ar = new Set<string>();
-    rels.forEach((r) => {
+    rels.forEach((r) =>
       (r.dataset.tags ?? "")
         .split("|")
         .filter(Boolean)
-        .forEach((t) => tg.add(t));
-      (r.dataset.areas ?? "")
-        .split("|")
-        .filter(Boolean)
-        .forEach((a) => ar.add(a));
-    });
+        .forEach((t) => tg.add(t)),
+    );
     setTags([...tg]);
-    setAllAreas([...ar]);
     setNow(Date.now());
   }, []);
 
-  React.useEffect(() => {
-    const el = stageRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver((entries) => setStageW(entries[0]?.contentRect.width ?? 0));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [raw.length]);
-
+  // Filter the entry list (the timeline stays a full overview).
   React.useEffect(() => {
     const root = ref.current;
     if (!root) return;
     for (const r of root.querySelectorAll<HTMLElement>("[data-sl-release]")) {
       const has = (r.dataset.tags ?? "").split("|").filter(Boolean);
-      (r as HTMLElement).style.display = active === "All" || has.includes(active) ? "" : "none";
+      r.style.display = active === "All" || has.includes(active) ? "" : "none";
     }
-  }, [active]);
+  }, [active, raw.length]);
+
+  // Close the filter menu on outside click / Escape.
+  React.useEffect(() => {
+    if (!filterOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest("[data-sl-filter]")) setFilterOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setFilterOpen(false);
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [filterOpen]);
 
   const jump = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  // Geometry: place each dated release on a min→max axis (incl. Now), then assign collision-free lanes.
+  /* --- timeline geometry: fixed month width, scrollable, ~2 months in view --- */
+  const MONTH_W = 268;
+  const PAD = 44;
   const dated0 = raw.filter((i) => i.t > 0);
-  const ts = dated0.map((i) => i.t);
-  const lo = ts.length ? Math.min(...ts) : 0;
-  const hi = ts.length ? Math.max(...ts) : 1;
-  const min = now != null ? Math.min(lo, now) : lo;
-  const max = now != null ? Math.max(hi, now) : hi;
-  const span = Math.max(max - min, 1);
-  const xOf = (t: number) => 5 + ((t - min) / span) * 90;
+  const allT = [...dated0.map((i) => i.t), ...(now != null ? [now] : [])];
+  const minT = allT.length ? Math.min(...allT) : 0;
+  const maxT = allT.length ? Math.max(...allT) : 1;
+  const base = new Date(minT);
+  const baseY = base.getFullYear();
+  const baseM = base.getMonth();
+  const monthFloat = (t: number) => {
+    const d = new Date(t);
+    return (
+      (d.getFullYear() - baseY) * 12 +
+      (d.getMonth() - baseM) +
+      (d.getDate() - 1) / DAYS_IN_MONTH(d.getFullYear(), d.getMonth())
+    );
+  };
+  const xOf = (t: number) => PAD + monthFloat(t) * MONTH_W;
+  const lastMonth = Math.ceil(monthFloat(maxT));
+  const trackW = PAD * 2 + (lastMonth + 0.5) * MONTH_W;
 
   const items: TimelineItem[] = React.useMemo(() => {
     const sorted = [...dated0].map((i) => ({ ...i, x: xOf(i.t) })).sort((a, b) => a.x - b.x);
-    const CARD = 70;
-    const GAP = 10;
+    const CARD = 82;
+    const GAP = 8;
     const MAX_LANES = 3;
     const laneRight: number[] = [];
-    const w = stageW || 720;
     return sorted.map((i) => {
-      const leftPx = (i.x / 100) * w - CARD / 2;
-      let lane = laneRight.findIndex((right) => right + GAP <= leftPx);
+      const left = i.x - CARD / 2;
+      let lane = laneRight.findIndex((r) => r + GAP <= left);
       if (lane === -1) {
         if (laneRight.length < MAX_LANES) {
           lane = laneRight.length;
           laneRight.push(0);
-        } else {
-          // unavoidable: use the lane whose card ends earliest
-          lane = laneRight.indexOf(Math.min(...laneRight));
-        }
+        } else lane = laneRight.indexOf(Math.min(...laneRight));
       }
-      laneRight[lane] = leftPx + CARD;
+      laneRight[lane] = left + CARD;
       return { ...i, lane };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dated0, stageW, min, max]);
+  }, [raw, now]);
 
-  const months = monthTicks(min, max).map((m) => ({ ...m, x: xOf(m.t) }));
+  // Wheel→horizontal, grab-drag, progress thumb sync, open-at-newest.
+  React.useEffect(() => {
+    const sc = scRef.current;
+    if (!sc || items.length < 2) return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const sync = () => {
+      const maxScroll = sc.scrollWidth - sc.clientWidth;
+      const tw = Math.max((sc.clientWidth / sc.scrollWidth) * 100, 14);
+      if (thumbRef.current) {
+        thumbRef.current.style.width = tw + "%";
+        thumbRef.current.style.left =
+          (maxScroll > 0 ? (sc.scrollLeft / maxScroll) * (100 - tw) : 0) + "%";
+      }
+      if (leftBtn.current) leftBtn.current.toggleAttribute("disabled", sc.scrollLeft <= 1);
+      if (rightBtn.current)
+        rightBtn.current.toggleAttribute("disabled", sc.scrollLeft >= maxScroll - 1);
+    };
+    const onScroll = () => {
+      setPop(null);
+      sync();
+    };
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        sc.scrollLeft += e.deltaY;
+        e.preventDefault();
+      }
+    };
+    let down = false,
+      sx = 0,
+      sl = 0,
+      moved = false;
+    const onDown = (e: PointerEvent) => {
+      if (e.button !== 0) return;
+      down = true;
+      moved = false;
+      sx = e.clientX;
+      sl = sc.scrollLeft;
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!down) return;
+      const dx = e.clientX - sx;
+      if (Math.abs(dx) > 4) {
+        moved = true;
+        sc.classList.add("sl-grabbing");
+        setPop(null);
+        sc.setPointerCapture(e.pointerId);
+      }
+      sc.scrollLeft = sl - dx;
+    };
+    const onUp = () => {
+      down = false;
+      sc.classList.remove("sl-grabbing");
+    };
+    const onClickCapture = (e: MouseEvent) => {
+      if (moved) {
+        e.preventDefault();
+        e.stopPropagation();
+        moved = false;
+      }
+    };
+    sc.addEventListener("scroll", onScroll, { passive: true });
+    sc.addEventListener("wheel", onWheel, { passive: false });
+    sc.addEventListener("pointerdown", onDown);
+    sc.addEventListener("pointermove", onMove);
+    sc.addEventListener("pointerup", onUp);
+    sc.addEventListener("pointercancel", onUp);
+    sc.addEventListener("click", onClickCapture, true);
+    // open scrolled to the newest releases
+    sc.scrollTo({ left: sc.scrollWidth, behavior: reduce ? "auto" : "auto" });
+    sync();
+    return () => {
+      sc.removeEventListener("scroll", onScroll);
+      sc.removeEventListener("wheel", onWheel);
+      sc.removeEventListener("pointerdown", onDown);
+      sc.removeEventListener("pointermove", onMove);
+      sc.removeEventListener("pointerup", onUp);
+      sc.removeEventListener("pointercancel", onUp);
+      sc.removeEventListener("click", onClickCapture, true);
+    };
+  }, [items.length, trackW]);
+
+  const showPop = (el: HTMLElement, it: TimelineItem) => {
+    const r = el.getBoundingClientRect();
+    const W = 248;
+    const left = Math.max(12, Math.min(r.left + r.width / 2 - W / 2, window.innerWidth - W - 12));
+    const top = Math.max(12, r.top - 8); // popover renders upward from here via translateY(-100%)
+    setPop({ it, left, top });
+  };
+
+  // month ticks/labels across the track
+  const monthCols = Array.from({ length: lastMonth + 1 }, (_, m) => ({
+    m,
+    x: PAD + m * MONTH_W,
+    label: new Date(baseY, baseM + m, 1)
+      .toLocaleDateString("en-US", { month: "short", year: "numeric" })
+      .toUpperCase(),
+  }));
   const upcomingCount = items.filter((i) => i.up).length;
   const rangeLabel =
     items.length >= 2
-      ? `${items.length} releases · ${monthYear(lo)} – ${monthYear(hi)}${upcomingCount ? ` · ${upcomingCount} upcoming` : ""}`
+      ? `${items.length} releases · ${monthYear(minT)} – ${monthYear(maxT)}${upcomingCount ? ` · ${upcomingCount} upcoming` : ""}`
       : `${raw.length} release${raw.length === 1 ? "" : "s"}`;
 
   const showTimeline = variant !== "compact" && items.length >= 2;
-  const laneBase = 58;
-  const laneStep = 26;
-  const stageHeight =
-    laneBase +
-    (Math.max(1, Math.min(3, new Set(items.map((i) => i.lane)).size)) - 1) * laneStep +
-    92;
+  const maxLane = items.length ? Math.max(...items.map((i) => i.lane)) : 0;
+  const LANE_STEP = 30;
+  const BASE_CONN = 50;
+  const trackH = 150 + maxLane * LANE_STEP;
+  const matchCount =
+    active === "All" ? raw.length : raw.filter((r) => r.tags.includes(active)).length;
 
   return (
     <VariantCtx.Provider value={variant}>
-      <AreasCtx.Provider value={allAreas}>
-        <section ref={ref} aria-label={label} className="not-prose my-6">
-          {showTimeline && (
-            <div className="mb-8 rounded-2xl border border-fd-border bg-fd-card p-5 shadow-sm">
-              <div className="mb-1 flex items-center justify-between">
-                <span className="font-mono text-[11px] font-semibold tracking-widest text-kp-accent-text uppercase">
-                  Release timeline
-                </span>
-                <span className="hidden font-mono text-[10px] tracking-widest text-fd-muted-foreground uppercase sm:inline">
-                  Hover · click to jump
-                </span>
-              </div>
-              <div className="mb-4 text-[13px] text-fd-muted-foreground">{rangeLabel}</div>
-              <div ref={stageRef} className="relative" style={{ height: stageHeight }}>
-                {/* axis + fine tick ruler */}
-                <div className="absolute right-0 left-0 h-px bg-fd-border" style={{ bottom: 46 }} />
-                <div
-                  className="absolute right-0 left-0 flex items-end justify-between"
-                  style={{ bottom: 47, height: 8 }}
+      <section ref={ref} aria-label={label} className="not-prose my-6">
+        {showTimeline && (
+          <div className="mb-7 overflow-hidden rounded-2xl border border-fd-border bg-fd-card shadow-sm">
+            <div className="flex items-center justify-between px-5 pt-5">
+              <span className="font-mono text-[11px] font-semibold tracking-widest text-kp-accent-text uppercase">
+                Release timeline
+              </span>
+              <span className="hidden font-mono text-[10px] tracking-widest text-fd-muted-foreground uppercase sm:inline">
+                Drag · scroll · click to jump
+              </span>
+            </div>
+            <div className="mb-3 px-5 pt-1 text-[13px] text-fd-muted-foreground">{rangeLabel}</div>
+
+            <div className="relative">
+              {/* edge fades */}
+              <div className="pointer-events-none absolute top-0 bottom-0 left-0 z-20 w-9 bg-gradient-to-r from-fd-card to-transparent" />
+              <div className="pointer-events-none absolute top-0 right-0 bottom-0 z-20 w-9 bg-gradient-to-l from-fd-card to-transparent" />
+              {/* arrows */}
+              <button
+                ref={leftBtn}
+                type="button"
+                aria-label="Scroll to older releases"
+                onClick={() => scRef.current?.scrollBy({ left: -MONTH_W, behavior: "smooth" })}
+                className="absolute top-1/2 left-2 z-30 grid size-7 -translate-y-1/2 place-items-center rounded-full border border-fd-border bg-fd-card text-fd-muted-foreground shadow-sm transition hover:text-kp-accent-text disabled:pointer-events-none disabled:opacity-0"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
                 >
-                  {Array.from({ length: 41 }).map((_, i) => (
-                    <span
-                      key={i}
-                      className={cn(
-                        "w-px",
-                        i % 5 === 0 ? "h-2 bg-fd-muted-foreground/50" : "h-1 bg-fd-border",
-                      )}
-                    />
-                  ))}
-                </div>
-                {months.map((m) => (
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </button>
+              <button
+                ref={rightBtn}
+                type="button"
+                aria-label="Scroll to newer releases"
+                onClick={() => scRef.current?.scrollBy({ left: MONTH_W, behavior: "smooth" })}
+                className="absolute top-1/2 right-2 z-30 grid size-7 -translate-y-1/2 place-items-center rounded-full border border-fd-border bg-fd-card text-fd-muted-foreground shadow-sm transition hover:text-kp-accent-text disabled:pointer-events-none disabled:opacity-0"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                >
+                  <path d="M9 6l6 6-6 6" />
+                </svg>
+              </button>
+
+              <div
+                ref={scRef}
+                className="cursor-grab [scrollbar-width:none] overflow-x-auto overflow-y-visible px-1 [-ms-overflow-style:none] [&.sl-grabbing]:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+                style={{ touchAction: "pan-x" }}
+              >
+                <div className="relative" style={{ width: trackW, height: trackH }}>
+                  {/* axis + tick ruler */}
                   <div
-                    key={m.label}
-                    className="absolute -translate-x-1/2 font-mono text-[10px] tracking-wider text-fd-muted-foreground/70 uppercase"
-                    style={{ left: `${m.x}%`, bottom: 22 }}
-                  >
-                    {m.label}
-                  </div>
-                ))}
-                {/* Now marker */}
-                {now != null && now > min && now < max && (
-                  <div
-                    className="pointer-events-none absolute z-0 -translate-x-1/2"
-                    style={{ left: `${xOf(now)}%`, top: 4, bottom: 46 }}
-                  >
-                    <span className="text-kp-accent-ink absolute -top-1 left-1/2 -translate-x-1/2 rounded bg-kp-accent px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-wider uppercase">
-                      Now
-                    </span>
-                    <div className="mt-4 h-full w-px border-l border-dashed border-kp-accent/45" />
-                  </div>
-                )}
-                {/* nodes */}
-                {items.map((it) => {
-                  const on = hover === it.id;
-                  const conn = laneBase - it.lane * laneStep;
-                  return (
-                    <button
-                      key={it.id}
-                      type="button"
-                      onMouseEnter={() => setHover(it.id)}
-                      onMouseLeave={() => setHover(null)}
-                      onFocus={() => setHover(it.id)}
-                      onBlur={() => setHover(null)}
-                      onClick={() => jump(it.id)}
-                      className="group absolute z-10 flex -translate-x-1/2 cursor-pointer flex-col items-center"
-                      style={{ left: `${it.x}%`, bottom: 42 }}
-                      aria-label={`Jump to ${it.v}${it.title ? ` — ${it.title}` : ""}`}
-                    >
+                    className="absolute right-0 left-0 h-px bg-fd-border"
+                    style={{ bottom: 46 }}
+                  />
+                  {monthCols.flatMap((c) =>
+                    Array.from({ length: 5 }, (_, k) => (
                       <span
+                        key={`${c.m}-${k}`}
                         className={cn(
-                          "block rounded-lg px-2.5 py-1.5 text-center font-mono leading-tight whitespace-nowrap transition",
-                          it.up
-                            ? cn(
-                                "border border-dashed border-kp-accent-border bg-kp-accent-weak text-kp-accent-text",
-                                on && "-translate-y-0.5 border-kp-accent",
-                              )
-                            : cn(
-                                "bg-[#16161e] text-white shadow-sm ring-1 dark:bg-[#20202b]",
-                                on ? "-translate-y-0.5 ring-kp-accent" : "ring-black/10",
-                              ),
+                          "absolute w-px",
+                          k === 0 ? "h-2 bg-fd-muted-foreground/40" : "h-1 bg-fd-border",
                         )}
+                        style={{ left: c.x + k * (MONTH_W / 5), bottom: 47 }}
+                      />
+                    )),
+                  )}
+                  {monthCols.map((c) => (
+                    <div
+                      key={c.label}
+                      className="absolute font-mono text-[10px] tracking-wider text-fd-muted-foreground/70 uppercase"
+                      style={{ left: c.x + MONTH_W / 2, bottom: 22, transform: "translateX(-50%)" }}
+                    >
+                      {c.label}
+                    </div>
+                  ))}
+                  {/* Now marker */}
+                  {now != null && now > minT && now < maxT && (
+                    <div
+                      className="pointer-events-none absolute"
+                      style={{ left: xOf(now), top: 6, bottom: 46, transform: "translateX(-50%)" }}
+                    >
+                      <span className="text-kp-accent-ink absolute -top-1 left-1/2 -translate-x-1/2 rounded bg-kp-accent px-1.5 py-0.5 font-mono text-[8.5px] font-bold tracking-wider uppercase">
+                        Now
+                      </span>
+                      <div className="mt-4 h-full w-px border-l border-dashed border-kp-accent/40" />
+                    </div>
+                  )}
+                  {/* markers — light chips */}
+                  {items.map((it) => {
+                    const conn = BASE_CONN - it.lane * LANE_STEP;
+                    return (
+                      <button
+                        key={it.id}
+                        type="button"
+                        onMouseEnter={(e) => showPop(e.currentTarget, it)}
+                        onMouseLeave={() => setPop(null)}
+                        onFocus={(e) => showPop(e.currentTarget, it)}
+                        onBlur={() => setPop(null)}
+                        onClick={() => jump(it.id)}
+                        className="group absolute flex flex-col items-center"
+                        style={{
+                          left: it.x,
+                          bottom: 38,
+                          transform: "translateX(-50%)",
+                          appearance: "none",
+                          background: "transparent",
+                          border: 0,
+                          padding: 0,
+                          cursor: "inherit",
+                        }}
+                        aria-label={`Jump to ${it.v}${it.title ? ` — ${it.title}` : ""}`}
                       >
-                        <span className="block text-[12.5px] font-bold">{it.v}</span>
                         <span
                           className={cn(
-                            "block text-[9.5px]",
-                            it.up ? "text-kp-accent-text/70" : "text-white/55",
+                            "block rounded-[9px] border px-2.5 py-1 text-center leading-tight whitespace-nowrap transition group-hover:-translate-y-0.5 group-focus-visible:-translate-y-0.5",
+                            it.up
+                              ? "border-dashed border-kp-accent-border bg-kp-accent-weak group-hover:border-kp-accent"
+                              : "border-fd-border bg-fd-card group-hover:border-kp-accent group-hover:shadow-[0_6px_16px_-8px_var(--kp-accent)]",
                           )}
                         >
-                          {it.dateLabel}
-                        </span>
-                      </span>
-                      <span
-                        className={cn(
-                          "transition-colors",
-                          it.up
-                            ? "border-l border-dashed border-kp-accent-border"
-                            : cn("w-px", on ? "bg-kp-accent" : "bg-fd-border"),
-                        )}
-                        style={{ height: conn, width: it.up ? 0 : 1 }}
-                      />
-                      <span
-                        className={cn(
-                          "size-2.5 translate-y-1/2 rounded-full ring-2 ring-fd-card transition-colors",
-                          it.up
-                            ? "bg-fd-card ring-kp-accent"
-                            : on
-                              ? "bg-kp-accent"
-                              : "bg-fd-muted-foreground/60",
-                        )}
-                      />
-                      {/* hover card */}
-                      {on && (
-                        <span
-                          className="absolute bottom-full z-30 mb-2 block w-[270px] cursor-default rounded-2xl border border-fd-border bg-fd-card p-4 text-left shadow-[0_16px_48px_-12px_rgba(30,25,70,.32)]"
-                          style={{
-                            left: it.x > 78 ? "auto" : it.x < 22 ? 0 : "50%",
-                            right: it.x > 78 ? 0 : "auto",
-                            transform: it.x > 78 || it.x < 22 ? "none" : "translateX(-50%)",
-                          }}
-                        >
-                          <span className="flex items-baseline justify-between">
-                            <span className="font-mono text-[15px] font-bold text-fd-foreground">
-                              {it.v}
-                            </span>
-                            <span className="font-mono text-[12px] text-fd-muted-foreground">
-                              {it.dateLabel}
-                            </span>
+                          <span
+                            className={cn(
+                              "block font-mono text-[12px] font-semibold",
+                              it.up ? "text-kp-accent-text" : "text-fd-foreground",
+                            )}
+                          >
+                            {it.v}
                           </span>
-                          {it.title && (
-                            <span className="mt-1.5 block text-[14px] leading-snug font-semibold text-fd-foreground">
-                              {it.title}
-                            </span>
-                          )}
-                          {allAreas.length > 0 && (
-                            <>
-                              <span className="mt-3 mb-2 block font-mono text-[10px] tracking-widest text-fd-muted-foreground/70 uppercase">
-                                Areas updated
-                              </span>
-                              <span className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                                {allAreas.slice(0, 8).map((a) => {
-                                  const onArea = it.areas.includes(a);
-                                  return (
-                                    <span
-                                      key={a}
-                                      className={cn(
-                                        "flex items-center gap-2 text-[12.5px]",
-                                        onArea
-                                          ? "font-medium text-fd-foreground"
-                                          : "text-fd-muted-foreground/45",
-                                      )}
-                                    >
-                                      <span
-                                        className={cn(
-                                          "size-1.5 rounded-full",
-                                          onArea ? "bg-kp-accent" : "bg-fd-border",
-                                        )}
-                                      />
-                                      {a}
-                                    </span>
-                                  );
-                                })}
-                              </span>
-                            </>
-                          )}
+                          <span
+                            className={cn(
+                              "mt-px block font-mono text-[9px]",
+                              it.up ? "text-kp-accent-text/65" : "text-fd-muted-foreground/80",
+                            )}
+                          >
+                            {it.dateLabel}
+                          </span>
                         </span>
-                      )}
-                    </button>
-                  );
-                })}
+                        <span
+                          className={cn(
+                            "transition-colors",
+                            it.up
+                              ? "border-l border-dashed border-kp-accent-border"
+                              : "w-px bg-fd-border group-hover:bg-kp-accent",
+                          )}
+                          style={{ height: conn, width: it.up ? 0 : 1 }}
+                        />
+                        <span
+                          className={cn(
+                            "size-2.5 translate-y-1/2 rounded-full ring-[3px] ring-fd-card transition group-hover:scale-110",
+                            it.up
+                              ? "bg-fd-card shadow-[inset_0_0_0_2px_var(--kp-accent)]"
+                              : "bg-fd-muted-foreground/55 group-hover:bg-kp-accent",
+                          )}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          )}
 
-          {tags.length > 0 && variant !== "compact" && (
-            <div className="mb-8 flex flex-wrap gap-2">
-              {["All", ...tags].map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setActive(t)}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition",
-                    active === t
-                      ? "border-kp-accent-border bg-kp-accent-weak text-kp-accent-text"
-                      : "border-fd-border text-fd-muted-foreground hover:text-fd-foreground",
-                  )}
-                >
-                  {t !== "All" && (
-                    <span
-                      className="inline-block size-2 rounded-full"
-                      style={{ background: tagColor(t) }}
-                    />
-                  )}
-                  {t}
-                </button>
-              ))}
+            {/* slim progress bar */}
+            <div className="relative mx-5 mt-3 mb-4 h-1 rounded-full bg-fd-border/50">
+              <div
+                ref={thumbRef}
+                className="absolute inset-y-0 left-0 min-w-[30px] rounded-full bg-fd-border"
+              />
             </div>
-          )}
-          {children}
-        </section>
-      </AreasCtx.Provider>
+          </div>
+        )}
+
+        {/* fixed hover popover — escapes the scroller's clip */}
+        {pop && (
+          <div
+            className="fixed z-[80] w-[248px] -translate-y-full rounded-2xl border border-fd-border bg-fd-card p-4 shadow-[0_16px_44px_-12px_rgba(30,25,75,.3)]"
+            style={{ left: pop.left, top: pop.top }}
+          >
+            <div className="mb-2 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <span className="font-mono text-[12px] font-semibold tracking-[.02em] text-kp-accent-text">
+                  {pop.it.v}
+                </span>
+                {pop.it.up && (
+                  <span className="rounded-full bg-kp-accent-weak px-1.5 py-0.5 font-mono text-[8.5px] font-bold tracking-wider text-kp-accent-text uppercase">
+                    Upcoming
+                  </span>
+                )}
+              </span>
+              <span className="font-mono text-[11px] text-fd-muted-foreground">
+                {pop.it.dateLabel}
+              </span>
+            </div>
+            {pop.it.title && (
+              <div className="mb-3 text-[14.5px] leading-snug font-bold tracking-[-.01em] text-fd-foreground">
+                {pop.it.title}
+              </div>
+            )}
+            {pop.it.areas.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {pop.it.areas.map((a) => (
+                  <span
+                    key={a}
+                    className="rounded-md bg-fd-muted px-2 py-[3px] text-[11px] font-medium text-fd-muted-foreground"
+                  >
+                    {a}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="mt-3 border-t border-fd-border/60 pt-2.5 text-[11.5px] font-medium text-kp-accent-text">
+              Jump to release →
+            </div>
+          </div>
+        )}
+
+        {/* right-aligned compact area filter */}
+        {tags.length > 0 && variant !== "compact" && (
+          <div className="mb-7 flex items-center justify-between gap-3">
+            <span className="text-[13px] text-fd-muted-foreground">
+              {active === "All"
+                ? null
+                : `${matchCount} release${matchCount === 1 ? "" : "s"} in ${active}`}
+            </span>
+            <div data-sl-filter className="relative">
+              <button
+                type="button"
+                onClick={() => setFilterOpen((v) => !v)}
+                aria-haspopup="listbox"
+                aria-expanded={filterOpen}
+                className="inline-flex items-center gap-2 rounded-lg border border-fd-border bg-fd-card px-3 py-1.5 text-[13px] font-medium text-fd-foreground transition hover:border-kp-accent-border"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="text-fd-muted-foreground"
+                >
+                  <path d="M3 5h18M6 12h12M10 19h4" />
+                </svg>
+                {active === "All" ? "Filter by area" : active}
+                {active !== "All" && (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Clear filter"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActive("All");
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.stopPropagation();
+                        setActive("All");
+                      }
+                    }}
+                    className="ml-0.5 grid size-4 place-items-center rounded-full text-fd-muted-foreground hover:bg-fd-muted hover:text-fd-foreground"
+                  >
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                    >
+                      <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                  </span>
+                )}
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className={cn("text-fd-muted-foreground transition", filterOpen && "rotate-180")}
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+              {filterOpen && (
+                <div
+                  role="listbox"
+                  className="absolute right-0 z-50 mt-1.5 max-h-72 w-56 overflow-y-auto rounded-xl border border-fd-border bg-fd-card p-1.5 shadow-[0_16px_44px_-12px_rgba(30,25,75,.3)]"
+                >
+                  {["All", ...tags].map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      role="option"
+                      aria-selected={active === t}
+                      onClick={() => {
+                        setActive(t);
+                        setFilterOpen(false);
+                      }}
+                      className={cn(
+                        "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[13px] transition",
+                        active === t
+                          ? "bg-kp-accent-weak text-kp-accent-text"
+                          : "text-fd-foreground hover:bg-fd-muted",
+                      )}
+                    >
+                      {t === "All" ? (
+                        <span className="size-2 rounded-full bg-fd-muted-foreground/40" />
+                      ) : (
+                        <span className="size-2 rounded-full" style={{ background: tagColor(t) }} />
+                      )}
+                      <span className="flex-1">{t}</span>
+                      {active === t && (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.4"
+                        >
+                          <path d="M20 6 9 17l-5-5" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {children}
+
+        {/* empty state when a filter matches nothing */}
+        {active !== "All" && matchCount === 0 && (
+          <div className="rounded-xl border border-dashed border-fd-border py-12 text-center text-[14px] text-fd-muted-foreground">
+            No releases tagged <span className="font-medium text-fd-foreground">{active}</span>.{" "}
+            <button
+              type="button"
+              onClick={() => setActive("All")}
+              className="font-medium text-kp-accent-text underline-offset-2 hover:underline"
+            >
+              Show all
+            </button>
+          </div>
+        )}
+      </section>
     </VariantCtx.Provider>
   );
 }

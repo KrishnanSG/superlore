@@ -626,6 +626,27 @@ html {
   background-color: var(--shiki-dark-bg, #1a1b26) !important;
 }
 
+/* Nav CTA — wrap a navbar link's `text` in <span class="kp-nav-cta"> to render it as a filled
+   accent button (the notebook top-nav renders every link as muted text otherwise, so a primary
+   action like "Open app" reads as just another link). Theme-agnostic; uses the KB's accent. */
+.kp-nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  background: var(--kp-accent);
+  color: var(--kp-accent-ink, #fff);
+  padding: 0.34rem 0.78rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+.kp-nav-cta:hover {
+  background: var(--kp-accent-hover, var(--kp-accent));
+}
+
 /* ══ mint theme — opt-in Mintlify-grade chrome ════════════════════════════════════
    Set `theme: "mint"` in superlore.json and the layout stamps `data-sl-theme="mint"` on
    <html>; every rule below is scoped to that attribute, so it ships with superlore/css and

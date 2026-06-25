@@ -15,11 +15,16 @@ export function baseOptions(): BaseLayoutProps {
   const links: LinkItemType[] = superlore.links.map((l) =>
     l.cta
       ? {
-          // A featured surface — Fumadocs renders `type: "button"` as a filled CTA.
+          // A featured surface. The notebook top-nav renders every link as muted text, so we wrap
+          // the label in `kp-nav-cta` (shipped in superlore/css) to render a real filled accent CTA.
           type: "button",
-          text: l.text,
+          text: (
+            <span className="kp-nav-cta">
+              {l.icon ? <NavIcon name={l.icon} /> : null}
+              {l.text}
+            </span>
+          ),
           url: l.url,
-          icon: l.icon ? <NavIcon name={l.icon} /> : undefined,
           external: l.external,
         }
       : {
