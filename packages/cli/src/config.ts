@@ -40,6 +40,13 @@ export interface SuperloreMcpConfig {
   path?: string;
 }
 
+/** A navbar logo — light/dark image paths + an optional home link, the mint.json way. */
+export interface SuperloreLogo {
+  light?: string;
+  dark?: string;
+  href?: string;
+}
+
 /** The parsed, validated shape of a `superlore.json` file. */
 export interface SuperloreJson {
   /** Human-facing KB name. */
@@ -48,6 +55,12 @@ export interface SuperloreJson {
   type: SuperloreType;
   /** Brand accent — any CSS colour. superlore derives the rest of the family (light + dark). */
   accent?: string;
+  /** Visual theme skin: "default" | "mint" (loose — forward-compatible with future skins). */
+  theme?: string;
+  /** Navbar logo — light/dark images + home link (mint.json-style). */
+  logo?: SuperloreLogo;
+  /** Favicon path (svg / png / ico). */
+  favicon?: string;
   /** The human gate. Omitted ⇒ public. */
   auth?: SuperloreAuthConfig;
   /** The agent surface. Omitted ⇒ MCP enabled at the default path. */
@@ -119,6 +132,41 @@ export function validateSuperloreJson(input: unknown): SuperloreJsonResult {
     issues.push({ path: "accent", message: "must be a non-empty string (a CSS colour)" });
   }
 
+  // theme (optional)
+  const theme = input.theme;
+  if (theme !== undefined && (typeof theme !== "string" || theme.trim().length === 0)) {
+    issues.push({ path: "theme", message: "must be a non-empty string" });
+  }
+
+  // favicon (optional)
+  const favicon = input.favicon;
+  if (favicon !== undefined && (typeof favicon !== "string" || favicon.trim().length === 0)) {
+    issues.push({ path: "favicon", message: "must be a non-empty string (a path or URL)" });
+  }
+
+  // logo (optional)
+  let logo: SuperloreLogo | undefined;
+  if (input.logo !== undefined) {
+    if (!isRecord(input.logo)) {
+      issues.push({ path: "logo", message: "must be an object" });
+    } else {
+      const l = input.logo;
+      for (const k of ["light", "dark", "href"] as const) {
+        if (
+          l[k] !== undefined &&
+          (typeof l[k] !== "string" || (l[k] as string).trim().length === 0)
+        ) {
+          issues.push({ path: `logo.${k}`, message: "must be a non-empty string" });
+        }
+      }
+      logo = {
+        light: typeof l.light === "string" ? l.light : undefined,
+        dark: typeof l.dark === "string" ? l.dark : undefined,
+        href: typeof l.href === "string" ? l.href : undefined,
+      };
+    }
+  }
+
   // auth (optional)
   let auth: SuperloreAuthConfig | undefined;
   if (input.auth !== undefined) {
@@ -181,6 +229,9 @@ export function validateSuperloreJson(input: unknown): SuperloreJsonResult {
     type: type as SuperloreType,
   };
   if (typeof accent === "string") value.accent = accent.trim();
+  if (typeof theme === "string") value.theme = theme.trim();
+  if (typeof favicon === "string") value.favicon = favicon.trim();
+  if (logo && (logo.light || logo.dark || logo.href)) value.logo = logo;
   if (auth) value.auth = auth;
   if (mcp) value.mcp = mcp;
 

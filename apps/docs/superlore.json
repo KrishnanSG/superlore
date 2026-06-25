@@ -2,6 +2,12 @@
   "name": "superlore",
   "type": "product-docs",
   "accent": "#6D5CF0",
+  "logo": {
+    "light": "/superlore-logo.svg",
+    "dark": "/superlore-logo-dark.svg",
+    "href": "/"
+  },
+  "favicon": "/superlore-mark.svg",
   "mcp": {
     "enabled": true,
     "path": "/api/mcp"

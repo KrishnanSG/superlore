@@ -40,6 +40,8 @@ export const metadata: Metadata = {
     images: ["/hero.png"],
   },
   alternates: { canonical: SITE },
+  // Favicon from superlore.json (mint.json-style) — falls back to Next's default when unset.
+  icons: siteConfig.favicon ? { icon: siteConfig.favicon } : undefined,
 };
 
 export default function Layout({ children }: LayoutProps<"/">) {
