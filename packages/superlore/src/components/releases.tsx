@@ -41,6 +41,8 @@ export interface ReleaseChangeInput {
 export type ReleaseVariant = "feature" | "timeline" | "compact";
 
 const VariantCtx = React.createContext<ReleaseVariant>("feature");
+/** Version of the newest shipped release — it wears a "Latest" badge. */
+const LatestCtx = React.createContext<string | null>(null);
 
 export interface ReleaseProps {
   version: string;
@@ -502,6 +504,8 @@ function Rail({
   highlights,
   tags,
   variant,
+  isLatest,
+  activeJump,
 }: {
   version: string;
   anchor: string;
@@ -511,6 +515,8 @@ function Rail({
   highlights?: ReleaseHighlight[];
   tags?: string[];
   variant: ReleaseVariant;
+  isLatest?: boolean;
+  activeJump?: string | null;
 }) {
   const jump = highlights?.length
     ? highlights.map((h) => ({ label: h.title, href: `#${anchor}-h-${slug(h.title)}` }))
@@ -518,32 +524,53 @@ function Rail({
   return (
     <aside className="flex flex-col gap-2 lg:sticky lg:top-24 lg:self-start">
       {variant === "feature" ? (
-        <a
-          href={`#${anchor}`}
-          className="w-fit rounded-lg bg-kp-accent-weak px-2.5 py-1 font-mono text-[13px] font-bold tracking-tight text-kp-accent-text no-underline"
-        >
-          {version}
-        </a>
+        <div className="flex items-center gap-2">
+          <a
+            href={`#${anchor}`}
+            className="w-fit rounded-lg bg-kp-accent-weak px-2.5 py-1 font-mono text-[13px] font-bold tracking-tight text-kp-accent-text no-underline"
+          >
+            {version}
+          </a>
+          {isLatest && (
+            <span className="rounded-full bg-kp-success/12 px-2 py-0.5 text-[10px] font-bold tracking-wide text-kp-success uppercase">
+              Latest
+            </span>
+          )}
+        </div>
       ) : (
         <a
           href={`#${anchor}`}
-          className="w-fit font-mono text-2xl font-bold tracking-tight text-fd-foreground no-underline transition-colors hover:text-kp-accent-text"
+          className="inline-flex w-fit items-center gap-2 font-mono text-2xl font-bold tracking-tight text-fd-foreground no-underline transition-colors hover:text-kp-accent-text"
         >
           {version}
+          {isLatest && (
+            <span className="rounded-full bg-kp-success/12 px-2 py-0.5 font-sans text-[10px] font-bold tracking-wide text-kp-success uppercase">
+              Latest
+            </span>
+          )}
         </a>
       )}
 
       {variant === "feature" && jump && (
         <nav className="mt-1 flex flex-col">
-          {jump.map((j) => (
-            <a
-              key={j.href}
-              href={j.href}
-              className="border-l-2 border-transparent py-[3px] pl-2.5 text-[14px] text-fd-muted-foreground no-underline transition hover:border-kp-accent-border hover:text-fd-foreground"
-            >
-              {j.label}
-            </a>
-          ))}
+          {jump.map((j) => {
+            const on = activeJump === j.href;
+            return (
+              <a
+                key={j.href}
+                href={j.href}
+                aria-current={on ? "true" : undefined}
+                className={cn(
+                  "border-l-2 py-[3px] pl-2.5 text-[14px] no-underline transition",
+                  on
+                    ? "border-kp-accent font-medium text-fd-foreground"
+                    : "border-transparent text-fd-muted-foreground hover:border-kp-accent-border hover:text-fd-foreground",
+                )}
+              >
+                {j.label}
+              </a>
+            );
+          })}
         </nav>
       )}
 
@@ -590,6 +617,30 @@ export function Release(props: ReleaseProps) {
   const anchor = anchorId(version);
   const hero = media?.[0];
   const restMedia = media?.slice(1) ?? [];
+  const latest = React.useContext(LatestCtx);
+  const isLatest =
+    latest != null && latest === version && status !== "planned" && status !== "in-progress";
+  const [activeJump, setActiveJump] = React.useState<string | null>(null);
+
+  // Scroll-spy: light the rail jump-item whose Highlight is currently in view.
+  React.useEffect(() => {
+    if (variant !== "feature" || !highlights?.length) return;
+    const els = highlights
+      .map((h) => document.getElementById(`${anchor}-h-${slug(h.title)}`))
+      .filter((e): e is HTMLElement => e != null);
+    if (!els.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const vis = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (vis[0]) setActiveJump(`#${vis[0].target.id}`);
+      },
+      { rootMargin: "-18% 0px -72% 0px" },
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [variant, highlights, anchor]);
 
   // Stamp the typed payload for the surrounding Releases (timeline + filter) to read.
   const data = {
@@ -621,8 +672,15 @@ export function Release(props: ReleaseProps) {
             {shortDate(date)}
           </time>
           {title && <span className="text-[15px] font-semibold text-fd-foreground">{title}</span>}
+          {isLatest && (
+            <span className="rounded-full bg-kp-success/12 px-2 py-0.5 text-[10px] font-bold tracking-wide text-kp-success uppercase">
+              Latest
+            </span>
+          )}
         </div>
-        {summary && <div className="mt-1 text-[14px] text-fd-muted-foreground">{summary}</div>}
+        {summary && (
+          <div className="mt-1 max-w-[70ch] text-[14px] text-fd-muted-foreground">{summary}</div>
+        )}
         {sections?.length ? (
           <FlatChanges changes={sections.flatMap((s) => s.changes)} compact />
         ) : changes && changes.length > 0 ? (
@@ -648,15 +706,36 @@ export function Release(props: ReleaseProps) {
         highlights={variant === "feature" ? highlights : undefined}
         tags={tags}
         variant={variant}
+        isLatest={isLatest}
+        activeJump={activeJump}
       />
 
       <div className="min-w-0">
         {title && (
-          <h3 className="mt-0 mb-2 text-[26px] leading-tight font-extrabold tracking-tight text-fd-foreground">
-            {title}
+          <h3 className="group/anchor mt-0 mb-2 flex items-start gap-2 text-[26px] leading-tight font-extrabold tracking-tight text-fd-foreground">
+            <span>{title}</span>
+            <a
+              href={`#${anchor}`}
+              aria-label={`Permalink to ${version}`}
+              className="mt-1.5 shrink-0 text-fd-muted-foreground no-underline opacity-0 transition group-hover/anchor:opacity-100 hover:text-kp-accent-text focus-visible:opacity-100"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                <path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              </svg>
+            </a>
           </h3>
         )}
-        {summary && <div className="mb-5 text-[16px] text-fd-muted-foreground">{summary}</div>}
+        {summary && (
+          <div className="mb-5 max-w-[70ch] text-[16px] text-fd-muted-foreground">{summary}</div>
+        )}
 
         {hero && <MediaBlock media={hero} className="mb-2" />}
 
@@ -950,369 +1029,391 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
   const trackH = 150 + maxLane * LANE_STEP;
   const matchCount =
     active === "All" ? raw.length : raw.filter((r) => r.tags.includes(active)).length;
+  // The newest shipped release wears a "Latest" badge (computed once raw is read on the client).
+  const shipped = raw.filter((r) => r.t > 0 && !r.up);
+  const latestVersion = shipped.length ? shipped.reduce((a, b) => (b.t > a.t ? b : a)).v : null;
 
   return (
     <VariantCtx.Provider value={variant}>
-      <section ref={ref} aria-label={label} className="not-prose my-6">
-        {showTimeline && (
-          <div className="mb-7 overflow-hidden rounded-2xl border border-fd-border bg-fd-card shadow-sm">
-            <div className="flex items-center justify-between px-5 pt-5">
-              <span className="font-mono text-[11px] font-semibold tracking-widest text-kp-accent-text uppercase">
-                Release timeline
-              </span>
-              <span className="hidden font-mono text-[10px] tracking-widest text-fd-muted-foreground uppercase sm:inline">
-                Drag · scroll · click to jump
-              </span>
-            </div>
-            <div className="mb-3 px-5 pt-1 text-[13px] text-fd-muted-foreground">{rangeLabel}</div>
+      <LatestCtx.Provider value={latestVersion}>
+        <section ref={ref} aria-label={label} className="not-prose my-6">
+          {showTimeline && (
+            <div className="mb-7 overflow-hidden rounded-2xl border border-fd-border bg-fd-card shadow-sm">
+              <div className="flex items-center justify-between px-5 pt-5">
+                <span className="font-mono text-[11px] font-semibold tracking-widest text-kp-accent-text uppercase">
+                  Release timeline
+                </span>
+                <span className="hidden font-mono text-[10px] tracking-widest text-fd-muted-foreground uppercase sm:inline">
+                  Drag · scroll · click to jump
+                </span>
+              </div>
+              <div className="mb-3 px-5 pt-1 text-[13px] text-fd-muted-foreground">
+                {rangeLabel}
+              </div>
 
-            <div className="relative">
-              {/* edge fades */}
-              <div className="pointer-events-none absolute top-0 bottom-0 left-0 z-20 w-9 bg-gradient-to-r from-fd-card to-transparent" />
-              <div className="pointer-events-none absolute top-0 right-0 bottom-0 z-20 w-9 bg-gradient-to-l from-fd-card to-transparent" />
-              {/* arrows */}
-              <button
-                ref={leftBtn}
-                type="button"
-                aria-label="Scroll to older releases"
-                onClick={() => scRef.current?.scrollBy({ left: -MONTH_W, behavior: "smooth" })}
-                className="absolute top-1/2 left-2 z-30 grid size-7 -translate-y-1/2 place-items-center rounded-full border border-fd-border bg-fd-card text-fd-muted-foreground shadow-sm transition hover:text-kp-accent-text disabled:pointer-events-none disabled:opacity-0"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
+              <div className="relative">
+                {/* edge fades */}
+                <div className="pointer-events-none absolute top-0 bottom-0 left-0 z-20 w-9 bg-gradient-to-r from-fd-card to-transparent" />
+                <div className="pointer-events-none absolute top-0 right-0 bottom-0 z-20 w-9 bg-gradient-to-l from-fd-card to-transparent" />
+                {/* arrows */}
+                <button
+                  ref={leftBtn}
+                  type="button"
+                  aria-label="Scroll to older releases"
+                  onClick={() => scRef.current?.scrollBy({ left: -MONTH_W, behavior: "smooth" })}
+                  className="absolute top-1/2 left-2 z-30 grid size-7 -translate-y-1/2 place-items-center rounded-full border border-fd-border bg-fd-card text-fd-muted-foreground shadow-sm transition hover:text-kp-accent-text disabled:pointer-events-none disabled:opacity-0"
                 >
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-              </button>
-              <button
-                ref={rightBtn}
-                type="button"
-                aria-label="Scroll to newer releases"
-                onClick={() => scRef.current?.scrollBy({ left: MONTH_W, behavior: "smooth" })}
-                className="absolute top-1/2 right-2 z-30 grid size-7 -translate-y-1/2 place-items-center rounded-full border border-fd-border bg-fd-card text-fd-muted-foreground shadow-sm transition hover:text-kp-accent-text disabled:pointer-events-none disabled:opacity-0"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                  >
+                    <path d="M15 18l-6-6 6-6" />
+                  </svg>
+                </button>
+                <button
+                  ref={rightBtn}
+                  type="button"
+                  aria-label="Scroll to newer releases"
+                  onClick={() => scRef.current?.scrollBy({ left: MONTH_W, behavior: "smooth" })}
+                  className="absolute top-1/2 right-2 z-30 grid size-7 -translate-y-1/2 place-items-center rounded-full border border-fd-border bg-fd-card text-fd-muted-foreground shadow-sm transition hover:text-kp-accent-text disabled:pointer-events-none disabled:opacity-0"
                 >
-                  <path d="M9 6l6 6-6 6" />
-                </svg>
-              </button>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                  >
+                    <path d="M9 6l6 6-6 6" />
+                  </svg>
+                </button>
 
-              <div
-                ref={scRef}
-                className="cursor-grab [scrollbar-width:none] overflow-x-auto overflow-y-visible px-1 [-ms-overflow-style:none] [&.sl-grabbing]:cursor-grabbing [&::-webkit-scrollbar]:hidden"
-                style={{ touchAction: "pan-x" }}
-              >
-                <div className="relative" style={{ width: trackW, height: trackH }}>
-                  {/* axis + tick ruler */}
-                  <div
-                    className="absolute right-0 left-0 h-px bg-fd-border"
-                    style={{ bottom: 46 }}
-                  />
-                  {monthCols.flatMap((c) =>
-                    Array.from({ length: 5 }, (_, k) => (
-                      <span
-                        key={`${c.m}-${k}`}
-                        className={cn(
-                          "absolute w-px",
-                          k === 0 ? "h-2 bg-fd-muted-foreground/40" : "h-1 bg-fd-border",
-                        )}
-                        style={{ left: c.x + k * (MONTH_W / 5), bottom: 47 }}
-                      />
-                    )),
-                  )}
-                  {monthCols.map((c) => (
+                <div
+                  ref={scRef}
+                  className="cursor-grab [scrollbar-width:none] overflow-x-auto overflow-y-visible px-1 [-ms-overflow-style:none] [&.sl-grabbing]:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+                  style={{ touchAction: "pan-x" }}
+                >
+                  <div className="relative" style={{ width: trackW, height: trackH }}>
+                    {/* axis + tick ruler */}
                     <div
-                      key={c.label}
-                      className="absolute font-mono text-[10px] tracking-wider text-fd-muted-foreground/70 uppercase"
-                      style={{ left: c.x + MONTH_W / 2, bottom: 22, transform: "translateX(-50%)" }}
-                    >
-                      {c.label}
-                    </div>
-                  ))}
-                  {/* Now marker */}
-                  {now != null && now > minT && now < maxT && (
-                    <div
-                      className="pointer-events-none absolute"
-                      style={{ left: xOf(now), top: 6, bottom: 46, transform: "translateX(-50%)" }}
-                    >
-                      <span className="text-kp-accent-ink absolute -top-1 left-1/2 -translate-x-1/2 rounded bg-kp-accent px-1.5 py-0.5 font-mono text-[8.5px] font-bold tracking-wider uppercase">
-                        Now
-                      </span>
-                      <div className="mt-4 h-full w-px border-l border-dashed border-kp-accent/40" />
-                    </div>
-                  )}
-                  {/* markers — light chips */}
-                  {items.map((it) => {
-                    const conn = BASE_CONN - it.lane * LANE_STEP;
-                    return (
-                      <button
-                        key={it.id}
-                        type="button"
-                        onMouseEnter={(e) => showPop(e.currentTarget, it)}
-                        onMouseLeave={() => setPop(null)}
-                        onFocus={(e) => showPop(e.currentTarget, it)}
-                        onBlur={() => setPop(null)}
-                        onClick={() => jump(it.id)}
-                        className="group absolute flex flex-col items-center"
-                        style={{
-                          left: it.x,
-                          bottom: 38,
-                          transform: "translateX(-50%)",
-                          appearance: "none",
-                          background: "transparent",
-                          border: 0,
-                          padding: 0,
-                          cursor: "inherit",
-                        }}
-                        aria-label={`Jump to ${it.v}${it.title ? ` — ${it.title}` : ""}`}
-                      >
+                      className="absolute right-0 left-0 h-px bg-fd-border"
+                      style={{ bottom: 46 }}
+                    />
+                    {monthCols.flatMap((c) =>
+                      Array.from({ length: 5 }, (_, k) => (
                         <span
+                          key={`${c.m}-${k}`}
                           className={cn(
-                            "block rounded-[9px] border px-2.5 py-1 text-center leading-tight whitespace-nowrap transition group-hover:-translate-y-0.5 group-focus-visible:-translate-y-0.5",
-                            it.up
-                              ? "border-dashed border-kp-accent-border bg-kp-accent-weak group-hover:border-kp-accent"
-                              : "border-fd-border bg-fd-card group-hover:border-kp-accent group-hover:shadow-[0_6px_16px_-8px_var(--kp-accent)]",
+                            "absolute w-px",
+                            k === 0 ? "h-2 bg-fd-muted-foreground/40" : "h-1 bg-fd-border",
                           )}
+                          style={{ left: c.x + k * (MONTH_W / 5), bottom: 47 }}
+                        />
+                      )),
+                    )}
+                    {monthCols.map((c) => (
+                      <div
+                        key={c.label}
+                        className="absolute font-mono text-[10px] tracking-wider text-fd-muted-foreground/70 uppercase"
+                        style={{
+                          left: c.x + MONTH_W / 2,
+                          bottom: 22,
+                          transform: "translateX(-50%)",
+                        }}
+                      >
+                        {c.label}
+                      </div>
+                    ))}
+                    {/* Now marker */}
+                    {now != null && now > minT && now < maxT && (
+                      <div
+                        className="pointer-events-none absolute"
+                        style={{
+                          left: xOf(now),
+                          top: 6,
+                          bottom: 46,
+                          transform: "translateX(-50%)",
+                        }}
+                      >
+                        <span className="text-kp-accent-ink absolute -top-1 left-1/2 -translate-x-1/2 rounded bg-kp-accent px-1.5 py-0.5 font-mono text-[8.5px] font-bold tracking-wider uppercase">
+                          Now
+                        </span>
+                        <div className="mt-4 h-full w-px border-l border-dashed border-kp-accent/40" />
+                      </div>
+                    )}
+                    {/* markers — light chips */}
+                    {items.map((it) => {
+                      const conn = BASE_CONN - it.lane * LANE_STEP;
+                      return (
+                        <button
+                          key={it.id}
+                          type="button"
+                          onMouseEnter={(e) => showPop(e.currentTarget, it)}
+                          onMouseLeave={() => setPop(null)}
+                          onFocus={(e) => showPop(e.currentTarget, it)}
+                          onBlur={() => setPop(null)}
+                          onClick={() => jump(it.id)}
+                          className="group absolute flex flex-col items-center"
+                          style={{
+                            left: it.x,
+                            bottom: 38,
+                            transform: "translateX(-50%)",
+                            appearance: "none",
+                            background: "transparent",
+                            border: 0,
+                            padding: 0,
+                            cursor: "inherit",
+                          }}
+                          aria-label={`Jump to ${it.v}${it.title ? ` — ${it.title}` : ""}`}
                         >
                           <span
                             className={cn(
-                              "block font-mono text-[12px] font-semibold",
-                              it.up ? "text-kp-accent-text" : "text-fd-foreground",
+                              "block rounded-[9px] border px-2.5 py-1 text-center leading-tight whitespace-nowrap transition group-hover:-translate-y-0.5 group-focus-visible:-translate-y-0.5",
+                              it.up
+                                ? "border-dashed border-kp-accent-border bg-kp-accent-weak group-hover:border-kp-accent"
+                                : "border-fd-border bg-fd-card group-hover:border-kp-accent group-hover:shadow-[0_6px_16px_-8px_var(--kp-accent)]",
                             )}
                           >
-                            {it.v}
+                            <span
+                              className={cn(
+                                "block font-mono text-[12px] font-semibold",
+                                it.up ? "text-kp-accent-text" : "text-fd-foreground",
+                              )}
+                            >
+                              {it.v}
+                            </span>
+                            <span
+                              className={cn(
+                                "mt-px block font-mono text-[9px]",
+                                it.up ? "text-kp-accent-text/65" : "text-fd-muted-foreground/80",
+                              )}
+                            >
+                              {it.dateLabel}
+                            </span>
                           </span>
                           <span
                             className={cn(
-                              "mt-px block font-mono text-[9px]",
-                              it.up ? "text-kp-accent-text/65" : "text-fd-muted-foreground/80",
+                              "transition-colors",
+                              it.up
+                                ? "border-l border-dashed border-kp-accent-border"
+                                : "w-px bg-fd-border group-hover:bg-kp-accent",
                             )}
-                          >
-                            {it.dateLabel}
-                          </span>
-                        </span>
-                        <span
-                          className={cn(
-                            "transition-colors",
-                            it.up
-                              ? "border-l border-dashed border-kp-accent-border"
-                              : "w-px bg-fd-border group-hover:bg-kp-accent",
-                          )}
-                          style={{ height: conn, width: it.up ? 0 : 1 }}
-                        />
-                        <span
-                          className={cn(
-                            "size-2.5 translate-y-1/2 rounded-full ring-[3px] ring-fd-card transition group-hover:scale-110",
-                            it.up
-                              ? "bg-fd-card shadow-[inset_0_0_0_2px_var(--kp-accent)]"
-                              : "bg-fd-muted-foreground/55 group-hover:bg-kp-accent",
-                          )}
-                        />
-                      </button>
-                    );
-                  })}
+                            style={{ height: conn, width: it.up ? 0 : 1 }}
+                          />
+                          <span
+                            className={cn(
+                              "size-2.5 translate-y-1/2 rounded-full ring-[3px] ring-fd-card transition group-hover:scale-110",
+                              it.up
+                                ? "bg-fd-card shadow-[inset_0_0_0_2px_var(--kp-accent)]"
+                                : "bg-fd-muted-foreground/55 group-hover:bg-kp-accent",
+                            )}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* slim progress bar */}
-            <div className="relative mx-5 mt-3 mb-4 h-1 rounded-full bg-fd-border/50">
-              <div
-                ref={thumbRef}
-                className="absolute inset-y-0 left-0 min-w-[30px] rounded-full bg-fd-border"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* fixed hover popover — escapes the scroller's clip */}
-        {pop && (
-          <div
-            className="fixed z-[80] w-[248px] -translate-y-full rounded-2xl border border-fd-border bg-fd-card p-4 shadow-[0_16px_44px_-12px_rgba(30,25,75,.3)]"
-            style={{ left: pop.left, top: pop.top }}
-          >
-            <div className="mb-2 flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <span className="font-mono text-[12px] font-semibold tracking-[.02em] text-kp-accent-text">
-                  {pop.it.v}
-                </span>
-                {pop.it.up && (
-                  <span className="rounded-full bg-kp-accent-weak px-1.5 py-0.5 font-mono text-[8.5px] font-bold tracking-wider text-kp-accent-text uppercase">
-                    Upcoming
-                  </span>
-                )}
-              </span>
-              <span className="font-mono text-[11px] text-fd-muted-foreground">
-                {pop.it.dateLabel}
-              </span>
-            </div>
-            {pop.it.title && (
-              <div className="mb-3 text-[14.5px] leading-snug font-bold tracking-[-.01em] text-fd-foreground">
-                {pop.it.title}
-              </div>
-            )}
-            {pop.it.areas.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {pop.it.areas.map((a) => (
-                  <span
-                    key={a}
-                    className="rounded-md bg-fd-muted px-2 py-[3px] text-[11px] font-medium text-fd-muted-foreground"
-                  >
-                    {a}
-                  </span>
-                ))}
-              </div>
-            )}
-            <div className="mt-3 border-t border-fd-border/60 pt-2.5 text-[11.5px] font-medium text-kp-accent-text">
-              Jump to release →
-            </div>
-          </div>
-        )}
-
-        {/* right-aligned compact area filter */}
-        {tags.length > 0 && variant !== "compact" && (
-          <div className="mb-7 flex items-center justify-between gap-3">
-            <span className="text-[13px] text-fd-muted-foreground">
-              {active === "All"
-                ? null
-                : `${matchCount} release${matchCount === 1 ? "" : "s"} in ${active}`}
-            </span>
-            <div data-sl-filter className="relative">
-              <button
-                type="button"
-                onClick={() => setFilterOpen((v) => !v)}
-                aria-haspopup="listbox"
-                aria-expanded={filterOpen}
-                className="inline-flex items-center gap-2 rounded-lg border border-fd-border bg-fd-card px-3 py-1.5 text-[13px] font-medium text-fd-foreground transition hover:border-kp-accent-border"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className="text-fd-muted-foreground"
-                >
-                  <path d="M3 5h18M6 12h12M10 19h4" />
-                </svg>
-                {active === "All" ? "Filter by area" : active}
-                {active !== "All" && (
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    aria-label="Clear filter"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActive("All");
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.stopPropagation();
-                        setActive("All");
-                      }
-                    }}
-                    className="ml-0.5 grid size-4 place-items-center rounded-full text-fd-muted-foreground hover:bg-fd-muted hover:text-fd-foreground"
-                  >
-                    <svg
-                      width="11"
-                      height="11"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.4"
-                    >
-                      <path d="M18 6 6 18M6 6l12 12" />
-                    </svg>
-                  </span>
-                )}
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className={cn("text-fd-muted-foreground transition", filterOpen && "rotate-180")}
-                >
-                  <path d="m6 9 6 6 6-6" />
-                </svg>
-              </button>
-              {filterOpen && (
+              {/* slim progress bar */}
+              <div className="relative mx-5 mt-3 mb-4 h-1 rounded-full bg-fd-border/50">
                 <div
-                  role="listbox"
-                  className="absolute right-0 z-50 mt-1.5 max-h-72 w-56 overflow-y-auto rounded-xl border border-fd-border bg-fd-card p-1.5 shadow-[0_16px_44px_-12px_rgba(30,25,75,.3)]"
-                >
-                  {["All", ...tags].map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      role="option"
-                      aria-selected={active === t}
-                      onClick={() => {
-                        setActive(t);
-                        setFilterOpen(false);
-                      }}
-                      className={cn(
-                        "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[13px] transition",
-                        active === t
-                          ? "bg-kp-accent-weak text-kp-accent-text"
-                          : "text-fd-foreground hover:bg-fd-muted",
-                      )}
+                  ref={thumbRef}
+                  className="absolute inset-y-0 left-0 min-w-[30px] rounded-full bg-fd-border"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* fixed hover popover — escapes the scroller's clip */}
+          {pop && (
+            <div
+              className="fixed z-[80] w-[248px] -translate-y-full rounded-2xl border border-fd-border bg-fd-card p-4 shadow-[0_16px_44px_-12px_rgba(30,25,75,.3)]"
+              style={{ left: pop.left, top: pop.top }}
+            >
+              <div className="mb-2 flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <span className="font-mono text-[12px] font-semibold tracking-[.02em] text-kp-accent-text">
+                    {pop.it.v}
+                  </span>
+                  {pop.it.up && (
+                    <span className="rounded-full bg-kp-accent-weak px-1.5 py-0.5 font-mono text-[8.5px] font-bold tracking-wider text-kp-accent-text uppercase">
+                      Upcoming
+                    </span>
+                  )}
+                </span>
+                <span className="font-mono text-[11px] text-fd-muted-foreground">
+                  {pop.it.dateLabel}
+                </span>
+              </div>
+              {pop.it.title && (
+                <div className="mb-3 text-[14.5px] leading-snug font-bold tracking-[-.01em] text-fd-foreground">
+                  {pop.it.title}
+                </div>
+              )}
+              {pop.it.areas.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {pop.it.areas.map((a) => (
+                    <span
+                      key={a}
+                      className="rounded-md bg-fd-muted px-2 py-[3px] text-[11px] font-medium text-fd-muted-foreground"
                     >
-                      {t === "All" ? (
-                        <span className="size-2 rounded-full bg-fd-muted-foreground/40" />
-                      ) : (
-                        <span className="size-2 rounded-full" style={{ background: tagColor(t) }} />
-                      )}
-                      <span className="flex-1">{t}</span>
-                      {active === t && (
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.4"
-                        >
-                          <path d="M20 6 9 17l-5-5" />
-                        </svg>
-                      )}
-                    </button>
+                      {a}
+                    </span>
                   ))}
                 </div>
               )}
+              <div className="mt-3 border-t border-fd-border/60 pt-2.5 text-[11.5px] font-medium text-kp-accent-text">
+                Jump to release →
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {children}
+          {/* right-aligned compact area filter */}
+          {tags.length > 0 && variant !== "compact" && (
+            <div className="mb-7 flex items-center justify-between gap-3">
+              <span className="text-[13px] text-fd-muted-foreground">
+                {active === "All"
+                  ? null
+                  : `${matchCount} release${matchCount === 1 ? "" : "s"} in ${active}`}
+              </span>
+              <div data-sl-filter className="relative">
+                <button
+                  type="button"
+                  onClick={() => setFilterOpen((v) => !v)}
+                  aria-haspopup="listbox"
+                  aria-expanded={filterOpen}
+                  className="inline-flex items-center gap-2 rounded-lg border border-fd-border bg-fd-card px-3 py-1.5 text-[13px] font-medium text-fd-foreground transition hover:border-kp-accent-border"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="text-fd-muted-foreground"
+                  >
+                    <path d="M3 5h18M6 12h12M10 19h4" />
+                  </svg>
+                  {active === "All" ? "Filter by area" : active}
+                  {active !== "All" && (
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      aria-label="Clear filter"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActive("All");
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.stopPropagation();
+                          setActive("All");
+                        }
+                      }}
+                      className="ml-0.5 grid size-4 place-items-center rounded-full text-fd-muted-foreground hover:bg-fd-muted hover:text-fd-foreground"
+                    >
+                      <svg
+                        width="11"
+                        height="11"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.4"
+                      >
+                        <path d="M18 6 6 18M6 6l12 12" />
+                      </svg>
+                    </span>
+                  )}
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className={cn(
+                      "text-fd-muted-foreground transition",
+                      filterOpen && "rotate-180",
+                    )}
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </button>
+                {filterOpen && (
+                  <div
+                    role="listbox"
+                    className="absolute right-0 z-50 mt-1.5 max-h-72 w-56 overflow-y-auto rounded-xl border border-fd-border bg-fd-card p-1.5 shadow-[0_16px_44px_-12px_rgba(30,25,75,.3)]"
+                  >
+                    {["All", ...tags].map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        role="option"
+                        aria-selected={active === t}
+                        onClick={() => {
+                          setActive(t);
+                          setFilterOpen(false);
+                        }}
+                        className={cn(
+                          "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[13px] transition",
+                          active === t
+                            ? "bg-kp-accent-weak text-kp-accent-text"
+                            : "text-fd-foreground hover:bg-fd-muted",
+                        )}
+                      >
+                        {t === "All" ? (
+                          <span className="size-2 rounded-full bg-fd-muted-foreground/40" />
+                        ) : (
+                          <span
+                            className="size-2 rounded-full"
+                            style={{ background: tagColor(t) }}
+                          />
+                        )}
+                        <span className="flex-1">{t}</span>
+                        {active === t && (
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.4"
+                          >
+                            <path d="M20 6 9 17l-5-5" />
+                          </svg>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
-        {/* empty state when a filter matches nothing */}
-        {active !== "All" && matchCount === 0 && (
-          <div className="rounded-xl border border-dashed border-fd-border py-12 text-center text-[14px] text-fd-muted-foreground">
-            No releases tagged <span className="font-medium text-fd-foreground">{active}</span>.{" "}
-            <button
-              type="button"
-              onClick={() => setActive("All")}
-              className="font-medium text-kp-accent-text underline-offset-2 hover:underline"
-            >
-              Show all
-            </button>
-          </div>
-        )}
-      </section>
+          {children}
+
+          {/* empty state when a filter matches nothing */}
+          {active !== "All" && matchCount === 0 && (
+            <div className="rounded-xl border border-dashed border-fd-border py-12 text-center text-[14px] text-fd-muted-foreground">
+              No releases tagged <span className="font-medium text-fd-foreground">{active}</span>.{" "}
+              <button
+                type="button"
+                onClick={() => setActive("All")}
+                className="font-medium text-kp-accent-text underline-offset-2 hover:underline"
+              >
+                Show all
+              </button>
+            </div>
+          )}
+        </section>
+      </LatestCtx.Provider>
     </VariantCtx.Provider>
   );
 }
