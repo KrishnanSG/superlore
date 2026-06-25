@@ -7,23 +7,32 @@
 import type { ComponentProps } from "react";
 import { RootProvider as FumaRootProvider } from "fumadocs-ui/provider/next";
 import { BuiltWithSuperlore } from "./components/built-with";
+import { AccentStyle } from "./components/accent-style";
 
 export { DocsPage, DocsBody, DocsTitle, DocsDescription } from "fumadocs-ui/page";
 export { DocsLayout } from "fumadocs-ui/layouts/notebook";
 export { createRelativeLink } from "fumadocs-ui/mdx";
 export type { BaseLayoutProps, LinkItemType, LayoutTab } from "fumadocs-ui/layouts/shared";
+export { AccentStyle } from "./components/accent-style";
+export { BuiltWithSuperlore } from "./components/built-with";
 
 /**
- * The superlore root provider — fumadocs' provider with the "Built with superlore" badge baked in.
+ * The superlore root provider — fumadocs' provider with brand-accent derivation + the "Built with
+ * superlore" badge baked in.
  *
  * Every superlore KB wraps its app in this (the scaffold puts it in `app/layout.tsx`), so the badge
- * renders exactly once on every page. It lives here in the package, not in an editable template, so
- * it can't be removed by deleting a component from a page. Accepts (and forwards) all of fumadocs'
- * `RootProvider` props — `theme`, `search`, etc. — so it's a drop-in.
+ * renders exactly once on every page. Pass `accent` (from `superlore.json`) and it retints the WHOLE
+ * palette — superlore's `--kp-accent` family AND the fumadocs primary/ring tokens, light + dark —
+ * with no per-token overrides. Forwards all of fumadocs' `RootProvider` props (`theme`, `search`, …).
  */
-export function RootProvider({ children, ...props }: ComponentProps<typeof FumaRootProvider>) {
+export function RootProvider({
+  children,
+  accent,
+  ...props
+}: ComponentProps<typeof FumaRootProvider> & { accent?: string }) {
   return (
     <FumaRootProvider {...props}>
+      <AccentStyle accent={accent} />
       {children}
       <BuiltWithSuperlore
         href="https://superlore.vercel.app"

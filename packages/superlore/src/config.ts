@@ -15,6 +15,14 @@ export interface SuperloreLogo {
   href?: string;
 }
 
+/** Brand typefaces — family names the layout wires to `--font-sans` / `--font-mono`. */
+export interface SuperloreFont {
+  /** Body + UI typeface family, e.g. "Inter". */
+  sans?: string;
+  /** Code typeface family, e.g. "JetBrains Mono". */
+  mono?: string;
+}
+
 /**
  * The shape of `superlore.json` — the canonical KB config the CLI scaffolds and the layout reads.
  * Pick your `logo` (light/dark) and `favicon`, set the brand `accent` and visual `theme`, and point
@@ -32,6 +40,8 @@ export interface SuperloreSiteConfig {
   logo?: SuperloreLogo;
   /** Favicon path (svg / png / ico). */
   favicon?: string;
+  /** Brand typefaces (the layout wires these to `--font-sans` / `--font-mono`). */
+  font?: SuperloreFont;
   /** MCP endpoint config. */
   mcp?: { enabled?: boolean; path?: string };
 }

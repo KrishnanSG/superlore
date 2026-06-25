@@ -2,7 +2,6 @@ import { RootProvider } from "superlore/ui";
 import "./global.css";
 import { Inter, JetBrains_Mono, Caveat } from "next/font/google";
 import type { Metadata } from "next";
-import { ThemeStyle } from "@/lib/theme-style";
 // superlore.json is the KB config the CLI scaffolds; `theme` selects the visual skin. The package
 // ships each skin's CSS scoped to `[data-sl-theme="…"]`, so flipping this flag is all it takes.
 import siteConfig from "@/superlore.json";
@@ -53,10 +52,14 @@ export default function Layout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col">
-        {/* Optional brand accent from superlore.config — derives the family for light + dark. */}
-        <ThemeStyle />
-        {/* superlore's own docs default to dark; the toggle still offers light + system. */}
-        <RootProvider theme={{ defaultTheme: "dark", enableSystem: true }}>{children}</RootProvider>
+        {/* `accent` from superlore.json drives the WHOLE palette (kp-accent family + fumadocs
+            primary/ring, light + dark) — derived in the package, no per-token overrides. */}
+        <RootProvider
+          accent={siteConfig.accent}
+          theme={{ defaultTheme: "dark", enableSystem: true }}
+        >
+          {children}
+        </RootProvider>
       </body>
     </html>
   );
