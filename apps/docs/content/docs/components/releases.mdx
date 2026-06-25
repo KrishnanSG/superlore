@@ -114,16 +114,20 @@ changes.
 ## Media — screenshots & video
 
 A `media` block leads the entry (the first item is the hero). superlore never hosts — `src` is a path
-or URL you provide. Images get a click-to-zoom lightbox; video supports a self-hosted file or a
-click-to-load embed facade for YouTube / Loom / Vimeo (no third-party JS loads until the viewer hits
-play).
+or URL you provide. Images get a click-to-zoom lightbox; video supports a self-hosted file, the named
+providers (YouTube / Loom / Vimeo), or **`provider: "iframe"` to embed any URL verbatim** — so any
+embeddable player works. Nothing loads until the viewer hits play.
 
 ```tsx
 media={[
-  { type: "video", provider: "loom", src: "https://www.loom.com/share/…", poster: "/hero.png", title: "Walkthrough", duration: "0:42" },
+  { type: "video", provider: "iframe", src: "https://your-host.example/embed/abc", poster: "/hero.png", title: "Walkthrough", duration: "0:42" },
+  { type: "video", src: "/walkthrough.mp4" },         // raw file → <video>
   { type: "image", src: "/screenshot.png", alt: "New dashboard", caption: "The redesigned dashboard." },
 ]}
 ```
+
+`provider` is inferred from `src` when omitted: a known host (YouTube / Loom / Vimeo) or a raw media
+file (`.mp4`, `.webm`, …) is detected automatically; **anything else is embedded as an iframe**.
 
 ## When to use it
 

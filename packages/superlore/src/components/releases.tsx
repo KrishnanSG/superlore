@@ -201,11 +201,13 @@ function slug(s: string): string {
 
 /* --------------------------------------------------------------------- media --- */
 
-function inferProvider(src: string): "file" | "youtube" | "loom" | "vimeo" {
+function inferProvider(src: string): "file" | "youtube" | "loom" | "vimeo" | "iframe" {
   if (/youtu\.?be|youtube\.com/.test(src)) return "youtube";
   if (/loom\.com/.test(src)) return "loom";
   if (/vimeo\.com/.test(src)) return "vimeo";
-  return "file";
+  // A raw media file plays in <video>; anything else is embedded verbatim in an <iframe>.
+  if (/\.(mp4|webm|ogg|ogv|mov|m4v)(\?|#|$)/i.test(src)) return "file";
+  return "iframe";
 }
 function embedUrl(media: MediaData): string {
   const p = media.provider ?? inferProvider(media.src);
@@ -302,7 +304,7 @@ function VideoMedia({ media }: { media: MediaData }) {
             <iframe
               src={embedUrl(media)}
               title={media.title ?? "Release video"}
-              allow="autoplay; fullscreen; picture-in-picture"
+              allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
               allowFullScreen
               className="absolute inset-0 h-full w-full"
             />
@@ -1086,7 +1088,7 @@ const changeSchema = z.object({
 const mediaSchema = z.object({
   type: z.enum(["image", "video"]),
   src: z.string(),
-  provider: z.enum(["file", "youtube", "loom", "vimeo"]).optional(),
+  provider: z.enum(["file", "youtube", "loom", "vimeo", "iframe"]).optional(),
   poster: z.string().optional(),
   alt: z.string().optional(),
   caption: z.string().optional(),

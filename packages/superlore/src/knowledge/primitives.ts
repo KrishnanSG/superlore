@@ -249,13 +249,18 @@ export interface ReleaseChange {
   refs?: Ref[];
 }
 
-/** Provider for an embedded release video — drives which facade the renderer mounts on click. */
-export type ReleaseMediaProvider = "file" | "youtube" | "loom" | "vimeo";
+/**
+ * Provider for an embedded release video — drives which facade the renderer mounts on click.
+ * `iframe` is the generic escape hatch: the renderer embeds `src` verbatim in an `<iframe>`, so any
+ * embeddable player works. `file` plays a raw media file in `<video>`; the named providers get their
+ * canonical embed URL.
+ */
+export type ReleaseMediaProvider = "file" | "youtube" | "loom" | "vimeo" | "iframe";
 
 /**
  * A screenshot or video attached to a release or a highlight. superlore never hosts — `src` is an
  * author-provided path/URL. Referenced, not pixel-embedded, so an agent gets `{type,title,caption}`
- * and never has to interpret an image.
+ * and never has to interpret an image. For video, `provider: "iframe"` embeds any URL verbatim.
  */
 export interface ReleaseMedia {
   type: "image" | "video";
