@@ -249,10 +249,59 @@ export interface ReleaseChange {
   refs?: Ref[];
 }
 
+/** Provider for an embedded release video — drives which facade the renderer mounts on click. */
+export type ReleaseMediaProvider = "file" | "youtube" | "loom" | "vimeo";
+
+/**
+ * A screenshot or video attached to a release or a highlight. superlore never hosts — `src` is an
+ * author-provided path/URL. Referenced, not pixel-embedded, so an agent gets `{type,title,caption}`
+ * and never has to interpret an image.
+ */
+export interface ReleaseMedia {
+  type: "image" | "video";
+  src: string;
+  /** For video: where it lives (a raw file vs an embeddable provider page). Defaults inferred from src. */
+  provider?: ReleaseMediaProvider;
+  /** Poster/thumbnail for video. */
+  poster?: string;
+  alt?: string;
+  caption?: string;
+  title?: string;
+  /** Human duration label, e.g. "0:42". */
+  duration?: string;
+}
+
+/** A marquee feature in a release — a typed highlight card (icon + title + body + optional media). */
+export interface ReleaseHighlight {
+  title: string;
+  body?: string;
+  /** lucide icon name (kebab-case). */
+  icon?: string;
+  href?: string;
+  media?: ReleaseMedia;
+}
+
+/** Changes grouped under a heading (New features / Improvements / Fixes / Security). */
+export interface ReleaseSection {
+  label: string;
+  /** lucide icon name; the renderer infers a sensible default from the label when omitted. */
+  icon?: string;
+  changes: ReleaseChange[];
+}
+
 export interface ReleaseNode extends KnowledgeNode {
   kind: "release";
   version: string;
   date: KDate;
+  /** Product areas / features this release touched — powers the rail, the timeline hover card, filters. */
+  areas?: string[];
+  /** Hero & inline media — screenshots and videos, referenced (not embedded). */
+  media?: ReleaseMedia[];
+  /** Marquee features, each a typed highlight. */
+  highlights?: ReleaseHighlight[];
+  /** Changes grouped into sections. When present, the queryable spine; `changes` is the flat union. */
+  sections?: ReleaseSection[];
+  /** Flat changes — back-compat and the always-present flattened union of every section's changes. */
   changes: ReleaseChange[];
 }
 

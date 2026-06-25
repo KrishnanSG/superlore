@@ -1,119 +1,187 @@
 ---
 title: Changelog
 icon: Tag
-description: What's new in superlore — every release, with typed changes an agent can query, and what's coming next.
-summary: A product changelog rendered with Releases — a release timeline (shipped left of Now, upcoming to the right), a tag filter, and each entry a sticky version/date/tag rail beside a rich body and typed changes, serialized to a release knowledge node for the MCP.
+description: What's new in superlore — every release as a complete record an agent can query, with a hero, highlights, grouped changes, and what's coming next.
+summary: A product changelog rendered with Releases — a collision-free release timeline (shipped left of Now, upcoming to the right) plus tag filter, and each entry a full release record (hero media, a Highlights grid, changes grouped into sections) beside a sticky area rail, all serialized to a release knowledge node for the MCP.
 tags: [changelog, releases, roadmap]
 ---
+
+Every superlore release is a complete record — a hero, the marquee highlights, and changes grouped
+into sections — and every block is typed, so an agent over MCP reads the same release you do.
 
 <Releases label="superlore changelog">
   <Release
     version="0.12"
     date="2026-07-15"
     status="in-progress"
-    title="The mint theme"
-    tags={["Theme", "Design"]}
-    summary="A Mintlify-grade look for any superlore KB — opt in with theme: mint. Shipping soon."
-  >
-    <CardGroup cols={2}>
-      <Card icon="panels-top-left" title="Top navbar + chrome">
-        Logo, page tabs, links, and a primary CTA — airy type and a grouped sidebar.
-      </Card>
-      <Card icon="git-branch" title="Release timeline">
-        This timeline, the tag filter, and rich release bodies — backed by typed, queryable data.
-      </Card>
-    </CardGroup>
-    <Checklist
-      items={[
-        { text: "mint token set (type scale, spacing, radii)", done: true },
-        { text: "Release timeline + tag filter + rich bodies", done: true },
-        { text: "Configurable navbar / banner / footer", done: false },
-        { text: "theme: mint flag in superlore.json", done: false },
-      ]}
-    />
-  </Release>
-  <Release
-    version="0.11"
-    date="2026-06-23"
-    status="done"
-    title="Embeddable runtime + Powered-by badge"
-    tags={["Runtime", "Branding"]}
-    summary="Drop a superlore doc into any host app — now with zero global CSS leakage and a floating brand badge."
-    changes={[
+    title="Reimagined releases + the mint theme"
+    tags={["Releases", "Theme", "Config"]}
+    areas={["Releases", "Mint theme", "Logo config", "Timeline", "Canvas", "MCP"]}
+    summary="A from-scratch release system — hero media, Highlights, grouped sections, a collision-free timeline — plus a native mint theme and superlore.json logo config."
+    media={[
       {
-        type: "added",
-        text: "superlore/runtime.css is fully scoped to a .superlore-doc container — import it app-wide with a 0-pixel host diff.",
-      },
-      {
-        type: "added",
-        text: "SuperloreDoc stamps a floating 'Powered by superlore' badge (opt-out with badge={false}).",
-      },
-      {
-        type: "changed",
-        text: "Dark mode is container-local via data-theme on the doc — two docs can render different themes on one page.",
-      },
-      {
-        type: "fixed",
-        text: "Code blocks keep their tokyo-night surface even when a host webview drops Shiki's CSS variables.",
+        type: "video",
+        provider: "youtube",
+        src: "https://www.youtube.com/watch?v=ysz5S6PUM-U",
+        poster: "/landing-hero.png",
+        title: "Reimagined releases",
+        duration: "1:20",
+        caption: "A walkthrough of the new release component.",
       },
     ]}
-  >
-    <CardGroup cols={2}>
-      <Card icon="shield" title="Zero leakage">
-        Every rule is scoped to the doc container — import it app-wide and the host's own pages
-        don't move a pixel.
-      </Card>
-      <Card icon="badge-check" title="Powered by superlore">
-        A small floating badge on every embedded doc — branding by default, one prop to remove.
-      </Card>
-    </CardGroup>
-  </Release>
-  <Release
-    version="0.10"
-    date="2026-05-22"
-    status="done"
-    title="Host-native rendering"
-    tags={["Runtime"]}
-    summary="The runtime renderer and theme API a companion app needs to render superlore docs in its own brand."
-    changes={[
-      {
-        type: "added",
-        text: "superlore/runtime — render an MDX string live in any React app (SuperloreDoc, useSuperloreMdx, compileMdxSource).",
-      },
-      {
-        type: "added",
-        text: "SuperloreTheme — render superlore in the host's palette via a CSS-variable contract.",
-      },
-      {
-        type: "changed",
-        text: "The extension now installs from the Open VSX registry, so it auto-updates.",
-        refs: [{ rel: "related", target: "/docs/agents/mcp/connect", label: "Connect" }],
-      },
+    highlights={[
+      { icon: "rocket", title: "Release records", body: "Hero media, a Highlights grid, and changes grouped into New / Improved / Fixed — one Release." },
+      { icon: "git-branch", title: "Collision-free timeline", body: "Crowded releases fan into stacked lanes; a sleek hover card shows the areas each one touched." },
+      { icon: "sparkles", title: "Mint theme", body: "A Mintlify-grade look for any KB — set theme: mint in superlore.json, zero .mdx edits." },
+      { icon: "image", title: "Logo config", body: "Pick light + dark logos and a favicon in superlore.json, the way mint.json does it." },
+    ]}
+    sections={[
+      { label: "New features", changes: [
+        { type: "added", text: "Release component reimagined — media-first entries with a Highlights grid and an area jump-rail." },
+        { type: "added", text: "Screenshots and video are first-class: image lightbox + a click-to-load video facade (file / YouTube / Loom / Vimeo)." },
+        { type: "added", text: "superlore.json gains logo { light, dark, href } + favicon.", refs: [{ target: "/docs/themes", label: "Themes" }] },
+      ]},
+      { label: "Improvements", changes: [
+        { type: "changed", text: "The release timeline never overlaps — a lane layout stacks crowded versions at different heights." },
+        { type: "changed", text: "Changes group under section headings instead of a loud badge on every row." },
+      ]},
     ]}
   />
+
+<Release
+  version="0.11"
+  date="2026-06-23"
+  status="done"
+  title="Embeddable runtime + Powered-by badge"
+  tags={["Runtime", "Branding"]}
+  areas={["Runtime", "Branding", "MCP"]}
+  summary="Drop a superlore doc into any host app — now with zero global CSS leakage and a floating brand badge."
+  media={[
+    {
+      type: "image",
+      src: "/dual-representation.png",
+      alt: "superlore dual representation",
+      caption: "One source — a clean page for humans, structured knowledge for agents.",
+    },
+  ]}
+  highlights={[
+    {
+      icon: "shield-check",
+      title: "Zero leakage",
+      body: "Every rule is scoped to the doc container — import it app-wide and the host's own pages don't move a pixel.",
+    },
+    {
+      icon: "badge-check",
+      title: "Powered by superlore",
+      body: "A small floating badge on every embedded doc — branding by default, one prop to remove.",
+    },
+  ]}
+  sections={[
+    {
+      label: "New features",
+      changes: [
+        {
+          type: "added",
+          text: "superlore/runtime.css is fully scoped to a .superlore-doc container — import it app-wide with a 0-pixel host diff.",
+        },
+        {
+          type: "added",
+          text: "SuperloreDoc stamps a floating 'Powered by superlore' badge (opt out with badge=false).",
+        },
+      ],
+    },
+    {
+      label: "Improvements",
+      changes: [
+        {
+          type: "changed",
+          text: "Dark mode is container-local via data-theme on the doc — two docs can render different themes on one page.",
+        },
+      ],
+    },
+    {
+      label: "Fixes",
+      changes: [
+        {
+          type: "fixed",
+          text: "Code blocks keep their tokyo-night surface even when a host webview drops Shiki's CSS variables.",
+        },
+      ],
+    },
+  ]}
+/>
+
+<Release
+  version="0.10"
+  date="2026-05-22"
+  status="done"
+  title="Host-native rendering"
+  tags={["Runtime", "MCP"]}
+  areas={["Runtime", "MCP", "Branding"]}
+  summary="The runtime renderer and theme API a companion app needs to render superlore docs in its own brand."
+  media={[
+    {
+      type: "image",
+      src: "/superlore-cloud.png",
+      alt: "superlore rendered in a host app",
+      caption: "superlore docs rendered live inside a host application.",
+    },
+  ]}
+  highlights={[
+    {
+      icon: "code",
+      title: "Render MDX anywhere",
+      body: "SuperloreDoc, useSuperloreMdx and compileMdxSource render an MDX string live in any React app.",
+    },
+    {
+      icon: "palette",
+      title: "Host palette",
+      body: "SuperloreTheme renders superlore in the host's brand via a CSS-variable contract.",
+    },
+  ]}
+  sections={[
+    {
+      label: "New features",
+      changes: [
+        {
+          type: "added",
+          text: "superlore/runtime — render an MDX string live in any React app (SuperloreDoc, useSuperloreMdx, compileMdxSource).",
+        },
+        {
+          type: "added",
+          text: "SuperloreTheme — render superlore in the host's palette via a CSS-variable contract.",
+        },
+      ],
+    },
+    {
+      label: "Improvements",
+      changes: [
+        {
+          type: "changed",
+          text: "The extension now installs from the Open VSX registry, so it auto-updates.",
+          refs: [{ target: "/docs/agents", label: "Connect" }],
+        },
+      ],
+    },
+  ]}
+/>
+
   <Release
     version="0.9"
     date="2026-04-21"
     status="done"
     title="Markdown-first authoring"
     tags={["Authoring", "Canvas"]}
-    changes={[
-      {
-        type: "added",
-        text: "- [ ] task lists render as a Checklist; > [!NOTE] alerts render as Callouts — natural markdown, dual-rep components.",
-      },
-      {
-        type: "added",
-        text: "Canvas edge labels reserve a lane in layout, so fan-in connectors never overlap.",
-      },
-      {
-        type: "fixed",
-        text: "Code blocks are always dark, in any page theme, on a tokyo-night surface.",
-      },
-      {
-        type: "deprecated",
-        text: "Verbose component tags for the common cases — author the markdown instead.",
-      },
+    areas={["Authoring", "Canvas"]}
+    summary="Write natural Markdown and get dual-representation components for free."
+    sections={[
+      { label: "New features", changes: [
+        { type: "added", text: "Task lists render as a Checklist; NOTE/TIP alerts render as Callouts — natural markdown, dual-rep components." },
+        { type: "added", text: "Canvas edge labels reserve a lane in layout, so fan-in connectors never overlap." },
+      ]},
+      { label: "Fixes", changes: [
+        { type: "fixed", text: "Code blocks are always dark, in any page theme, on a tokyo-night surface." },
+      ]},
     ]}
   />
 </Releases>
