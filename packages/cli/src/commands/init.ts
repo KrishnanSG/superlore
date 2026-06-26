@@ -26,6 +26,8 @@ export interface InitFlags {
   allowedDomain?: string;
   /** Brand accent colour. */
   accent?: string;
+  /** Visual theme skin: default | mint | geist | ledger | obsidian | prism | paste. */
+  theme?: string;
   /** Disable the MCP endpoint (it is on by default). */
   mcp?: boolean;
   /** Set up the editor extension after scaffolding. `--connect` / `--no-connect`; unset prompts. */
@@ -139,6 +141,9 @@ export async function initCommand(dir: string | undefined, flags: InitFlags): Pr
 
   const draft: Record<string, unknown> = { name, type };
   if (accentColor) draft.accent = accentColor;
+  // Visual theme skin (optional; default look when unset). Validated against the loose `theme` field.
+  const themeName = flags.theme?.trim();
+  if (themeName) draft.theme = themeName;
   if (auth) draft.auth = auth;
   draft.mcp = { enabled: mcpEnabled, ...(mcpEnabled ? { path: DEFAULT_MCP_PATH } : {}) };
 

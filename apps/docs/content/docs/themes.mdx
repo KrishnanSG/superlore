@@ -24,65 +24,18 @@ stamps that attribute from your config. A theme is shipped, versioned, and inert
 a fork of your styles. **`accent` and `font` are orthogonal** — they layer on _any_ theme, so a preset
 is never tied to a brand colour.
 
-## The seven themes
+## The seven themes — try them live
 
-<Table
-  caption="superlore themes — pick one with theme in superlore.json"
-  columns={[
-    { key: "theme", label: "theme", type: "text" },
-    { key: "identity", label: "Identity", type: "text" },
-    { key: "feel", label: "Type & surface", type: "text" },
-  ]}
-  rows={[
-    {
-      theme: "default",
-      identity:
-        "superlore's native look — layered surfaces, hairline borders, violet accent, FigJam Canvas front-and-center",
-      feel: "Inter + JetBrains Mono · cool white / near-black",
-    },
-    {
-      theme: "mint",
-      identity:
-        "Mintlify-grade — airy blurred navbar, accent-underlined tabs, grouped icon sidebar, flat hero, release timeline",
-      feel: "larger airy type · cool white / near-black",
-    },
-    {
-      theme: "geist",
-      identity:
-        "Swiss border-first — structure drawn in 1px hairlines, color as punctuation, mono nav labels (inspired by Vercel)",
-      feel: "sans + mono labels · pure white / true near-black",
-    },
-    {
-      theme: "ledger",
-      identity:
-        "Editorial ivory — authority through restraint, a printed-essay serif body (inspired by Claude)",
-      feel: "serif body + sans headings · warm cream / warm charcoal",
-    },
-    {
-      theme: "obsidian",
-      identity:
-        "Dark-first dense console — near-black, information-dense, calm (inspired by Linear)",
-      feel: "Inter · near-black, co-equal dim light",
-    },
-    {
-      theme: "prism",
-      identity:
-        "Polished light reference — cool-white, navy headings, restrained soft elevation (inspired by Stripe)",
-      feel: "airy light sans + mono · white + cool gray / deep navy",
-    },
-    {
-      theme: "paste",
-      identity:
-        "Accessible system — one family, weight discipline, guaranteed contrast (inspired by Twilio Paste)",
-      feel: "one super-family, 400/600 · neutral, high-contrast",
-    },
-  ]}
-/>
+Click a theme to reskin **this whole page** in place — navbar, sidebar, type, surfaces, components.
+Each card shows that theme's palette swatches, a sample set in its own type, and its radius + density.
+(It's a preview; a reload returns the site to its configured theme.)
 
-<Note title="Seeing it live">
-  This site runs `theme: "mint"`. Flip the flag to any name above (or remove it for `default`) and
-  the same content re-renders in that skin — chrome, type, surfaces, components — with no other
-  edits.
+<ThemeGallery />
+
+<Note title="Set it for real">
+  This site runs `theme: "mint"`. Set the flag to any name above (or remove it for `default`) in
+  `superlore.json` and the same content ships in that skin — chrome, type, surfaces, components —
+  with no other edits.
 </Note>
 
 ## Brand overrides (work on any theme)

@@ -3,7 +3,7 @@ name: superlore-author
 description: Author and edit content into an existing superlore knowledge base — "vibe your docs". Turns intent ("add a page about X", "document our onboarding", "make a roadmap") into well-structured MDX with dual-representation components (cards, timelines, boards, entity cards, tables, a Canvas), so humans get a clean page and agents get a typed knowledge face from one source. Use when adding, writing, editing, or restructuring pages, components, or a Canvas in a superlore KB.
 metadata:
   author: superlore
-  version: "1.2.1"
+  version: "1.2.2"
 ---
 
 # Authoring superlore content ("vibe your docs")
@@ -141,6 +141,18 @@ targets depend on them.
 - **No emoji in content UI.** One accent (violet by default); let structure carry hierarchy.
 - Light and dark are co-equal — never hand-author theme-specific values; it's a token swap.
 - Lead every page with a `summary`. Prefer structural components over prose tables and screenshots.
+
+## Themes & brand (config, not content)
+
+The whole-site look is a **`superlore.json`** choice, never authored per page — keep content
+theme-agnostic so it works in any skin:
+
+- **`theme`** picks the visual skin: `default · mint · geist · ledger · obsidian · prism · paste`
+  (chrome, type, surfaces, radius/density). **`accent`** is one hue that drives the entire palette
+  (light + dark). **`font` / `logo` / `favicon`** are optional brand overrides that ride any theme.
+- These touch presentation only — the Canvas, every component's knowledge face, and the MCP are
+  identical across themes. So author the data; let the theme dress it.
+- Document/showcase themes with `<ThemeGallery />` if the KB ships it; otherwise the `/themes` page.
 
 ## MDX safety — never emit unescaped `{ … }` or `<Tag>` in prose
 

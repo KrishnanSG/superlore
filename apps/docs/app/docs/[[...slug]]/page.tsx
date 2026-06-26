@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getMDXComponents, PageHero } from "superlore";
 import { createRelativeLink } from "superlore/ui";
 import { superlore } from "@/superlore.config";
+import { ThemeGallery } from "@/components/theme-gallery";
 import type { Metadata } from "next";
 
 /** The section a page sits in (Guide / Components / Canvas / MCP) — the hero's eyebrow. */
@@ -32,7 +33,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
         description={page.data.description}
       />
       <DocsBody>
-        <MDX components={getMDXComponents({ a: createRelativeLink(source, page) })} />
+        <MDX components={getMDXComponents({ a: createRelativeLink(source, page), ThemeGallery })} />
       </DocsBody>
     </DocsPage>
   );
