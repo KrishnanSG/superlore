@@ -55,6 +55,10 @@
       "types": "./src/mdx.ts",
       "import": "./src/mdx.ts"
     },
+    "./mdx-lint": {
+      "types": "./src/mdx-lint.ts",
+      "import": "./src/mdx-lint.ts"
+    },
     "./search": {
       "types": "./src/search.ts",
       "import": "./src/search.ts"
@@ -104,6 +108,10 @@
       "./mdx": {
         "types": "./dist/mdx.d.mts",
         "import": "./dist/mdx.mjs"
+      },
+      "./mdx-lint": {
+        "types": "./dist/mdx-lint.d.mts",
+        "import": "./dist/mdx-lint.mjs"
       },
       "./search": {
         "types": "./dist/search.d.mts",

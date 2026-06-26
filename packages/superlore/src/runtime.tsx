@@ -17,6 +17,7 @@
  */
 import * as jsxRuntime from "react/jsx-runtime";
 import {
+  Component,
   createContext,
   useContext,
   useEffect,
@@ -24,6 +25,7 @@ import {
   useState,
   type ComponentType,
   type CSSProperties,
+  type ErrorInfo,
   type ReactNode,
 } from "react";
 import { evaluate } from "@mdx-js/mdx";
@@ -215,6 +217,51 @@ export interface SuperloreDocProps extends SuperloreRuntimeOptions {
 }
 
 /**
+ * Render-time error boundary for a compiled doc. A bare `{group_id}` (or `<UnknownTag>`) in prose
+ * compiles fine but throws when the component EXECUTES — with no boundary, that ReferenceError
+ * unmounts to the host root and blanks the whole page. This catches the throw, degrades to a calm
+ * fallback (message + the raw source, still readable), and reports via `onError`. Key it on `source`
+ * so navigating to a good doc after a bad one remounts and recovers.
+ */
+class DocErrorBoundary extends Component<
+  { source: string; onError?: (message: string) => void; children: ReactNode },
+  { message: string | null }
+> {
+  override state: { message: string | null } = { message: null };
+  static getDerivedStateFromError(error: unknown): { message: string } {
+    return { message: error instanceof Error ? error.message : String(error) };
+  }
+  override componentDidCatch(error: unknown, _info: ErrorInfo) {
+    this.props.onError?.(error instanceof Error ? error.message : String(error));
+  }
+  override render() {
+    if (this.state.message == null) return this.props.children;
+    return (
+      <div className="not-prose my-4 overflow-hidden rounded-lg border border-kp-danger/40 text-sm">
+        <div className="flex items-center gap-2 border-b border-kp-danger/30 bg-kp-danger/5 px-3.5 py-2 font-medium text-kp-danger">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden
+          >
+            <path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+          </svg>
+          This block couldn&rsquo;t render
+        </div>
+        <p className="px-3.5 pt-2.5 text-[13px] text-fd-muted-foreground">{this.state.message}</p>
+        <pre className="m-0 max-h-72 overflow-auto px-3.5 py-3 text-[12.5px] leading-relaxed whitespace-pre-wrap text-fd-muted-foreground">
+          {this.props.source}
+        </pre>
+      </div>
+    );
+  }
+}
+
+/**
  * Render a superlore MDX string as a native document. The 90%-case entry point: drop it into a host
  * app, give it `source`, and the doc renders with superlore's components, Canvas, and Shiki code —
  * the same as a published page. Wraps the body in fumadocs' `DocsBody` so prose styling applies; the
@@ -275,7 +322,9 @@ export function SuperloreDoc({
   return (
     <div className={cn("superlore-doc", className)} data-theme={resolvedTheme} style={wrapperStyle}>
       <DocsBody>
-        <Content components={getMDXComponents(components)} />
+        <DocErrorBoundary key={source} source={source} onError={(m) => onErrorRef.current?.(m)}>
+          <Content components={getMDXComponents(components)} />
+        </DocErrorBoundary>
       </DocsBody>
       {badge && (
         <BuiltWithSuperlore
