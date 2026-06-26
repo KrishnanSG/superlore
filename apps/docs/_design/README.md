@@ -1,8 +1,6 @@
 # mint theme — design preview
 
-A high-fidelity, self-contained preview of a Mintlify-grade (and better) look for superlore docs,
-built in response to the migration of `docs.datagenie.ai` and the enhancement spec at
-`~/Code/docs/superlore/superlore-enhancement.mdx`.
+A high-fidelity, self-contained preview of a Mintlify-grade (and better) look for superlore docs.
 
 - **`mint-preview.html`** — open it (or the published artifact) to click through. Live theme toggle
   (light/dark, co-equal) and a Docs ⇄ Changelog switch. It is a **design target**, not wired into the
