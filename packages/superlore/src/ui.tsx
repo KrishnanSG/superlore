@@ -8,6 +8,7 @@ import type { ComponentProps } from "react";
 import { RootProvider as FumaRootProvider } from "fumadocs-ui/provider/next";
 import { BuiltWithSuperlore } from "./components/built-with";
 import { AccentStyle } from "./components/accent-style";
+import { SidebarShortcuts } from "./components/sidebar-shortcuts";
 
 export { DocsPage, DocsBody, DocsTitle, DocsDescription } from "fumadocs-ui/page";
 export { DocsLayout } from "fumadocs-ui/layouts/notebook";
@@ -15,6 +16,7 @@ export { createRelativeLink } from "fumadocs-ui/mdx";
 export type { BaseLayoutProps, LinkItemType, LayoutTab } from "fumadocs-ui/layouts/shared";
 export { AccentStyle } from "./components/accent-style";
 export { BuiltWithSuperlore } from "./components/built-with";
+export { SidebarShortcuts } from "./components/sidebar-shortcuts";
 
 /**
  * The superlore root provider — fumadocs' provider with brand-accent derivation + the "Built with
@@ -33,6 +35,7 @@ export function RootProvider({
   return (
     <FumaRootProvider {...props}>
       <AccentStyle accent={accent} />
+      <SidebarShortcuts />
       {children}
       <BuiltWithSuperlore
         href="https://superlore.vercel.app"

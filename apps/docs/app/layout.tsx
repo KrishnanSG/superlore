@@ -48,7 +48,9 @@ export default function Layout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${inter.className} ${mono.variable} ${hand.variable}`}
-      data-sl-theme={siteConfig.theme === "mint" ? "mint" : undefined}
+      data-sl-theme={
+        siteConfig.theme && siteConfig.theme !== "default" ? siteConfig.theme : undefined
+      }
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col">

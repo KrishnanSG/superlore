@@ -1,88 +1,162 @@
 ---
 title: Themes
 icon: Palette
-description: Pick a visual skin for your KB with one flag in superlore.json. superlore ships default and mint — and your content never changes.
-summary: superlore themes are opt-in visual skins set via superlore.json's theme field (default | mint). The package ships each skin's CSS scoped to data-sl-theme on <html>, so switching restyles the whole KB — chrome, typography, components — with zero .mdx edits. Canvas, dual-representation data, and the MCP are unchanged.
-tags: [themes, design, mint]
+description: Pick a visual skin for your KB with one flag in superlore.json. superlore ships seven themes — and your content never changes.
+summary: superlore themes are opt-in visual skins set via superlore.json's theme field (default, mint, geist, ledger, obsidian, prism, paste). The package ships each skin's CSS scoped to data-sl-theme on <html>, so switching restyles the whole KB — chrome, typography, surfaces, components — with zero .mdx edits. accent and font stay orthogonal brand overrides; Canvas, dual-representation data, and the MCP are identical across every theme.
+tags: [themes, design, mint, geist, ledger, obsidian, prism, paste]
 ---
 
-A **theme** is an opt-in visual skin for your whole KB — chrome, typography, and component styling —
-selected with one field in `superlore.json`. Switching themes restyles everything and touches **zero
-`.mdx`**. Your superpowers ride along unchanged: the Canvas stays a typed graph, every component still
-serializes to its knowledge face, and the MCP serves the same corpus.
+A **theme** is an opt-in visual skin for your whole KB — chrome, typography, surfaces, and component
+styling — selected with one field in `superlore.json`. Switching themes restyles everything and touches
+**zero `.mdx`**. Your superpowers ride along unchanged: the Canvas stays a typed graph, every component
+still serializes to its knowledge face, and the MCP serves the same corpus — **identical across every theme**.
 
 ```json
 {
   "name": "your-kb",
-  "theme": "mint"
+  "theme": "geist",
+  "accent": "#6D5CF0"
 }
 ```
 
 Under the hood, the package ships each skin's CSS scoped to `data-sl-theme` on `<html>`; the layout
-stamps that attribute from your config. So a theme is shipped, versioned, and inert until you opt in —
-not a fork of your styles.
+stamps that attribute from your config. A theme is shipped, versioned, and inert until you opt in — not
+a fork of your styles. **`accent` and `font` are orthogonal** — they layer on _any_ theme, so a preset
+is never tied to a brand colour.
 
-## Available themes
-
-<CardGroup cols={2}>
-  <Card icon="box" title="default">
-    superlore's native look — layered surfaces, hairline borders, the violet accent, and the FigJam
-    Canvas front-and-center. This is the baseline: omit `theme`, or set `"theme": "default"`.
-  </Card>
-  <Card icon="sparkles" title="mint">
-    A Mintlify-grade skin — airy top navbar with accent-underlined tabs, a grouped icon sidebar, a
-    larger type scale, a flat hero, icon-forward cards, and a changelog with a **release timeline**.
-    Set `"theme": "mint"`. (This page is rendered in mint.)
-  </Card>
-</CardGroup>
-
-<Note title="Seeing it live">
-  This very site runs `theme: "mint"` — the navbar, sidebar, type, and the
-  [Changelog](/docs/changelog) timeline are the mint skin. Flip the flag to `"default"` (or remove
-  it) and the same content renders in superlore's native look, no other edits.
-</Note>
-
-## What mint restyles
+## The seven themes
 
 <Table
-  caption="Areas the mint skin changes (default → mint)"
+  caption="superlore themes — pick one with theme in superlore.json"
   columns={[
-    { key: "area", label: "Area", type: "text" },
-    { key: "mint", label: "In mint", type: "text" },
+    { key: "theme", label: "theme", type: "text" },
+    { key: "identity", label: "Identity", type: "text" },
+    { key: "feel", label: "Type & surface", type: "text" },
   ]}
   rows={[
-    { area: "Top navbar", mint: "Airier, blurred, with accent-underlined active tabs" },
     {
-      area: "Sidebar",
-      mint: "Grouped labels + per-item icons, roomier rows, accent-tinted active item",
+      theme: "default",
+      identity:
+        "superlore's native look — layered surfaces, hairline borders, violet accent, FigJam Canvas front-and-center",
+      feel: "Inter + JetBrains Mono · cool white / near-black",
     },
-    { area: "Typography", mint: "Larger, airier headings and body; generous vertical rhythm" },
-    { area: "Hero", mint: "A flat, big plain title (no tinted card)" },
-    { area: "Cards", mint: "Icon-forward, hairline border, subtle hover lift" },
     {
-      area: "Changelog",
-      mint: "A release timeline (shipped vs upcoming) + tag filter + rich release bodies",
+      theme: "mint",
+      identity:
+        "Mintlify-grade — airy blurred navbar, accent-underlined tabs, grouped icon sidebar, flat hero, release timeline",
+      feel: "larger airy type · cool white / near-black",
+    },
+    {
+      theme: "geist",
+      identity:
+        "Swiss border-first — structure drawn in 1px hairlines, color as punctuation, mono nav labels (inspired by Vercel)",
+      feel: "sans + mono labels · pure white / true near-black",
+    },
+    {
+      theme: "ledger",
+      identity:
+        "Editorial ivory — authority through restraint, a printed-essay serif body (inspired by Claude)",
+      feel: "serif body + sans headings · warm cream / warm charcoal",
+    },
+    {
+      theme: "obsidian",
+      identity:
+        "Dark-first dense console — near-black, information-dense, calm (inspired by Linear)",
+      feel: "Inter · near-black, co-equal dim light",
+    },
+    {
+      theme: "prism",
+      identity:
+        "Polished light reference — cool-white, navy headings, restrained soft elevation (inspired by Stripe)",
+      feel: "airy light sans + mono · white + cool gray / deep navy",
+    },
+    {
+      theme: "paste",
+      identity:
+        "Accessible system — one family, weight discipline, guaranteed contrast (inspired by Twilio Paste)",
+      feel: "one super-family, 400/600 · neutral, high-contrast",
     },
   ]}
 />
+
+<Note title="Seeing it live">
+  This site runs `theme: "mint"`. Flip the flag to any name above (or remove it for `default`) and
+  the same content re-renders in that skin — chrome, type, surfaces, components — with no other
+  edits.
+</Note>
+
+## Brand overrides (work on any theme)
+
+```jsonc
+{
+  "theme": "geist",
+  "accent": "#304FFE", // one hue → the whole palette (links, active, CTA, ring), light + dark
+  "font": { "sans": "Inter", "mono": "JetBrains Mono" }, // override a theme's default type
+  "logo": { "light": "/logo.svg", "dark": "/logo-dark.svg", "href": "/" },
+  "favicon": "/favicon.svg",
+}
+```
+
+- **`accent`** is a single hue that derives the entire accent family (and the fumadocs primary/ring) for
+  light and dark — no per-token overrides. A theme never hardcodes your brand colour.
+- **`font`** overrides a theme's default type pairing without forking the skin.
+- **`logo` / `favicon`** brand the navbar + tab the way Mintlify's `docs.json` does.
+
+## What a theme restyles
+
+<Table
+  caption="Surfaces a theme can change"
+  columns={[
+    { key: "area", label: "Area", type: "text" },
+    { key: "what", label: "What varies by theme", type: "text" },
+  ]}
+  rows={[
+    {
+      area: "Surface & background",
+      what: "base canvas (cool-white / warm cream / near-black) + surface tints",
+    },
+    {
+      area: "Typography",
+      what: "the type pairing — sans / serif body / mono labels — and scale, weight, rhythm",
+    },
+    { area: "Radius & density", what: "corner rounding and reading width / vertical rhythm" },
+    {
+      area: "Navbar & sidebar",
+      what: "blur, tab style (underline vs flat), sidebar rows + active treatment",
+    },
+    { area: "Hero & prose", what: "hero treatment and reading type" },
+    {
+      area: "Components",
+      what: "cards, callouts, the release timeline — border-first vs soft elevation",
+    },
+  ]}
+/>
+
+The content model is **never** touched — `accent`, `font`, and the seven skins are presentation only.
 
 ## Switch themes
 
 <Steps>
   <Step title="Set the flag">
-    In `superlore.json`, set `"theme": "mint"` (or `"default"`).
+    In `superlore.json`, set `"theme"` to any of the seven names (or omit for `default`).
   </Step>
   <Step title="That's it">
     The layout stamps `data-sl-theme` on `<html>` and the packaged skin activates. No component or
     `.mdx` changes, no CSS to write.
   </Step>
   <Step title="Keep your brand">
-    `accent` still drives links, the CTA, icons, and active states in every theme — set it once and
-    both themes adopt it (light and dark derived for you).
+    `accent` drives links, the CTA, icons, and active states in every theme; `font` overrides the type.
+    Set them once and the chosen theme adopts them (light and dark derived for you).
   </Step>
 </Steps>
 
+## Sidebar
+
+Across themes, the docs sidebar collapses (hide + hover-peek — the right pattern for a nested docs tree).
+Press **`⌘\`** (or `Ctrl+\`) to toggle it, and your collapsed/expanded choice **persists** across pages
+and reloads.
+
 <Tip title="Familiar on the surface, superlore underneath">
-  mint gives a team migrating from another docs tool the look their users already know — now backed
-  by the Canvas engine, typed dual-representation data, and an MCP.
+  A theme gives a team migrating from another docs tool the look their users already know — now
+  backed by the Canvas engine, typed dual-representation data, and an MCP.
 </Tip>
