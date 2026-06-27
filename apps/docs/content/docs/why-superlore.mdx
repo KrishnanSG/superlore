@@ -1,0 +1,116 @@
+---
+title: Why superlore
+icon: Lightbulb
+docType: concept
+description: Half your docs are read by agents now, not people. Every other tool bolts an MCP onto the old way of writing them — superlore rethinks the document itself, so one source serves a clean site to people and a typed MCP corpus to agents.
+summary: Why superlore exists and why teams move to it from Mintlify, Obsidian, Docusaurus, Nextra, GitBook, or Notion. The thesis — documentation broke the day AI started writing it — plus the three beliefs (agent-native not retrofitted, whiteboards as a typed graph, one shared corpus), a "coming from another tool" guide, a feature comparison (which dogfoods the dual-representation Comparison component), and migration paths. superlore renders one MDX source as both a human site and a typed MCP corpus.
+tags: [why, positioning, comparison, mintlify, obsidian, docusaurus, gitbook, migrate]
+---
+
+**Documentation broke the day AI started writing it.**
+
+For years the thinking lived on a whiteboard — FigJam, Excalidraw, a wall and a marker — and the
+doc was the write-up. Then agents started shipping whole features end-to-end. Ask one for the spec
+and you get a flawless _wall of Markdown_: flat, and only as useful as you have time to read. The
+thinking that lived on the board flattened with it.
+
+superlore is the fix. Author once, and the **same source** renders a clean, visual site for people
+_and_ a typed [MCP](/docs/agents/mcp) corpus for agents — not a docs page with an MCP bolted on.
+**One corpus, two first-class readings.**
+
+<CardGroup cols={3}>
+  <Card title="Agent-native, not retrofitted" icon="bot">
+    AI writes, reads, and maintains your docs now. superlore is built for that first — and still
+    beautiful for the people who read it.
+  </Card>
+  <Card title="Whiteboards, inside the doc" icon="shapes">
+    Brainstorms live as structured data — exact nodes, edges, and relations an agent can query, not
+    a flat image. The board _is_ the graph.
+  </Card>
+  <Card title="One corpus, shared context" icon="network">
+    Every team's knowledge in one place, one MCP call from any agent. The company's shared memory —
+    not fifteen scattered wikis.
+  </Card>
+</CardGroup>
+
+## Coming from another tool?
+
+You don't have to throw away what works. superlore reads **MDX**, deploys to **your own** Vercel
+(or anywhere), and a [migration agent](/docs/migrate) ports your existing site page-by-page. Here's
+what changes — and what you keep.
+
+<CardGroup cols={2}>
+  <Card title="From Mintlify" icon="leaf">
+    Keep the components you love — Cards, Steps, Tabs, and Callouts work the same. Gain a **native
+    MCP** over the same content (not a separate AI add-on), typed dual-representation, and a Canvas.
+    You self-host on your own Vercel — no per-seat SaaS.
+  </Card>
+  <Card title="From Obsidian" icon="gem">
+    Your canvas becomes a **typed graph** an agent can actually query — not a private `.canvas`
+    file. Your vault's knowledge ships as a real site _and_ an MCP, so your team and their agents
+    read the same corpus.
+  </Card>
+  <Card title="From Docusaurus / Nextra" icon="file-text">
+    Keep MDX-in-repo and full ownership. Drop the boilerplate: structural components — Timeline,
+    Board, Comparison, Decision — that render for humans and serialize for agents, plus an MCP with
+    zero extra wiring.
+  </Card>
+  <Card title="From GitBook / Notion" icon="book-marked">
+    Move from a hosted silo to **MDX you own in git**. Same readable site, and your content becomes
+    machine-readable knowledge any agent can pull over MCP.
+  </Card>
+</CardGroup>
+
+## superlore vs the alternatives
+
+<Comparison
+  caption="How superlore compares"
+  options={["superlore", "Mintlify", "Docusaurus", "Obsidian"]}
+  rows={[
+    {
+      criterion: "MCP-native — agents query the same corpus",
+      cells: [true, "partial", false, false],
+    },
+    { criterion: "Dual representation — typed data, not OCR", cells: [true, false, false, false] },
+    { criterion: "Whiteboards as a typed graph (Canvas)", cells: [true, false, false, "partial"] },
+    { criterion: "Author once in MDX, in your repo", cells: [true, true, true, "partial"] },
+    { criterion: "Open source · you own it", cells: [true, false, true, "partial"] },
+    { criterion: "Self-host anywhere (Vercel, etc.)", cells: [true, "partial", true, false] },
+    { criterion: "Beautiful out of the box", cells: [true, true, "partial", "partial"] },
+  ]}
+/>
+
+<Note title="This table is dual-representation — live">
+  Every cell above is **typed data**, not a rendered checkmark. An agent reading this page over the
+  [MCP](/docs/agents/mcp) can answer _"which tools are `partial` on MCP-native?"_ directly from the
+  corpus — no OCR, no guessing. That's the whole idea, demonstrated on this very page.
+</Note>
+
+## Bring your docs over
+
+<CardGroup cols={2}>
+  <Card title="Migrate an existing site" icon="import" href="/docs/migrate">
+    Point an agent at your Mintlify / Docusaurus / GitBook / Markdown docs — it plans, you review,
+    it ports every page to superlore.
+  </Card>
+  <Card title="Start fresh in minutes" icon="rocket" href="/docs/getting-started">
+    `npm create superlore` — or let Claude scaffold it. A KB that builds, deploys, and serves an MCP
+    out of the box.
+  </Card>
+</CardGroup>
+
+## In the creator's words
+
+> For years, every project started at a **whiteboard** — FigJam, Excalidraw, a wall and a marker.
+> I'd plan the whole shape of a thing _before_ a line of code; the board _was_ the understanding.
+>
+> Then Claude started shipping whole tickets end-to-end — brilliant at it. But ask for the spec and
+> you get a flawless wall of Markdown: flat, and only as useful as you have time to read. The
+> thinking that lived on the whiteboard flattened with it.
+>
+> So I built superlore and moved the whole company in — engineering, product, roadmaps, sales,
+> every meeting transcript — into one knowledge base: every brainstorm on a canvas inside the doc,
+> the whole context one MCP call away. Now Claude doesn't show up like an intern you re-brief every
+> morning — **it pulls that context and works like an employee who's been here for years.**
+>
+> — **Krishnan S G**, creator of superlore

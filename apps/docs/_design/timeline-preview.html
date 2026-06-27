@@ -1,0 +1,247 @@
+<title>Release timeline — redesign preview</title>
+<style>
+  :root {
+    --ground:#FBFBFD; --ink:#17171F; --muted:#5F5F6C; --faint:#9A9AA8;
+    --card:#FFFFFF; --subtle:#F5F5F8; --line:#E8E8EE; --line-2:#F0F0F4;
+    --accent:#6D5CF0; --accent-weak:#EDEAFE; --accent-ink:#4B3FCC;
+    --shadow-pop:0 12px 34px -10px rgba(35,30,75,.22), 0 2px 8px rgba(20,20,50,.08);
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --ground:#0C0C11; --ink:#ECECF4; --muted:#9C9CAC; --faint:#6A6A78;
+    --card:#14141B; --subtle:#1A1A22; --line:#272730; --line-2:#1E1E27;
+    --accent:#8E80F6; --accent-weak:#221E3D; --accent-ink:#B7AEFB;
+    --shadow-pop:0 16px 44px -12px rgba(0,0,0,.7), 0 2px 10px rgba(0,0,0,.5);
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:48px 24px 100px}
+  .kick{font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  h1{font-size:30px;letter-spacing:-.02em;margin:12px 0 8px;font-weight:800}
+  .lede{color:var(--muted);font-size:16px;margin:0 0 14px;max-width:62ch}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:30px}
+  .pill{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--muted);background:var(--card)}
+  .pill.on{background:var(--accent-weak);color:var(--accent-ink);border-color:transparent}
+
+  /* ---- timeline card ---- */
+  .tl{position:relative;border:1px solid var(--line);border-radius:16px;background:var(--card);padding:20px 0 4px;box-shadow:0 1px 2px rgba(20,20,40,.04),0 10px 30px -16px rgba(20,20,50,.12)}
+  .tl-head{display:flex;align-items:center;justify-content:space-between;padding:0 22px;margin-bottom:2px}
+  .tl-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-ink);font-weight:600}
+  .tl-hint{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint)}
+  .tl-sub{padding:0 22px;font-size:12.5px;color:var(--muted);margin-bottom:6px}
+
+  /* scroll viewport with edge fades */
+  .view{position:relative}
+  .view::before,.view::after{content:"";position:absolute;top:0;bottom:0;width:34px;z-index:4;pointer-events:none}
+  .view::before{left:0;background:linear-gradient(90deg,var(--card),transparent)}
+  .view::after{right:0;background:linear-gradient(270deg,var(--card),transparent)}
+  .scroller{overflow-x:auto;overflow-y:visible;scroll-behavior:smooth;padding:0 4px;cursor:grab;scrollbar-width:none;-ms-overflow-style:none;touch-action:pan-x}
+  .scroller::-webkit-scrollbar{display:none}
+  .scroller.drag{cursor:grabbing;scroll-behavior:auto}
+  .scroller.drag .node{pointer-events:none}
+  /* slim custom progress bar (replaces the OS scrollbar) */
+  .pbar{height:4px;margin:14px 22px 10px;background:var(--line-2);border-radius:999px;position:relative}
+  .pthumb{position:absolute;top:-1px;bottom:-1px;left:0;min-width:30px;background:var(--line);border-radius:999px;cursor:grab;transition:background .14s}
+  .pthumb:hover{background:var(--faint)}
+  .arrow[disabled]{opacity:0;pointer-events:none}
+  .track{position:relative;height:158px}
+  /* one comfortable month = --mw; ~2 months fit the ~640px viewport */
+  .axis{position:absolute;left:0;right:0;bottom:42px;height:1px;background:var(--line)}
+  .ticks{position:absolute;left:0;right:0;bottom:43px;display:flex}
+  .tick{position:absolute;bottom:0;width:1px;height:5px;background:var(--line)}
+  .tick.maj{height:9px;background:var(--faint);opacity:.5}
+  .mlabel{position:absolute;bottom:18px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);transform:translateX(-50%)}
+
+  /* marker: dot on axis + thin connector + light label chip (NOT chunky) */
+  .node{position:absolute;bottom:38px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;cursor:pointer;
+    appearance:none;-webkit-appearance:none;background:transparent;border:0;padding:0;margin:0;font:inherit;color:inherit}
+  .chip{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:4px 9px;text-align:center;line-height:1.2;transition:transform .14s,border-color .14s,box-shadow .14s;white-space:nowrap}
+  .chip .v{display:block;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink)}
+  .chip .d{display:block;font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:1px}
+  .node:hover .chip,.node:focus-visible .chip{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 6px 16px -8px color-mix(in oklab,var(--accent) 50%,transparent)}
+  .conn{width:1px;background:var(--line);transition:background .14s}
+  .node:hover .conn{background:var(--accent)}
+  .dot{width:9px;height:9px;border-radius:999px;background:var(--faint);outline:3px solid var(--card);transition:background .14s,transform .14s}
+  .node:hover .dot{background:var(--accent);transform:scale(1.15)}
+  /* upcoming */
+  .node.up .chip{border-style:dashed;border-color:color-mix(in oklab,var(--accent) 45%,var(--line));background:var(--accent-weak)}
+  .node.up .chip .v{color:var(--accent-ink)}
+  .node.up .chip .d{color:color-mix(in oklab,var(--accent-ink) 70%,transparent)}
+  .node.up .dot{background:var(--card);box-shadow:inset 0 0 0 2px var(--accent)}
+  .node.up .conn{border-left:1px dashed color-mix(in oklab,var(--accent) 45%,var(--line));background:transparent;width:0}
+
+  /* Now guide */
+  .now{position:absolute;bottom:42px;top:6px;width:0;border-left:1px dashed color-mix(in oklab,var(--accent) 45%,transparent);transform:translateX(-50%);z-index:1}
+  .now span{position:absolute;top:-2px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:var(--accent);border-radius:5px;padding:2px 6px}
+
+  /* scroll arrows */
+  .arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:6;width:30px;height:30px;border-radius:999px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 12px -6px rgba(0,0,0,.25);color:var(--muted)}
+  .arrow:hover{color:var(--accent-ink);border-color:var(--accent)}
+  .arrow.l{left:8px}.arrow.r{right:8px}
+  .arrow svg{width:15px;height:15px}
+
+  /* hover popover */
+  .pop{position:fixed;width:234px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-pop);padding:15px 16px;z-index:50;opacity:0;transform:translateY(5px) scale(.98);transform-origin:top center;transition:opacity .14s ease,transform .14s ease;pointer-events:none}
+  .pop.show{opacity:1;transform:translateY(0) scale(1)}
+  .pop-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .pop-v{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--accent-ink)}
+  .pop-d{font-family:var(--mono);font-size:11px;color:var(--faint)}
+  .pop-t{font-size:14.5px;font-weight:680;line-height:1.3;letter-spacing:-.01em;color:var(--ink);margin:0 0 12px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .ch{font-size:11px;font-weight:500;padding:3px 8px;border-radius:7px;background:var(--subtle);color:var(--muted)}
+  .pop-foot{margin-top:13px;padding-top:11px;border-top:1px solid var(--line-2);font-size:11.5px;font-weight:500;color:var(--accent-ink)}
+
+  .note{border:1px solid var(--line);border-left:3px solid var(--accent);background:var(--subtle);border-radius:10px;padding:13px 16px;margin:26px 0 0;font-size:14px;color:var(--muted)}
+  .note b{color:var(--ink)}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  @media(max-width:640px){.cmp{grid-template-columns:1fr}}
+  .cmp .h{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  .blackchip{display:inline-block;background:#16161e;color:#fff;border-radius:10px;padding:7px 11px;font-family:var(--mono);font-size:12px;font-weight:700;margin:2px}
+  .blackchip small{display:block;font-weight:400;opacity:.55;font-size:9.5px}
+</style>
+
+<div class="wrap">
+  <div class="kick">Component preview · for approval</div>
+  <h1>Release timeline — lighter, scrollable, focused</h1>
+  <p class="lede">Three fixes: markers go from chunky black cards to light chips on a thin axis; the strip scrolls with ~2 months comfortably in view; and the hover card shows only that release's areas — not every area dimmed. Hover a marker, drag to scroll, or use the arrows.</p>
+  <div class="row">
+    <span class="pill on">~2 months in view</span><span class="pill">horizontal scroll</span><span class="pill">light markers</span><span class="pill">hover = this release only</span><span class="pill">cluster stacking kept</span>
+  </div>
+
+  <div class="tl">
+    <div class="tl-head"><span class="tl-eyebrow">Release timeline</span><span class="tl-hint">Hover · click to jump</span></div>
+    <div class="tl-sub" id="sub">10 releases · Feb 2026 – Jun 2026</div>
+    <div class="view">
+      <button class="arrow l" id="al" aria-label="Scroll left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="arrow r" id="ar" aria-label="Scroll right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="scroller" id="scroller"><div class="track" id="track"></div></div>
+    </div>
+    <div class="pbar"><div class="pthumb" id="pthumb"></div></div>
+  </div>
+
+  <div class="pop" id="pop"></div>
+
+  <div class="note"><b>Default view</b> opens scrolled to the latest releases (newest on the right). Each month gets a fixed comfortable width so ~2 fit at once; older releases are a scroll away rather than crammed in. Tight clusters (point releases days apart) still stack into lanes so nothing overlaps.</div>
+
+  <div class="cmp">
+    <div><div class="h">Before — chunky</div><span class="blackchip">4.13<small>Apr 29</small></span><span class="blackchip">4.13.1<small>May 4</small></span></div>
+    <div><div class="h">After — light chip</div>
+      <span style="display:inline-block;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:5px 9px;font-family:var(--mono);font-size:12px;font-weight:600;text-align:center;margin:2px">4.13<span style="display:block;font-size:9.5px;color:var(--faint);font-weight:400">Apr 29</span></span>
+      <span style="display:inline-block;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:5px 9px;font-family:var(--mono);font-size:12px;font-weight:600;text-align:center;margin:2px">4.13.1<span style="display:block;font-size:9.5px;color:var(--faint);font-weight:400">May 4</span></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Generic areas — no product-specific names.
+  const RELEASES = [
+    {v:"1.0",  m:1, d:18, t:"Foundations & Auth",            areas:["API","Auth"]},
+    {v:"1.1",  m:2, d:4,  t:"Editor & Search",               areas:["Editor","Search"]},
+    {v:"1.2",  m:2, d:18, t:"Canvas & Themes",               areas:["Canvas","Themes"]},
+    {v:"1.2.1",m:2, d:27, t:"Canvas patch",                  areas:["Canvas"]},
+    {v:"1.3",  m:3, d:13, t:"MCP & Runtime",                 areas:["MCP","Runtime"]},
+    {v:"1.4",  m:3, d:29, t:"Themes, Editor & Search refresh",areas:["Themes","Editor","Search"]},
+    {v:"1.4.1",m:4, d:4,  t:"Runtime patch",                 areas:["Runtime"]},
+    {v:"1.4.2",m:4, d:9,  t:"Search patch",                  areas:["Search"]},
+    {v:"1.5",  m:4, d:20, t:"API & Canvas",                  areas:["API","Canvas"]},
+    {v:"1.6",  m:5, d:8,  t:"Editor, MCP & Themes",          areas:["Editor","MCP","Themes"], up:true},
+  ];
+  const MONTHS=["JAN","FEB","MAR","APR","MAY","JUN","JUL"];
+  const MW=300, PAD=46, START=1, END=5;            // months Feb(1)..Jun(5)
+  const xOf=(m,d)=> PAD + ((m-START) + (d-1)/30) * MW;
+  const track=document.getElementById('track');
+  const trackW = PAD*2 + (END-START)*MW;
+  track.style.width = trackW+"px";
+
+  // axis + ticks + month labels
+  const axis=document.createElement('div');axis.className='axis';track.appendChild(axis);
+  for(let mm=START; mm<=END; mm++){
+    for(let k=0;k<6;k++){const t=document.createElement('div');t.className='tick'+(k===0?' maj':'');t.style.left=(xOf(mm,1)+k*(MW/6))+"px";track.appendChild(t);}
+    const lbl=document.createElement('div');lbl.className='mlabel';lbl.style.left=(xOf(mm,1)+MW/2)+"px";lbl.textContent=MONTHS[mm]+" 2026";track.appendChild(lbl);
+  }
+  // Now guide (between May 20 and Jun 8 → ~May 28)
+  const now=document.createElement('div');now.className='now';now.style.left=xOf(4,28)+"px";now.innerHTML='<span>Now</span>';track.appendChild(now);
+
+  // lane assignment to avoid chip overlap
+  const CHIPW=86, GAP=8, LANEH=30;
+  const sorted=RELEASES.map(r=>({...r,x:xOf(r.m,r.d)})).sort((a,b)=>a.x-b.x);
+  const laneRight=[];
+  sorted.forEach(r=>{
+    const left=r.x-CHIPW/2;
+    let lane=laneRight.findIndex(R=>R+GAP<=left);
+    if(lane===-1){lane=laneRight.length;laneRight.push(0);}
+    laneRight[lane]=left+CHIPW; r.lane=lane;
+  });
+  const maxLane=Math.max(...sorted.map(r=>r.lane));
+  const BASECONN=46;
+
+  sorted.forEach(r=>{
+    const conn=BASECONN - r.lane*LANEH + maxLane*LANEH; // higher lane index sits lower (shorter conn)
+    const node=document.createElement('button');
+    node.className='node'+(r.up?' up':'');
+    node.style.left=r.x+"px";
+    node.tabIndex=0;
+    node.innerHTML=`<span class="chip"><span class="v">${r.v}</span><span class="d">${MONTHS[r.m]} ${r.d}</span></span><span class="conn" style="height:${(BASECONN - r.lane*LANEH)}px"></span><span class="dot"></span>`;
+    node.dataset.idx=RELEASES.indexOf(RELEASES.find(x=>x.v===r.v));
+    track.appendChild(node);
+    const show=()=>showPop(node,r);
+    node.addEventListener('mouseenter',show);
+    node.addEventListener('focus',show);
+    node.addEventListener('mouseleave',hidePop);
+    node.addEventListener('blur',hidePop);
+  });
+  // track height grows with lanes
+  track.style.height = (158 + maxLane*LANEH) + "px";
+
+  const pop=document.getElementById('pop');
+  function showPop(node,r){
+    pop.innerHTML=`<div class="pop-h"><span class="pop-v">${r.v}</span><span class="pop-d">${MONTHS[r.m]} ${r.d}</span></div>
+      <div class="pop-t">${r.t}</div>
+      <div class="chips">${r.areas.map(a=>`<span class="ch">${a}</span>`).join("")}</div>
+      <div class="pop-foot">Jump to release →</div>`;
+    pop.classList.add('show');
+    const rect=node.getBoundingClientRect();
+    let left=rect.left+rect.width/2-124;
+    left=Math.max(12,Math.min(left,window.innerWidth-260));
+    let top=rect.top-pop.offsetHeight-10;
+    if(top<8) top=rect.bottom+10;
+    pop.style.left=left+"px"; pop.style.top=top+"px";
+  }
+  function hidePop(){pop.classList.remove('show');}
+
+  // arrows + default scroll to latest
+  const sc=document.getElementById('scroller');
+  const al=document.getElementById('al'), ar=document.getElementById('ar');
+  const pbar=document.querySelector('.pbar'), pthumb=document.getElementById('pthumb');
+  al.onclick=()=>sc.scrollBy({left:-MW,behavior:'smooth'});
+  ar.onclick=()=>sc.scrollBy({left:MW,behavior:'smooth'});
+
+  // slim progress bar reflects scroll position; arrows fade at the ends
+  function syncBar(){
+    const max=sc.scrollWidth-sc.clientWidth;
+    const tw=Math.max((sc.clientWidth/sc.scrollWidth)*100,14);
+    pthumb.style.width=tw+'%';
+    pthumb.style.left=(max>0?(sc.scrollLeft/max)*(100-tw):0)+'%';
+    al.disabled=sc.scrollLeft<=1; ar.disabled=sc.scrollLeft>=max-1;
+  }
+  sc.addEventListener('scroll',syncBar,{passive:true});
+
+  // vertical wheel → horizontal scroll
+  sc.addEventListener('wheel',e=>{ if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){ sc.scrollLeft+=e.deltaY; e.preventDefault(); } },{passive:false});
+
+  // grab-to-drag the strip
+  let dragging=false,sx=0,sl=0;
+  sc.addEventListener('pointerdown',e=>{ if(e.button!==0)return; dragging=true;sx=e.clientX;sl=sc.scrollLeft; });
+  sc.addEventListener('pointermove',e=>{ if(!dragging)return; const dx=e.clientX-sx; if(Math.abs(dx)>3){ sc.classList.add('drag'); hidePop(); sc.setPointerCapture(e.pointerId);} sc.scrollLeft=sl-dx; });
+  const endDrag=()=>{ dragging=false; sc.classList.remove('drag'); };
+  sc.addEventListener('pointerup',endDrag); sc.addEventListener('pointercancel',endDrag);
+
+  // drag the progress thumb
+  let tdrag=false,tx=0,tsl=0;
+  pthumb.addEventListener('pointerdown',e=>{ tdrag=true;tx=e.clientX;tsl=sc.scrollLeft; pthumb.setPointerCapture(e.pointerId); e.stopPropagation(); });
+  pthumb.addEventListener('pointermove',e=>{ if(!tdrag)return; sc.scrollLeft=tsl+((e.clientX-tx)/pbar.clientWidth)*sc.scrollWidth; });
+  const endT=()=>{tdrag=false;}; pthumb.addEventListener('pointerup',endT); pthumb.addEventListener('pointercancel',endT);
+
+  requestAnimationFrame(()=>{ sc.scrollLeft=sc.scrollWidth; syncBar(); }); // open at the newest
+</script>

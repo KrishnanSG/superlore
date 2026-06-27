@@ -625,3 +625,1347 @@ html {
 .shiki {
   background-color: var(--shiki-dark-bg, #1a1b26) !important;
 }
+
+/* Nav CTA — wrap a navbar link's `text` in <span class="kp-nav-cta"> to render it as a filled
+   accent button (the notebook top-nav renders every link as muted text otherwise, so a primary
+   action like "Open app" reads as just another link). Theme-agnostic; uses the KB's accent. */
+.kp-nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  background: var(--kp-accent);
+  color: var(--kp-accent-ink, #fff);
+  padding: 0.34rem 0.78rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+.kp-nav-cta:hover {
+  background: var(--kp-accent-hover, var(--kp-accent));
+}
+
+/* Sidebar hierarchy (theme-agnostic, ships to every KB). Fumadocs renders section separators and
+   page links as a flat sibling list at one indent, so they read as the same level. Treat separators
+   as quiet eyebrow labels — **no icon**: an icon means "page", its absence means "section heading" —
+   and tuck the links a step to their right, so the tree reads header → items. */
+#nd-sidebar p {
+  margin-top: 1.5rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--color-fd-muted-foreground) 75%, transparent);
+}
+#nd-sidebar p svg {
+  /* Tailwind preflight sets svg { display: block } in @layer base; override hard so section
+     headers are pure type, visually distinct from the icon-bearing page links. */
+  display: none !important;
+}
+#nd-sidebar a[data-active] {
+  margin-inline-start: 0.75rem;
+}
+/* Dark active item: Fumadocs tints the accent ~10%, near-invisible on a near-black surface — lift it
+   so dark reads as clearly as light. */
+.dark #nd-sidebar a[data-active="true"] {
+  background-color: color-mix(in oklab, var(--kp-accent) 22%, transparent);
+}
+
+/* ══ mint theme — opt-in Mintlify-grade chrome ════════════════════════════════════
+   Set `theme: "mint"` in superlore.json and the layout stamps `data-sl-theme="mint"` on
+   <html>; every rule below is scoped to that attribute, so it ships with superlore/css and
+   stays completely inert under the default theme. The KB's `accent` still drives everything.
+   Pairs with the redesigned Releases (timeline + roadmap) which ships in the component itself. */
+[data-sl-theme="mint"] {
+  --mint-radius: 12px;
+}
+
+/* Top navbar — airier, blurred, with accent-underlined active tabs. */
+[data-sl-theme="mint"] #nd-subnav {
+  background: color-mix(in oklab, var(--color-fd-background) 82%, transparent) !important;
+  backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--color-fd-border);
+}
+[data-sl-theme="mint"] #nd-subnav > div:first-child {
+  height: 3.75rem;
+  padding-inline: 1.25rem;
+}
+[data-sl-theme="mint"] #nd-subnav input,
+[data-sl-theme="mint"] #nd-subnav button[aria-label*="Search" i] {
+  border-radius: 10px;
+}
+[data-sl-theme="mint"] #nd-subnav .border-b.px-6 {
+  height: 3rem;
+  padding-inline: 1.25rem;
+  gap: 1.5rem;
+  border-color: var(--color-fd-border);
+}
+[data-sl-theme="mint"] #nd-subnav a[class*="border-b-2"] {
+  font-size: 0.875rem;
+  color: var(--color-fd-muted-foreground);
+  border-bottom-width: 2px;
+  padding-bottom: 0.5rem;
+  transition:
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+[data-sl-theme="mint"] #nd-subnav a[class*="border-b-2"]:hover {
+  color: var(--color-fd-foreground);
+}
+[data-sl-theme="mint"] #nd-subnav a[class*="border-b-2"][data-active="true"],
+[data-sl-theme="mint"] #nd-subnav a[class*="border-b-2"].text-fd-primary {
+  color: var(--kp-accent-text);
+  border-bottom-color: var(--kp-accent);
+}
+
+/* Sidebar — grouped, roomy, accent-active. */
+[data-sl-theme="mint"] #nd-sidebar {
+  padding-inline: 0.5rem;
+}
+[data-sl-theme="mint"] #nd-sidebar a[data-active] {
+  border-radius: 10px;
+  padding-block: 0.45rem;
+  margin-inline-start: 0.25rem;
+  font-size: 0.875rem;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+[data-sl-theme="mint"] #nd-sidebar a[data-active="false"]:hover {
+  background: var(--color-fd-muted);
+  color: var(--color-fd-foreground);
+}
+[data-sl-theme="mint"] #nd-sidebar a[data-active="true"] {
+  color: var(--kp-accent-text);
+  font-weight: 550;
+}
+html[data-sl-theme="mint"]:not(.dark) #nd-sidebar a[data-active="true"] {
+  background: var(--kp-accent-weak);
+}
+[data-sl-theme="mint"] #nd-sidebar svg {
+  opacity: 0.8;
+}
+
+/* Flat, airy hero — a big plain title instead of the tinted gradient card. */
+[data-sl-theme="mint"] .kp-page-hero {
+  border: 0 !important;
+  background: none !important;
+  padding: 0 !important;
+  margin: 0 0 2.6rem !important;
+  overflow: visible !important;
+}
+[data-sl-theme="mint"] .kp-page-hero::before {
+  display: none !important;
+}
+[data-sl-theme="mint"] .kp-page-hero__kicker {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-bottom: 12px;
+  color: var(--color-fd-muted-foreground);
+  letter-spacing: 0.13em;
+}
+[data-sl-theme="mint"] .kp-page-hero__title {
+  font-size: 2.7rem;
+  font-weight: 720;
+  letter-spacing: -0.034em;
+  line-height: 1.06;
+  margin-bottom: 0.6rem;
+}
+[data-sl-theme="mint"] .kp-page-hero__description {
+  font-size: 1.18rem;
+  line-height: 1.6;
+  max-width: 64ch;
+}
+
+/* Airier reading type + rhythm. */
+[data-sl-theme="mint"] #nd-page .prose {
+  font-size: 16px;
+  line-height: 1.72;
+}
+[data-sl-theme="mint"] #nd-page .prose h2 {
+  font-size: 1.55rem;
+  font-weight: 660;
+  letter-spacing: -0.021em;
+  margin-top: 2.7em;
+  margin-bottom: 0.7em;
+}
+[data-sl-theme="mint"] #nd-page .prose h3 {
+  font-size: 1.2rem;
+  font-weight: 620;
+  letter-spacing: -0.015em;
+}
+
+/* Component skins — cards lift on hover. */
+[data-sl-theme="mint"] #nd-page a[class*="rounded-lg"][class*="border"] {
+  border-radius: var(--mint-radius);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+[data-sl-theme="mint"] #nd-page a[class*="rounded-lg"][class*="border"]:hover {
+  transform: translateY(-2px);
+  border-color: var(--kp-accent-border);
+  box-shadow: 0 10px 30px -14px color-mix(in oklab, var(--kp-accent) 30%, transparent);
+}
+[data-sl-theme="mint"] #nd-page [class*="callout" i] {
+  border-radius: var(--mint-radius);
+}
+
+/* ══ geist theme — Swiss border-first; near-monochrome surfaces, mono labels as the personality, hairline structure instead of shadow, color only as link/active punctuation ══ */
+[data-sl-theme="geist"] {
+  --geist-radius: 5px;
+  --geist-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+}
+
+/* Token overrides — LIGHT: pure white, near-black ink, faint hairlines. */
+html[data-sl-theme="geist"]:not(.dark) {
+  --color-fd-background: #ffffff;
+  --color-fd-foreground: #0a0a0a;
+  --color-fd-card: #ffffff;
+  --color-fd-card-foreground: #0a0a0a;
+  --color-fd-popover: #ffffff;
+  --color-fd-popover-foreground: #0a0a0a;
+  --color-fd-muted: #fafafa;
+  --color-fd-muted-foreground: #666666;
+  --color-fd-secondary: #fafafa;
+  --color-fd-secondary-foreground: #0a0a0a;
+  --color-fd-border: #ebebeb;
+  --color-fd-accent: #f5f5f5;
+  --color-fd-accent-foreground: #0a0a0a;
+
+  --kp-bg-elev: #ffffff;
+  --kp-surface: #ffffff;
+  --kp-surface-2: #fafafa;
+  --kp-border-subtle: #f0f0f0;
+  --kp-border: #ebebeb;
+  --kp-border-strong: #d4d4d4;
+  --kp-text-2: #444444;
+  --kp-text-3: #888888;
+}
+
+/* Token overrides — DARK: true near-black, off-white ink, low-contrast hairlines. */
+html.dark[data-sl-theme="geist"] {
+  --color-fd-background: #0a0a0a;
+  --color-fd-foreground: #ededed;
+  --color-fd-card: #0a0a0a;
+  --color-fd-card-foreground: #ededed;
+  --color-fd-popover: #111111;
+  --color-fd-popover-foreground: #ededed;
+  --color-fd-muted: #151515;
+  --color-fd-muted-foreground: #8f8f8f;
+  --color-fd-secondary: #151515;
+  --color-fd-secondary-foreground: #ededed;
+  --color-fd-border: #1f1f1f;
+  --color-fd-accent: #1a1a1a;
+  --color-fd-accent-foreground: #ededed;
+
+  --kp-bg-elev: #0a0a0a;
+  --kp-surface: #0a0a0a;
+  --kp-surface-2: #111111;
+  --kp-border-subtle: #181818;
+  --kp-border: #1f1f1f;
+  --kp-border-strong: #2e2e2e;
+  --kp-text-2: #b0b0b0;
+  --kp-text-3: #6f6f6f;
+}
+
+/* Top navbar — flat, no blur; structure is the hairline. Tabs are MONO labels. */
+[data-sl-theme="geist"] #nd-subnav {
+  background: var(--color-fd-background) !important;
+  backdrop-filter: none;
+  border-bottom: 1px solid var(--color-fd-border);
+}
+[data-sl-theme="geist"] #nd-subnav > div:first-child {
+  height: 3.5rem;
+  padding-inline: 1.25rem;
+}
+[data-sl-theme="geist"] #nd-subnav input,
+[data-sl-theme="geist"] #nd-subnav button[aria-label*="Search" i] {
+  border-radius: var(--geist-radius);
+}
+[data-sl-theme="geist"] #nd-subnav .border-b.px-6 {
+  height: 2.75rem;
+  padding-inline: 1.25rem;
+  gap: 1.5rem;
+  border-color: var(--color-fd-border);
+}
+[data-sl-theme="geist"] #nd-subnav a[class*="border-b-2"] {
+  font-family: var(--geist-mono);
+  font-size: 0.78rem;
+  letter-spacing: -0.01em;
+  color: var(--color-fd-muted-foreground);
+  border-bottom-width: 2px;
+  padding-bottom: 0.5rem;
+  transition:
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+[data-sl-theme="geist"] #nd-subnav a[class*="border-b-2"]:hover {
+  color: var(--color-fd-foreground);
+}
+[data-sl-theme="geist"] #nd-subnav a[class*="border-b-2"][data-active="true"],
+[data-sl-theme="geist"] #nd-subnav a[class*="border-b-2"].text-fd-primary {
+  color: var(--color-fd-foreground);
+  border-bottom-color: var(--kp-accent);
+}
+
+/* Sidebar — tight rows, near-straight corners, hairline-flat active (no fill in light). */
+[data-sl-theme="geist"] #nd-sidebar {
+  padding-inline: 0.5rem;
+}
+[data-sl-theme="geist"] #nd-sidebar a[data-active] {
+  border-radius: var(--geist-radius);
+  padding-block: 0.32rem;
+  margin-inline-start: 0.25rem;
+  font-size: 0.85rem;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+[data-sl-theme="geist"] #nd-sidebar a[data-active="false"]:hover {
+  background: var(--color-fd-muted);
+  color: var(--color-fd-foreground);
+}
+[data-sl-theme="geist"] #nd-sidebar a[data-active="true"] {
+  color: var(--color-fd-foreground);
+  font-weight: 540;
+}
+html[data-sl-theme="geist"]:not(.dark) #nd-sidebar a[data-active="true"] {
+  background: var(--color-fd-muted);
+}
+html.dark[data-sl-theme="geist"] #nd-sidebar a[data-active="true"] {
+  background: var(--color-fd-muted);
+}
+/* Section group labels — MONO, tracked-out caps; the labels carry the identity. */
+[data-sl-theme="geist"] #nd-sidebar [class*="font-medium"]:not(a),
+[data-sl-theme="geist"] #nd-sidebar p[class*="text-fd-muted"],
+[data-sl-theme="geist"] #nd-sidebar h3 {
+  font-family: var(--geist-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fd-muted-foreground);
+}
+[data-sl-theme="geist"] #nd-sidebar svg {
+  opacity: 0.7;
+}
+
+/* Hero — flat, no card; MONO kicker as a tracked-out label, near-black tight title. */
+[data-sl-theme="geist"] .kp-page-hero {
+  border: 0 !important;
+  background: none !important;
+  padding: 0 !important;
+  margin: 0 0 2.4rem !important;
+  overflow: visible !important;
+}
+[data-sl-theme="geist"] .kp-page-hero::before {
+  display: none !important;
+}
+[data-sl-theme="geist"] .kp-page-hero__kicker {
+  font-family: var(--geist-mono);
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-bottom: 14px;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  color: var(--color-fd-muted-foreground);
+  letter-spacing: 0.1em;
+}
+[data-sl-theme="geist"] .kp-page-hero__title {
+  font-size: 2.6rem;
+  font-weight: 700;
+  letter-spacing: -0.038em;
+  line-height: 1.05;
+  margin-bottom: 0.6rem;
+}
+[data-sl-theme="geist"] .kp-page-hero__description {
+  font-size: 1.12rem;
+  line-height: 1.58;
+  max-width: 62ch;
+  color: var(--color-fd-muted-foreground);
+}
+
+/* Reading type — clean sans body, tight Swiss headings; code in mono. */
+[data-sl-theme="geist"] #nd-page .prose {
+  font-size: 15.5px;
+  line-height: 1.68;
+}
+[data-sl-theme="geist"] #nd-page .prose h2 {
+  font-size: 1.5rem;
+  font-weight: 640;
+  letter-spacing: -0.026em;
+  margin-top: 2.6em;
+  margin-bottom: 0.7em;
+  padding-bottom: 0.4em;
+  border-bottom: 1px solid var(--color-fd-border);
+}
+[data-sl-theme="geist"] #nd-page .prose h3 {
+  font-size: 1.16rem;
+  font-weight: 620;
+  letter-spacing: -0.018em;
+}
+[data-sl-theme="geist"] #nd-page .prose code {
+  font-family: var(--geist-mono);
+  font-size: 0.86em;
+}
+
+/* Component skins — borders are the star: no hover shadow, just a border shift + 1px nudge. */
+[data-sl-theme="geist"] #nd-page a[class*="rounded-lg"][class*="border"] {
+  border-radius: var(--geist-radius);
+  box-shadow: none;
+  transition:
+    transform 0.12s ease,
+    border-color 0.12s ease;
+}
+[data-sl-theme="geist"] #nd-page a[class*="rounded-lg"][class*="border"]:hover {
+  transform: translateY(-1px);
+  border-color: var(--kp-border-strong);
+  box-shadow: none;
+}
+[data-sl-theme="geist"] #nd-page [class*="callout" i] {
+  border-radius: var(--geist-radius);
+}
+
+/* ══ ledger theme — Editorial Ivory: warm-cream canvas, serif reading body, authority through restraint ══
+   Identity lives in SURFACE (warm ivory / charcoal, not neutral grey), TYPE (serif prose on geometric-sans
+   chrome), small 6px radius and low editorial density. Accent stays the KB's brand; rationed to card/callout
+   surfaces only. Fully co-equal light + dark; inert outside the attribute. */
+
+[data-sl-theme="ledger"] {
+  --ledger-radius: 6px;
+  --ledger-serif: Georgia, "Iowan Old Style", "Times New Roman", ui-serif, serif;
+}
+
+/* ── LIGHT — warm cream canvas, bone-white cards, warm slate ink ─────────────────────────────── */
+html[data-sl-theme="ledger"]:not(.dark) {
+  --color-fd-background: #faf9f5;
+  --color-fd-foreground: #141413;
+  --color-fd-card: #fffdf7;
+  --color-fd-card-foreground: #141413;
+  --color-fd-popover: #fffdf7;
+  --color-fd-popover-foreground: #141413;
+  --color-fd-muted: #f2f0e8;
+  --color-fd-muted-foreground: #5c574c;
+  --color-fd-secondary: #f2f0e8;
+  --color-fd-secondary-foreground: #141413;
+  --color-fd-border: #e8e4d9;
+  --color-fd-accent: #f2f0e8;
+  --color-fd-accent-foreground: #141413;
+
+  --kp-bg-elev: #f5f3ec;
+  --kp-surface: #fffdf7;
+  --kp-surface-2: #f2f0e8;
+  --kp-border-subtle: #efece2;
+  --kp-border: #e8e4d9;
+  --kp-border-strong: #d4cebd;
+  --kp-text-2: #5c574c;
+  --kp-text-3: #8c8475;
+}
+
+/* ── DARK — warm charcoal (never pure black), bone text, warm borders ────────────────────────── */
+html.dark[data-sl-theme="ledger"] {
+  --color-fd-background: #1a1917;
+  --color-fd-foreground: #ece9e2;
+  --color-fd-card: #211f1c;
+  --color-fd-card-foreground: #ece9e2;
+  --color-fd-popover: #211f1c;
+  --color-fd-popover-foreground: #ece9e2;
+  --color-fd-muted: #262420;
+  --color-fd-muted-foreground: #aaa597;
+  --color-fd-secondary: #262420;
+  --color-fd-secondary-foreground: #ece9e2;
+  --color-fd-border: #322f2a;
+  --color-fd-accent: #262420;
+  --color-fd-accent-foreground: #ece9e2;
+
+  --kp-bg-elev: #161512;
+  --kp-surface: #211f1c;
+  --kp-surface-2: #262420;
+  --kp-border-subtle: #29261f;
+  --kp-border: #322f2a;
+  --kp-border-strong: #46423a;
+  --kp-text-2: #aaa597;
+  --kp-text-3: #756f62;
+}
+
+/* ── Top navbar — quiet, paper-toned, thin underline on the active tab (sans kept) ──────────── */
+[data-sl-theme="ledger"] #nd-subnav {
+  background: color-mix(in oklab, var(--color-fd-background) 90%, transparent) !important;
+  backdrop-filter: saturate(1.05) blur(8px);
+  border-bottom: 1px solid var(--color-fd-border);
+}
+[data-sl-theme="ledger"] #nd-subnav > div:first-child {
+  height: 3.5rem;
+  padding-inline: 1.5rem;
+}
+[data-sl-theme="ledger"] #nd-subnav input,
+[data-sl-theme="ledger"] #nd-subnav button[aria-label*="Search" i] {
+  border-radius: var(--ledger-radius);
+}
+[data-sl-theme="ledger"] #nd-subnav .border-b.px-6 {
+  height: 2.9rem;
+  padding-inline: 1.5rem;
+  gap: 1.75rem;
+  border-color: var(--color-fd-border);
+}
+[data-sl-theme="ledger"] #nd-subnav a[class*="border-b-2"] {
+  font-size: 0.875rem;
+  letter-spacing: 0.005em;
+  color: var(--color-fd-muted-foreground);
+  border-bottom-width: 1px;
+  padding-bottom: 0.55rem;
+  transition:
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+[data-sl-theme="ledger"] #nd-subnav a[class*="border-b-2"]:hover {
+  color: var(--color-fd-foreground);
+}
+[data-sl-theme="ledger"] #nd-subnav a[class*="border-b-2"][data-active="true"],
+[data-sl-theme="ledger"] #nd-subnav a[class*="border-b-2"].text-fd-primary {
+  color: var(--color-fd-foreground);
+  border-bottom-color: var(--color-fd-foreground);
+}
+
+/* ── Sidebar — low-key, generous leading, restrained active state (no accent fill) ─────────── */
+[data-sl-theme="ledger"] #nd-sidebar {
+  padding-inline: 0.5rem;
+}
+[data-sl-theme="ledger"] #nd-sidebar a[data-active] {
+  border-radius: var(--ledger-radius);
+  padding-block: 0.42rem;
+  margin-inline-start: 0.25rem;
+  font-size: 0.875rem;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+[data-sl-theme="ledger"] #nd-sidebar a[data-active="false"] {
+  color: var(--color-fd-muted-foreground);
+}
+[data-sl-theme="ledger"] #nd-sidebar a[data-active="false"]:hover {
+  background: var(--color-fd-muted);
+  color: var(--color-fd-foreground);
+}
+[data-sl-theme="ledger"] #nd-sidebar a[data-active="true"] {
+  color: var(--color-fd-foreground);
+  font-weight: 600;
+}
+html[data-sl-theme="ledger"]:not(.dark) #nd-sidebar a[data-active="true"] {
+  background: var(--kp-surface-2);
+}
+html.dark[data-sl-theme="ledger"] #nd-sidebar a[data-active="true"] {
+  background: var(--kp-surface-2);
+}
+[data-sl-theme="ledger"] #nd-sidebar svg {
+  opacity: 0.7;
+}
+
+/* ── Hero — flat, big, plain editorial title; serif-adjacent weight, no tinted card ────────── */
+[data-sl-theme="ledger"] .kp-page-hero {
+  border: 0 !important;
+  background: none !important;
+  padding: 0 0 1.6rem !important;
+  margin: 0 0 2.8rem !important;
+  border-bottom: 1px solid var(--color-fd-border) !important;
+  overflow: visible !important;
+}
+[data-sl-theme="ledger"] .kp-page-hero::before {
+  display: none !important;
+}
+[data-sl-theme="ledger"] .kp-page-hero__kicker {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-bottom: 14px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--color-fd-muted-foreground);
+  letter-spacing: 0.18em;
+}
+[data-sl-theme="ledger"] .kp-page-hero__title {
+  font-family: var(--ledger-serif);
+  font-size: 2.85rem;
+  font-weight: 600;
+  letter-spacing: -0.018em;
+  line-height: 1.08;
+  margin-bottom: 0.7rem;
+}
+[data-sl-theme="ledger"] .kp-page-hero__description {
+  font-family: var(--ledger-serif);
+  font-size: 1.2rem;
+  line-height: 1.62;
+  color: var(--color-fd-muted-foreground);
+  max-width: 60ch;
+}
+
+/* ── Reading body — serif prose, generous leading, wider editorial measure ─────────────────── */
+[data-sl-theme="ledger"] #nd-page .prose {
+  font-family: var(--ledger-serif);
+  font-size: 17px;
+  line-height: 1.78;
+  max-width: 70ch;
+}
+[data-sl-theme="ledger"] #nd-page .prose code,
+[data-sl-theme="ledger"] #nd-page .prose pre {
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+  font-size: 0.86em;
+}
+/* Headings stay geometric sans for editorial contrast against the serif body. */
+[data-sl-theme="ledger"] #nd-page .prose h2 {
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  margin-top: 2.9em;
+  margin-bottom: 0.7em;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid var(--color-fd-border);
+}
+[data-sl-theme="ledger"] #nd-page .prose h3 {
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  font-size: 1.18rem;
+  font-weight: 600;
+  letter-spacing: -0.008em;
+  margin-top: 2em;
+}
+
+/* ── Component skins — small radius, flat 1px borders, restrained warm hover (no lift) ──────── */
+[data-sl-theme="ledger"] #nd-page a[class*="rounded-lg"][class*="border"] {
+  border-radius: var(--ledger-radius);
+  background: var(--color-fd-card);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+[data-sl-theme="ledger"] #nd-page a[class*="rounded-lg"][class*="border"]:hover {
+  border-color: var(--kp-border-strong);
+  background: color-mix(in oklab, var(--kp-accent) 6%, var(--color-fd-card));
+}
+[data-sl-theme="ledger"] #nd-page [class*="callout" i] {
+  border-radius: var(--ledger-radius);
+  background: var(--kp-surface-2);
+}
+
+/* obsidian theme — dark-first dense console (Linear-grade): near-black surfaces, indigo signature accent, high-density flat chrome, smaller radius. Light is a co-equal dim soft-gray, never bright. This theme owns its accent. */
+[data-sl-theme="obsidian"] {
+  --obsidian-radius: 8px;
+  --obsidian-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ── Tokens: LIGHT (co-equal dim soft-gray, not bright white) ─────────────── */
+html[data-sl-theme="obsidian"]:not(.dark) {
+  --color-fd-background: #f4f4f5;
+  --color-fd-foreground: #16171a;
+  --color-fd-card: #ffffff;
+  --color-fd-card-foreground: #16171a;
+  --color-fd-popover: #ffffff;
+  --color-fd-popover-foreground: #16171a;
+  --color-fd-muted: #ebebed;
+  --color-fd-muted-foreground: #6b6d76;
+  --color-fd-secondary: #ebebed;
+  --color-fd-secondary-foreground: #16171a;
+  --color-fd-border: #e0e0e3;
+  --color-fd-accent: #ececee;
+  --color-fd-accent-foreground: #16171a;
+  --color-fd-primary: #5e6ad2;
+  --color-fd-primary-foreground: #ffffff;
+  --color-fd-ring: #5e6ad2;
+
+  --kp-bg-elev: #f4f4f5;
+  --kp-surface: #ffffff;
+  --kp-surface-2: #ececee;
+  --kp-border-subtle: #e6e6e9;
+  --kp-border: #e0e0e3;
+  --kp-border-strong: #cfcfd4;
+  --kp-text-2: #45464d;
+  --kp-text-3: #6b6d76;
+  --kp-accent: #5e6ad2;
+  --kp-accent-hover: #4f5bc4;
+  --kp-accent-ink: #ffffff;
+  --kp-accent-text: #4a55bd;
+  --kp-accent-weak: #ecedfa;
+  --kp-accent-border: #c7cbf0;
+  --kp-success: #2c8a5b;
+  --kp-warning: #b07a18;
+  --kp-danger: #c8453a;
+}
+
+/* ── Tokens: DARK (primary identity — near-black console) ──────────────────── */
+html.dark[data-sl-theme="obsidian"] {
+  --color-fd-background: #08090a;
+  --color-fd-foreground: #e6e7ea;
+  --color-fd-card: #0e0f11;
+  --color-fd-card-foreground: #e6e7ea;
+  --color-fd-popover: #101113;
+  --color-fd-popover-foreground: #e6e7ea;
+  --color-fd-muted: #141517;
+  --color-fd-muted-foreground: #8a8c93;
+  --color-fd-secondary: #141517;
+  --color-fd-secondary-foreground: #e6e7ea;
+  --color-fd-border: #1c1d21;
+  --color-fd-accent: #1a1b1e;
+  --color-fd-accent-foreground: #e6e7ea;
+  --color-fd-primary: #7c87ff;
+  --color-fd-primary-foreground: #0b0c14;
+  --color-fd-ring: #7c87ff;
+
+  --kp-bg-elev: #08090a;
+  --kp-surface: #0e0f11;
+  --kp-surface-2: #141517;
+  --kp-border-subtle: #161719;
+  --kp-border: #1c1d21;
+  --kp-border-strong: #2a2c31;
+  --kp-text-2: #b6b8bf;
+  --kp-text-3: #8a8c93;
+  --kp-accent: #7c87ff;
+  --kp-accent-hover: #8d97ff;
+  --kp-accent-ink: #0b0c14;
+  --kp-accent-text: #a3abff;
+  --kp-accent-weak: #15161f;
+  --kp-accent-border: #2e3050;
+  --kp-success: #4cc38a;
+  --kp-warning: #e0a236;
+  --kp-danger: #f0685b;
+}
+
+/* ── Base type: Inter-like system sans, slightly tighter ──────────────────── */
+[data-sl-theme="obsidian"] {
+  font-family: var(--obsidian-sans);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.006em;
+}
+
+/* ── Top navbar — flat, dense, hairline border ─────────────────────────────── */
+[data-sl-theme="obsidian"] #nd-subnav {
+  background: color-mix(in oklab, var(--color-fd-background) 88%, transparent) !important;
+  backdrop-filter: saturate(1.1) blur(10px);
+  border-bottom: 1px solid var(--color-fd-border);
+}
+[data-sl-theme="obsidian"] #nd-subnav > div:first-child {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+[data-sl-theme="obsidian"] #nd-subnav input,
+[data-sl-theme="obsidian"] #nd-subnav button[aria-label*="Search" i] {
+  border-radius: var(--obsidian-radius);
+  background: var(--kp-surface);
+  border: 1px solid var(--color-fd-border);
+}
+[data-sl-theme="obsidian"] #nd-subnav .border-b.px-6 {
+  height: 2.75rem;
+  padding-inline: 1rem;
+  gap: 1.25rem;
+  border-color: var(--color-fd-border);
+}
+[data-sl-theme="obsidian"] #nd-subnav a[class*="border-b-2"] {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-fd-muted-foreground);
+  border-bottom-width: 2px;
+  padding-bottom: 0.5rem;
+  transition:
+    color 0.1s ease,
+    border-color 0.1s ease;
+}
+[data-sl-theme="obsidian"] #nd-subnav a[class*="border-b-2"]:hover {
+  color: var(--color-fd-foreground);
+}
+[data-sl-theme="obsidian"] #nd-subnav a[class*="border-b-2"][data-active="true"],
+[data-sl-theme="obsidian"] #nd-subnav a[class*="border-b-2"].text-fd-primary {
+  color: var(--color-fd-foreground);
+  border-bottom-color: var(--kp-accent);
+}
+
+/* ── Sidebar — dense flat list, no big pills ───────────────────────────────── */
+[data-sl-theme="obsidian"] #nd-sidebar {
+  padding-inline: 0.5rem;
+  border-right: 1px solid var(--color-fd-border);
+}
+[data-sl-theme="obsidian"] #nd-sidebar a[data-active] {
+  border-radius: 6px;
+  padding-block: 0.3rem;
+  margin-inline-start: 0;
+  font-size: 0.8125rem;
+  font-weight: 450;
+  color: var(--color-fd-muted-foreground);
+  transition:
+    background 0.1s ease,
+    color 0.1s ease;
+}
+[data-sl-theme="obsidian"] #nd-sidebar a[data-active="false"]:hover {
+  background: var(--color-fd-muted);
+  color: var(--color-fd-foreground);
+}
+[data-sl-theme="obsidian"] #nd-sidebar a[data-active="true"] {
+  color: var(--color-fd-foreground);
+  font-weight: 550;
+  background: var(--color-fd-muted);
+}
+[data-sl-theme="obsidian"] #nd-sidebar a[data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 1rem;
+  border-radius: 1px;
+  background: var(--kp-accent);
+}
+[data-sl-theme="obsidian"] #nd-sidebar a[data-active] {
+  position: relative;
+}
+[data-sl-theme="obsidian"] #nd-sidebar svg {
+  opacity: 0.7;
+}
+
+/* ── Hero — flat, compact, console-like ────────────────────────────────────── */
+[data-sl-theme="obsidian"] .kp-page-hero {
+  border: 0 !important;
+  background: none !important;
+  padding: 0 !important;
+  margin: 0 0 2.2rem !important;
+  overflow: visible !important;
+}
+[data-sl-theme="obsidian"] .kp-page-hero::before {
+  display: none !important;
+}
+[data-sl-theme="obsidian"] .kp-page-hero__kicker {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-bottom: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--kp-accent-text);
+  letter-spacing: 0.11em;
+}
+[data-sl-theme="obsidian"] .kp-page-hero__title {
+  font-size: 2.3rem;
+  font-weight: 640;
+  letter-spacing: -0.028em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+[data-sl-theme="obsidian"] .kp-page-hero__description {
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--color-fd-muted-foreground);
+  max-width: 62ch;
+}
+
+/* ── Reading type — dense, tight rhythm ────────────────────────────────────── */
+[data-sl-theme="obsidian"] #nd-page .prose {
+  font-size: 15px;
+  line-height: 1.6;
+}
+[data-sl-theme="obsidian"] #nd-page .prose h2 {
+  font-size: 1.35rem;
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  margin-top: 2.2em;
+  margin-bottom: 0.55em;
+}
+[data-sl-theme="obsidian"] #nd-page .prose h3 {
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: -0.013em;
+}
+[data-sl-theme="obsidian"] #nd-page .prose code {
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+  font-size: 0.86em;
+}
+
+/* ── Components — small radius, low-noise flat cards, restrained accent ─────── */
+[data-sl-theme="obsidian"] #nd-page a[class*="rounded-lg"][class*="border"] {
+  border-radius: var(--obsidian-radius);
+  background: var(--kp-surface);
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+[data-sl-theme="obsidian"] #nd-page a[class*="rounded-lg"][class*="border"]:hover {
+  border-color: var(--kp-border-strong);
+  background: var(--kp-surface-2);
+}
+[data-sl-theme="obsidian"] #nd-page [class*="callout" i] {
+  border-radius: var(--obsidian-radius);
+}
+
+/* prism — polished light, three-column technical reference (Stripe-inspired): white bg, cool-gray surfaces, deep-navy headings, slate body, soft layered shadows atop 1px borders, airy light-weight type. Largely defers to the brand accent. */
+
+[data-sl-theme="prism"] {
+  --prism-radius: 10px;
+  --prism-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --prism-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+  --prism-shadow-card: 0 1px 3px rgba(10, 37, 64, 0.08), 0 8px 24px -12px rgba(10, 37, 64, 0.16);
+  --prism-shadow-card-hover:
+    0 2px 6px rgba(10, 37, 64, 0.1), 0 16px 36px -14px rgba(10, 37, 64, 0.22);
+}
+
+/* ── Token overrides: LIGHT — absolute-white page, cool-gray surfaces, navy ink ─────── */
+html[data-sl-theme="prism"]:not(.dark) {
+  --color-fd-background: #ffffff;
+  --color-fd-foreground: #0a2540;
+  --color-fd-card: #ffffff;
+  --color-fd-card-foreground: #0a2540;
+  --color-fd-popover: #ffffff;
+  --color-fd-popover-foreground: #0a2540;
+  --color-fd-muted: #f6f9fc;
+  --color-fd-muted-foreground: #425466;
+  --color-fd-secondary: #f6f9fc;
+  --color-fd-secondary-foreground: #0a2540;
+  --color-fd-border: #e6ebf1;
+  --color-fd-accent: #f6f9fc;
+  --color-fd-accent-foreground: #0a2540;
+
+  --kp-bg-elev: #f6f9fc;
+  --kp-surface: #ffffff;
+  --kp-surface-2: #f6f9fc;
+  --kp-border-subtle: #eef2f7;
+  --kp-border: #e6ebf1;
+  --kp-border-strong: #cfd7e0;
+  --kp-text-2: #425466;
+  --kp-text-3: #697386;
+}
+
+/* ── Token overrides: DARK — deep-navy base, navy surfaces, cool light text ─────────── */
+html.dark[data-sl-theme="prism"] {
+  --color-fd-background: #0a1628;
+  --color-fd-foreground: #eaf0f7;
+  --color-fd-card: #0e1d33;
+  --color-fd-card-foreground: #eaf0f7;
+  --color-fd-popover: #0e1d33;
+  --color-fd-popover-foreground: #eaf0f7;
+  --color-fd-muted: #102139;
+  --color-fd-muted-foreground: #a3b2c7;
+  --color-fd-secondary: #102139;
+  --color-fd-secondary-foreground: #eaf0f7;
+  --color-fd-border: #1d3251;
+  --color-fd-accent: #102139;
+  --color-fd-accent-foreground: #eaf0f7;
+
+  --kp-bg-elev: #0c1a2e;
+  --kp-surface: #0e1d33;
+  --kp-surface-2: #102139;
+  --kp-border-subtle: #16273f;
+  --kp-border: #1d3251;
+  --kp-border-strong: #2c466c;
+  --kp-text-2: #a3b2c7;
+  --kp-text-3: #6f8099;
+
+  --prism-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.55);
+  --prism-shadow-card-hover: 0 2px 6px rgba(0, 0, 0, 0.45), 0 16px 36px -14px rgba(0, 0, 0, 0.65);
+}
+
+/* ── Base type — airy, light-weight sans; mono for code ─────────────────────────────── */
+[data-sl-theme="prism"] {
+  font-family: var(--prism-sans);
+}
+[data-sl-theme="prism"] code,
+[data-sl-theme="prism"] kbd,
+[data-sl-theme="prism"] pre {
+  font-family: var(--prism-mono);
+}
+
+/* ── Top navbar — clean, slightly elevated, brand-underlined active tabs ─────────────── */
+[data-sl-theme="prism"] #nd-subnav {
+  background: color-mix(in oklab, var(--color-fd-background) 88%, transparent) !important;
+  backdrop-filter: saturate(1.2) blur(10px);
+  border-bottom: 1px solid var(--color-fd-border);
+  box-shadow: 0 1px 2px rgba(10, 37, 64, 0.04);
+}
+[data-sl-theme="prism"] #nd-subnav > div:first-child {
+  height: 3.75rem;
+  padding-inline: 1.5rem;
+}
+[data-sl-theme="prism"] #nd-subnav input,
+[data-sl-theme="prism"] #nd-subnav button[aria-label*="Search" i] {
+  border-radius: 8px;
+  border-color: var(--color-fd-border);
+}
+[data-sl-theme="prism"] #nd-subnav .border-b.px-6 {
+  height: 3rem;
+  padding-inline: 1.5rem;
+  gap: 1.75rem;
+  border-color: var(--color-fd-border);
+}
+[data-sl-theme="prism"] #nd-subnav a[class*="border-b-2"] {
+  font-size: 0.875rem;
+  font-weight: 450;
+  color: var(--color-fd-muted-foreground);
+  border-bottom-width: 2px;
+  padding-bottom: 0.5rem;
+  transition:
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+[data-sl-theme="prism"] #nd-subnav a[class*="border-b-2"]:hover {
+  color: var(--color-fd-foreground);
+}
+[data-sl-theme="prism"] #nd-subnav a[class*="border-b-2"][data-active="true"],
+[data-sl-theme="prism"] #nd-subnav a[class*="border-b-2"].text-fd-primary {
+  color: var(--kp-accent-text);
+  font-weight: 550;
+  border-bottom-color: var(--kp-accent);
+}
+
+/* ── Sidebar — quiet three-column reference rail ─────────────────────────────────────── */
+[data-sl-theme="prism"] #nd-sidebar {
+  padding-inline: 0.5rem;
+  background: var(--color-fd-background);
+}
+[data-sl-theme="prism"] #nd-sidebar a[data-active] {
+  border-radius: 8px;
+  padding-block: 0.4rem;
+  margin-inline-start: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--color-fd-muted-foreground);
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+[data-sl-theme="prism"] #nd-sidebar a[data-active="false"]:hover {
+  background: var(--color-fd-muted);
+  color: var(--color-fd-foreground);
+}
+[data-sl-theme="prism"] #nd-sidebar a[data-active="true"] {
+  color: var(--kp-accent-text);
+  font-weight: 550;
+  background: var(--color-fd-muted);
+}
+[data-sl-theme="prism"] #nd-sidebar svg {
+  opacity: 0.7;
+}
+
+/* ── Hero — flat, airy, navy title with light-weight descender ──────────────────────── */
+[data-sl-theme="prism"] .kp-page-hero {
+  border: 0 !important;
+  background: none !important;
+  padding: 0 !important;
+  margin: 0 0 2.75rem !important;
+  overflow: visible !important;
+}
+[data-sl-theme="prism"] .kp-page-hero::before {
+  display: none !important;
+}
+[data-sl-theme="prism"] .kp-page-hero__kicker {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-bottom: 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--kp-accent-text);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+[data-sl-theme="prism"] .kp-page-hero__title {
+  font-size: 2.6rem;
+  font-weight: 600;
+  letter-spacing: -0.028em;
+  line-height: 1.1;
+  margin-bottom: 0.65rem;
+}
+[data-sl-theme="prism"] .kp-page-hero__description {
+  font-size: 1.18rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--color-fd-muted-foreground);
+  max-width: 64ch;
+}
+
+/* ── Reading type — airy rhythm, navy headings, slate body ──────────────────────────── */
+[data-sl-theme="prism"] #nd-page .prose {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.75;
+  color: var(--color-fd-muted-foreground);
+}
+[data-sl-theme="prism"] #nd-page .prose strong {
+  color: var(--color-fd-foreground);
+  font-weight: 600;
+}
+[data-sl-theme="prism"] #nd-page .prose h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.018em;
+  color: var(--color-fd-foreground);
+  margin-top: 2.75em;
+  margin-bottom: 0.75em;
+}
+[data-sl-theme="prism"] #nd-page .prose h3 {
+  font-size: 1.18rem;
+  font-weight: 550;
+  letter-spacing: -0.012em;
+  color: var(--color-fd-foreground);
+}
+[data-sl-theme="prism"] #nd-page .prose code {
+  font-size: 0.86em;
+  background: var(--color-fd-muted);
+  border: 1px solid var(--color-fd-border);
+  border-radius: 5px;
+  padding: 0.1em 0.38em;
+}
+
+/* ── Component skins — the one theme with restrained soft layered shadows ────────────── */
+[data-sl-theme="prism"] #nd-page a[class*="rounded-lg"][class*="border"] {
+  border-radius: var(--prism-radius);
+  border-color: var(--color-fd-border);
+  background: var(--color-fd-card);
+  box-shadow: var(--prism-shadow-card);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+[data-sl-theme="prism"] #nd-page a[class*="rounded-lg"][class*="border"]:hover {
+  transform: translateY(-2px);
+  border-color: var(--kp-border-strong);
+  box-shadow: var(--prism-shadow-card-hover);
+}
+[data-sl-theme="prism"] #nd-page [class*="callout" i] {
+  border-radius: var(--prism-radius);
+  box-shadow: var(--prism-shadow-card);
+}
+
+/* paste theme — accessible system, one super-family (sans system-ui), weights disciplined to 400/600, max-legibility contrast in both modes, medium 8px radius. Identity = accessibility + weight discipline; brand accent preserved. */
+[data-sl-theme="paste"] {
+  --paste-radius: 8px;
+  --paste-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ── Token layer: LIGHT — white bg, #f4f4f6 muted, near-black text, #606b85 weak, #e1e3e8 borders ── */
+html[data-sl-theme="paste"]:not(.dark) {
+  --color-fd-background: #ffffff;
+  --color-fd-foreground: #0e1117;
+  --color-fd-card: #ffffff;
+  --color-fd-card-foreground: #0e1117;
+  --color-fd-popover: #ffffff;
+  --color-fd-popover-foreground: #0e1117;
+  --color-fd-muted: #f4f4f6;
+  --color-fd-muted-foreground: #606b85;
+  --color-fd-secondary: #f4f4f6;
+  --color-fd-secondary-foreground: #0e1117;
+  --color-fd-accent: #f4f4f6;
+  --color-fd-accent-foreground: #0e1117;
+  --color-fd-border: #e1e3e8;
+  --color-fd-primary-foreground: #ffffff;
+
+  --kp-bg-elev: #ffffff;
+  --kp-surface: #ffffff;
+  --kp-surface-2: #f4f4f6;
+  --kp-border-subtle: #ebecf0;
+  --kp-border: #e1e3e8;
+  --kp-border-strong: #cdd0d8;
+  --kp-text-2: #606b85;
+  --kp-text-3: #8b94a6;
+  --kp-accent-ink: #ffffff;
+  --kp-accent-text: var(--kp-accent);
+  --kp-success: #1a7f4b;
+  --kp-warning: #9a6700;
+  --kp-danger: #c01c28;
+}
+
+/* ── Token layer: DARK — #121417 bg, #1b1e24 card, #f5f6f8 text, #aab3c0 weak, #2a2f37 borders ── */
+html.dark[data-sl-theme="paste"] {
+  --color-fd-background: #121417;
+  --color-fd-foreground: #f5f6f8;
+  --color-fd-card: #1b1e24;
+  --color-fd-card-foreground: #f5f6f8;
+  --color-fd-popover: #1b1e24;
+  --color-fd-popover-foreground: #f5f6f8;
+  --color-fd-muted: #1b1e24;
+  --color-fd-muted-foreground: #aab3c0;
+  --color-fd-secondary: #1b1e24;
+  --color-fd-secondary-foreground: #f5f6f8;
+  --color-fd-accent: #22262e;
+  --color-fd-accent-foreground: #f5f6f8;
+  --color-fd-border: #2a2f37;
+  --color-fd-primary-foreground: #0e1117;
+
+  --kp-bg-elev: #121417;
+  --kp-surface: #1b1e24;
+  --kp-surface-2: #22262e;
+  --kp-border-subtle: #22262e;
+  --kp-border: #2a2f37;
+  --kp-border-strong: #3a414c;
+  --kp-text-2: #aab3c0;
+  --kp-text-3: #7d8696;
+  --kp-accent-ink: #0e1117;
+  --kp-accent-text: var(--kp-accent);
+  --kp-success: #3fb950;
+  --kp-warning: #d8a800;
+  --kp-danger: #f17178;
+}
+
+/* ── One system super-family everywhere; weight discipline = 400 + 600 only ── */
+[data-sl-theme="paste"] #nd-page .prose,
+[data-sl-theme="paste"] #nd-subnav,
+[data-sl-theme="paste"] #nd-sidebar,
+[data-sl-theme="paste"] .kp-page-hero {
+  font-family: var(--paste-sans);
+}
+
+/* ── Top navbar — calm, square-ish, accent-underlined active tab ── */
+[data-sl-theme="paste"] #nd-subnav {
+  background: var(--color-fd-background) !important;
+  border-bottom: 1px solid var(--color-fd-border);
+}
+[data-sl-theme="paste"] #nd-subnav > div:first-child {
+  height: 3.75rem;
+  padding-inline: 1.25rem;
+}
+[data-sl-theme="paste"] #nd-subnav input,
+[data-sl-theme="paste"] #nd-subnav button[aria-label*="Search" i] {
+  border-radius: var(--paste-radius);
+}
+[data-sl-theme="paste"] #nd-subnav .border-b.px-6 {
+  height: 3rem;
+  padding-inline: 1.25rem;
+  gap: 1.5rem;
+  border-color: var(--color-fd-border);
+}
+[data-sl-theme="paste"] #nd-subnav a[class*="border-b-2"] {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: var(--color-fd-muted-foreground);
+  border-bottom-width: 2px;
+  padding-bottom: 0.5rem;
+  transition:
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+[data-sl-theme="paste"] #nd-subnav a[class*="border-b-2"]:hover {
+  color: var(--color-fd-foreground);
+}
+[data-sl-theme="paste"] #nd-subnav a[class*="border-b-2"][data-active="true"],
+[data-sl-theme="paste"] #nd-subnav a[class*="border-b-2"].text-fd-primary {
+  color: var(--color-fd-foreground);
+  font-weight: 600;
+  border-bottom-color: var(--kp-accent);
+}
+
+/* ── Sidebar — left-aligned, roomy, subtle muted-fill active state for max legibility ── */
+[data-sl-theme="paste"] #nd-sidebar {
+  padding-inline: 0.5rem;
+}
+[data-sl-theme="paste"] #nd-sidebar a[data-active] {
+  border-radius: var(--paste-radius);
+  padding-block: 0.45rem;
+  margin-inline-start: 0.25rem;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+[data-sl-theme="paste"] #nd-sidebar a[data-active="false"] {
+  color: var(--color-fd-muted-foreground);
+}
+[data-sl-theme="paste"] #nd-sidebar a[data-active="false"]:hover {
+  background: var(--color-fd-muted);
+  color: var(--color-fd-foreground);
+}
+[data-sl-theme="paste"] #nd-sidebar a[data-active="true"] {
+  color: var(--color-fd-foreground);
+  font-weight: 600;
+  background: var(--color-fd-muted);
+}
+[data-sl-theme="paste"] #nd-sidebar svg {
+  opacity: 0.85;
+}
+
+/* ── Hero — flat, left-aligned, sentence-case feel; title at 600, never heavier ── */
+[data-sl-theme="paste"] .kp-page-hero {
+  border: 0 !important;
+  background: none !important;
+  padding: 0 !important;
+  margin: 0 0 2.6rem !important;
+  overflow: visible !important;
+}
+[data-sl-theme="paste"] .kp-page-hero::before {
+  display: none !important;
+}
+[data-sl-theme="paste"] .kp-page-hero__kicker {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: var(--color-fd-muted-foreground);
+  letter-spacing: 0.08em;
+}
+[data-sl-theme="paste"] .kp-page-hero__title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  margin-bottom: 0.6rem;
+}
+[data-sl-theme="paste"] .kp-page-hero__description {
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-fd-muted-foreground);
+  max-width: 68ch;
+}
+
+/* ── Reading type — generous spacing, size paired with line-height for automatic rhythm ── */
+[data-sl-theme="paste"] #nd-page .prose {
+  font-size: 16px;
+  line-height: 1.7;
+}
+[data-sl-theme="paste"] #nd-page .prose h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  line-height: 1.3;
+  margin-top: 2.6em;
+  margin-bottom: 0.7em;
+}
+[data-sl-theme="paste"] #nd-page .prose h3 {
+  font-size: 1.1875rem;
+  font-weight: 600;
+  letter-spacing: -0.008em;
+  line-height: 1.35;
+}
+
+/* ── Components — medium radius, flat 1px borders, restrained accent-border hover (no lift) ── */
+[data-sl-theme="paste"] #nd-page a[class*="rounded-lg"][class*="border"] {
+  border-radius: var(--paste-radius);
+  border-color: var(--color-fd-border);
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+[data-sl-theme="paste"] #nd-page a[class*="rounded-lg"][class*="border"]:hover {
+  border-color: var(--kp-accent-border);
+  background: var(--color-fd-muted);
+}
+[data-sl-theme="paste"] #nd-page [class*="callout" i] {
+  border-radius: var(--paste-radius);
+}

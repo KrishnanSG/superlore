@@ -117,7 +117,11 @@ schema — keep to it exactly:
 {
   "name": "Acme Knowledge Base",
   "type": "company-kb", // "company-kb" | "product-docs"
-  "accent": "#6D5CF0", // optional brand colour; omit for superlore violet
+  "accent": "#6D5CF0", // optional brand colour; one hue drives the whole palette (light + dark)
+  "theme": "mint", // optional skin: default | mint | geist | ledger | obsidian | prism | paste
+  "logo": { "light": "/logo.svg", "dark": "/logo-dark.svg" }, // optional; navbar lockup
+  "favicon": "/favicon.svg", // optional
+  "font": { "sans": "Inter", "mono": "JetBrains Mono" }, // optional override of the theme's type
   "auth": {
     "enabled": true, // false for a public KB
     "provider": "google", // only when enabled
@@ -131,6 +135,11 @@ schema — keep to it exactly:
 ```
 
 - **`type`** comes straight from Question 1.
+- **`theme`** picks the visual skin (offer the seven; default look if omitted). **`accent`** is one
+  hue that derives the whole palette. **`logo` / `favicon` / `font`** are optional brand overrides
+  that work on any theme. All are presentation-only — they never touch the content or MCP face.
+  `superlore init --theme geist --accent "#304FFE"` sets them at scaffold time; the generated
+  `app/layout.tsx` reads them, so changing `superlore.json` reskins the site with no code edits.
 - **`auth.enabled`** comes from Question 2 (plus the company-KB rule). When enabling, set
   `provider: "google"` and **ask** for `allowedDomain` if it's a company KB — but make it optional
   (leave it out if they don't have one handy; any Google account can sign in without it).
@@ -151,6 +160,15 @@ Keep the seed honest to the contract: author the _data_, not a picture.
 Once scaffolded, offer to register the KB's MCP with the user's agent so they can immediately query
 their own corpus. **Hand off to superlore-connect-mcp** — that skill asks permission before touching
 any Claude config and asks for the URL if it isn't known yet. Do not run `claude mcp add` from here.
+
+## Two ways to ship superlore
+
+Scaffold a **full docs site** (this flow) when they want a deployed KB with nav, search, and the MCP.
+But superlore also renders a **single `.mdx` — or a plan/spec an agent writes** — live, with no site:
+the **Viewer** (`/viewer`, drop-in MDX) and the **superlore editor extension (the plugin)** render any
+doc with the same components + Canvas via the runtime. So a Claude-authored plan can be viewed/shared
+through the plugin without scaffolding a site. Mention this when the user just has _a doc_, not a site —
+point them at **superlore-connect-mcp** / the Viewer rather than a full scaffold.
 
 ## Wrap up — tell them what's next
 

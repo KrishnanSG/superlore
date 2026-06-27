@@ -35,6 +35,12 @@ superlore"_ just works.
   superlore doc you review + comment on), then convert with dual-rep components, verify the build +
   key pages with Playwright, and a summary doc with screenshots. Triggers on "migrate / port / convert
   my docs to superlore".
+- **[superlore-release](superlore-release/SKILL.md)** — prepare best-in-class release notes the same
+  way every time: gather what changed since the last version, classify it (breaking / new / improved /
+  fixed / security), write developer migration notes + how-to-use, state whether the upgrade is
+  recommended, script a 30–60s reel, write the dual-representation `Release` entry in the docs
+  changelog, and cut a GitHub Release that links back to it. Triggers on "cut a release / prepare
+  release notes / what changed since the last version".
 
 ## Install the plugin into Claude
 

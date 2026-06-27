@@ -3,7 +3,7 @@ name: superlore-author
 description: Author and edit content into an existing superlore knowledge base — "vibe your docs". Turns intent ("add a page about X", "document our onboarding", "make a roadmap") into well-structured MDX with dual-representation components (cards, timelines, boards, entity cards, tables, a Canvas), so humans get a clean page and agents get a typed knowledge face from one source. Use when adding, writing, editing, or restructuring pages, components, or a Canvas in a superlore KB.
 metadata:
   author: superlore
-  version: "1.2.0"
+  version: "1.2.2"
 ---
 
 # Authoring superlore content ("vibe your docs")
@@ -141,6 +141,39 @@ targets depend on them.
 - **No emoji in content UI.** One accent (violet by default); let structure carry hierarchy.
 - Light and dark are co-equal — never hand-author theme-specific values; it's a token swap.
 - Lead every page with a `summary`. Prefer structural components over prose tables and screenshots.
+
+## Themes & brand (config, not content)
+
+The whole-site look is a **`superlore.json`** choice, never authored per page — keep content
+theme-agnostic so it works in any skin:
+
+- **`theme`** picks the visual skin: `default · mint · geist · ledger · obsidian · prism · paste`
+  (chrome, type, surfaces, radius/density). **`accent`** is one hue that drives the entire palette
+  (light + dark). **`font` / `logo` / `favicon`** are optional brand overrides that ride any theme.
+- These touch presentation only — the Canvas, every component's knowledge face, and the MCP are
+  identical across themes. So author the data; let the theme dress it.
+- Document/showcase themes with `<ThemeGallery />` if the KB ships it; otherwise the `/themes` page.
+
+## MDX safety — never emit unescaped `{ … }` or `<Tag>` in prose
+
+In MDX an unescaped `{` opens a **JavaScript expression**, so prose like `### GET /users/{id}`
+compiles fine but **throws at render** (`ReferenceError: id is not defined`) and can blank the page.
+This is the mainline for API/SRS content. Neutralize hazards in **non-code** text:
+
+- **API paths / params** → wrap in inline code: `` `/users/{id}` `` (highest-value rule), or escape: `\{id\}`.
+- **`${…}` shell/template** and **`{{ … }}` mustache** → fence or inline-code them.
+- **`<Foo>` that isn't a real superlore/HTML component** → inline-code or escape (`\<`).
+- Braces inside fenced/inline code are already literal — leave them.
+
+Lint generated MDX before writing it and self-correct. The package ships the check:
+
+```ts
+import { findMdxProblems } from "superlore/mdx-lint"; // dependency-free; returns string[]
+const problems = findMdxProblems(mdx); // e.g. ["line 3: \"{id}\" … wrap in backticks or escape as \\{."]
+```
+
+(The runtime also wraps each doc in an error boundary, so a missed case degrades to a fallback
+instead of crashing the host — but escape at author time; don't rely on the floor.)
 
 ## Verify with the MCP
 

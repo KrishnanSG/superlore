@@ -2,142 +2,210 @@
 title: Releases
 icon: Tag
 docType: reference
-description: A changelog of versioned releases — each with a version, date, status, and a list of changes typed by kind.
-summary: Release renders a changelog entry and serializes to a release knowledge node with a parsed date and changes typed added/changed/fixed/removed/deprecated/security.
+description: Enterprise-grade release notes — hero media, a Highlights grid, changes grouped into sections, and a collision-free release timeline. Every block typed for the MCP.
+summary: Release renders a full release record (hero media, highlights, grouped sections, an area rail) and serializes to a release knowledge node with a parsed date, areas, media, highlights, and changes typed added/changed/fixed/removed/deprecated/security. Releases wraps a stack with a collision-avoidance timeline and tag filter, in feature/timeline/compact variants.
 tags: [components, knowledge-structures, dual-representation, release, changelog]
 ---
 
-A `Release` is one versioned changelog entry — a version, a date, an optional status, and a list of
-changes each **typed by kind** (`added · changed · fixed · removed · deprecated · security`). Wrap a
-stack of them in `Releases` (alias `Changelog`) for a full changelog. Humans read the entry; the
-agent gets `{ kind:"release", version, date, changes }` so it can answer "what changed in 2.0?" or
-"every security fix since June" without parsing prose.
+A `Release` is one complete release record — a version, date, optional status, a hero (screenshot or
+video), a **Highlights** grid, and changes grouped into **sections** (New / Improved / Fixed /
+Security). Wrap a stack in `Releases` (alias `Changelog`) for a full changelog led by a
+collision-free **release timeline**. Humans read the record; the agent gets
+`{ kind:"release", version, date, areas, media, highlights, sections, changes }` — every block typed,
+so "what shipped in 2.0?" or "every security fix since June" is a query, never prose-parsing.
 
 <Example
-  code={`<Releases label="superlore changelog">
+  code={`<Releases label="changelog">
   <Release
-    version="2.0.0"
+    version="2.0"
     date="2026-06-15"
     status="done"
     title="MCP launch"
-    changes={[
-      { type: "added", text: "First-class MCP over the structured index." },
-      { type: "changed", text: "Timeline dates now keep precision." },
-      {
-        type: "fixed",
-        text: "Comparison cells stay typed.",
-        refs: [{ rel: "related", target: "/docs/components/comparison", label: "Comparison" }],
-      },
-      { type: "removed", text: "Legacy HTML scraper." },
+    areas={["MCP", "Timeline", "Comparison"]}
+    media={[{ type: "image", src: "/dual-representation.png", caption: "One source, two readings." }]}
+    highlights={[
+      { icon: "plug", title: "First-class MCP", body: "Agents query the structured index directly." },
+      { icon: "git-branch", title: "Precise dates", body: "Timeline dates keep their precision." },
     ]}
-  />
-  <Release
-    version="1.4.0"
-    date="2026-05"
-    title="Knowledge structures"
-    changes={[
-      { type: "added", text: "Board, Decision, Comparison, Roster, Checklist." },
-      { type: "deprecated", text: "The old single-representation cards." },
+    sections={[
+      { label: "New features", changes: [
+        { type: "added", text: "First-class MCP over the structured index." },
+      ]},
+      { label: "Fixes", changes: [
+        { type: "fixed", text: "Comparison cells stay typed.", refs: [{ target: "/docs/components/comparison", label: "Comparison" }] },
+      ]},
     ]}
   />
 </Releases>`}
 >
-  <Releases label="superlore changelog">
+  <Releases label="changelog">
     <Release
-      version="2.0.0"
+      version="2.0"
       date="2026-06-15"
       status="done"
       title="MCP launch"
-      changes={[
-        { type: "added", text: "First-class MCP over the structured index." },
-        { type: "changed", text: "Timeline dates now keep precision." },
-        {
-          type: "fixed",
-          text: "Comparison cells stay typed.",
-          refs: [{ rel: "related", target: "/docs/components/comparison", label: "Comparison" }],
-        },
-        { type: "removed", text: "Legacy HTML scraper." },
+      areas={["MCP", "Timeline", "Comparison"]}
+      media={[
+        { type: "image", src: "/dual-representation.png", caption: "One source, two readings." },
       ]}
-    />
-    <Release
-      version="1.4.0"
-      date="2026-05"
-      title="Knowledge structures"
-      changes={[
-        { type: "added", text: "Board, Decision, Comparison, Roster, Checklist." },
-        { type: "deprecated", text: "The old single-representation cards." },
+      highlights={[
+        {
+          icon: "plug",
+          title: "First-class MCP",
+          body: "Agents query the structured index directly.",
+        },
+        {
+          icon: "git-branch",
+          title: "Precise dates",
+          body: "Timeline dates keep their precision.",
+        },
+      ]}
+      sections={[
+        {
+          label: "New features",
+          changes: [{ type: "added", text: "First-class MCP over the structured index." }],
+        },
+        {
+          label: "Fixes",
+          changes: [
+            {
+              type: "fixed",
+              text: "Comparison cells stay typed.",
+              refs: [{ target: "/docs/components/comparison", label: "Comparison" }],
+            },
+          ],
+        },
       ]}
     />
   </Releases>
 </Example>
 
+## Variants
+
+Set `variant` on `Releases` (a single `Release` can override). Same typed data — only the rendering
+changes.
+
+<Table
+  caption="Release variants"
+  columns={[
+    { key: "v", label: "variant", type: "text" },
+    { key: "looks", label: "Looks like", type: "text" },
+    { key: "for", label: "Best for", type: "text" },
+  ]}
+  rows={[
+    {
+      v: "feature (default)",
+      looks: "Hero media, Highlights grid, grouped sections, area jump-rail",
+      for: "Major releases & release notes",
+    },
+    {
+      v: "timeline",
+      looks: "Date-axis strip + sleek hover cards, lighter rail",
+      for: "A rolling 'what's new' feed",
+    },
+    {
+      v: "compact",
+      looks: "Dense rows: date · version · one-liner · soft tag",
+      for: "Bugfix logs, point releases",
+    },
+  ]}
+/>
+
+## Media — screenshots & video
+
+A `media` block leads the entry (the first item is the hero). superlore never hosts — `src` is a path
+or URL you provide. Images get a click-to-zoom lightbox; video supports a self-hosted file, the named
+providers (YouTube / Loom / Vimeo), or **`provider: "iframe"` to embed any URL verbatim** — so any
+embeddable player works. Nothing loads until the viewer hits play.
+
+```tsx
+media={[
+  { type: "video", provider: "iframe", src: "https://your-host.example/embed/abc", poster: "/hero.png", title: "Walkthrough", duration: "0:42" },
+  { type: "video", src: "/walkthrough.mp4" },         // raw file → <video>
+  { type: "image", src: "/screenshot.png", alt: "New dashboard", caption: "The redesigned dashboard." },
+]}
+```
+
+`provider` is inferred from `src` when omitted: a known host (YouTube / Loom / Vimeo) or a raw media
+file (`.mp4`, `.webm`, …) is detected automatically; **anything else is embedded as an iframe**.
+
 ## When to use it
 
-Product changelogs, release notes, version histories. Because each change keeps its `type`, an agent
-can filter the corpus by change kind across every release — never re-reading rendered bullet lists.
+Product changelogs, release notes, version histories. Because each change keeps its `type` and each
+release carries typed `areas` / `highlights`, an agent filters the corpus by change kind, product
+area, or marquee feature — never re-reading rendered bullet lists.
 
 ## Props
 
-**`Releases`** (alias `Changelog`) — a presentational stack.
+**`Releases`** (alias `Changelog`) — the stack + timeline.
 
-| Prop       | Type        | Default       | Description                       |
-| ---------- | ----------- | ------------- | --------------------------------- |
-| `children` | `ReactNode` | —             | One or more `Release`s            |
-| `label`    | `string`    | `"Changelog"` | Accessible name for the changelog |
+| Prop       | Type                           | Default       | Description                           |
+| ---------- | ------------------------------ | ------------- | ------------------------------------- |
+| `children` | `ReactNode`                    | —             | One or more `Release`s                |
+| `label`    | `string`                       | `"Changelog"` | Accessible name                       |
+| `variant`  | `feature · timeline · compact` | `feature`     | Default rendering for every `Release` |
 
 **`Release`** — the dual-representation unit.
 
-| Prop      | Type                   | Default | Description                          |
-| --------- | ---------------------- | ------- | ------------------------------------ |
-| `version` | `string`               | —       | e.g. `2.0.0`                         |
-| `date`    | `string`               | —       | Precision is inferred (see Timeline) |
-| `status`  | `Status`               | —       | Optional lifecycle status            |
-| `title`   | `string`               | —       | Optional headline                    |
-| `summary` | `ReactNode`            | —       | Optional intro line                  |
-| `changes` | `ReleaseChangeInput[]` | —       | The changes in this release          |
+| Prop         | Type                           | Default | Description                                    |
+| ------------ | ------------------------------ | ------- | ---------------------------------------------- |
+| `version`    | `string`                       | —       | e.g. `2.0.0`                                   |
+| `date`       | `string`                       | —       | Precision inferred (see Timeline)              |
+| `status`     | `Status`                       | —       | Optional lifecycle status                      |
+| `title`      | `string`                       | —       | Optional headline                              |
+| `summary`    | `ReactNode`                    | —       | Optional intro line                            |
+| `areas`      | `string[]`                     | —       | Product areas touched — rail + timeline hover  |
+| `media`      | `ReleaseMedia[]`               | —       | Hero + inline screenshots / video              |
+| `highlights` | `ReleaseHighlight[]`           | —       | Marquee features, rendered as a card grid      |
+| `sections`   | `ReleaseSection[]`             | —       | Changes grouped under headings                 |
+| `changes`    | `ReleaseChangeInput[]`         | —       | Flat changes (used when `sections` is omitted) |
+| `variant`    | `feature · timeline · compact` | —       | Override the stack variant for this entry      |
 
-**`ReleaseChangeInput`**
+**`ReleaseMedia`** — `{ type: "image" | "video", src, provider?, poster?, alt?, caption?, title?, duration? }`
 
-| Field  | Type                                                        | Description                        |
-| ------ | ----------------------------------------------------------- | ---------------------------------- |
-| `type` | `added · changed · fixed · removed · deprecated · security` | The change kind — kept in the face |
-| `text` | `string`                                                    | What changed                       |
-| `refs` | `{ rel?, target, label? }[]`                                | Typed links                        |
+**`ReleaseHighlight`** — `{ title, body?, icon?, href?, media? }`
+
+**`ReleaseSection`** — `{ label, icon?, changes: ReleaseChangeInput[] }`
+
+**`ReleaseChangeInput`** — `{ type: added · changed · fixed · removed · deprecated · security, text, refs? }`
 
 ## What the agent sees
 
-Each `Release` serializes on its own — the date is parsed to `{ iso, precision }`, the status is the
-shared enum, and every change keeps its `type`:
+Each `Release` serializes on its own — the date is parsed, the status is the shared enum, media is
+referenced (never pixels), and every change keeps its `type`. When `sections` are used, `changes` is
+the flattened union — so a flat query still works:
 
 ```json
 {
   "kind": "release",
-  "id": "2-0-0",
+  "id": "2-0",
   "title": "MCP launch",
   "status": "done",
-  "version": "2.0.0",
+  "version": "2.0",
   "date": { "iso": "2026-06-15", "precision": "day" },
+  "areas": ["MCP", "Timeline", "Comparison"],
+  "media": [
+    { "type": "image", "src": "/dual-representation.png", "caption": "One source, two readings." }
+  ],
+  "highlights": [
+    { "title": "First-class MCP", "body": "Agents query the structured index directly." }
+  ],
+  "sections": [
+    {
+      "label": "New features",
+      "changes": [{ "type": "added", "text": "First-class MCP over the structured index." }]
+    },
+    { "label": "Fixes", "changes": [{ "type": "fixed", "text": "Comparison cells stay typed." }] }
+  ],
   "changes": [
     { "type": "added", "text": "First-class MCP over the structured index." },
-    { "type": "changed", "text": "Timeline dates now keep precision." },
-    {
-      "type": "fixed",
-      "text": "Comparison cells stay typed.",
-      "refs": [
-        {
-          "rel": "related",
-          "target": "/docs/components/comparison",
-          "label": "Comparison",
-          "internal": true
-        }
-      ]
-    },
-    { "type": "removed", "text": "Legacy HTML scraper." }
+    { "type": "fixed", "text": "Comparison cells stay typed." }
   ]
 }
 ```
 
-<Note title="Why type the changes">
-  A typed `type` per change turns "every security fix since June" into a filter over the corpus —
-  the agent never re-reads a rendered "Security" heading to guess what it groups.
+<Note title="Why type every block">
+  A typed `type` per change turns "every security fix since June" into a corpus filter; typed
+  `areas` and `highlights` let an agent answer "what shipped for the dashboard?" or "summarize the
+  marquee features of 2.0" — from data, never a screenshot it has to interpret.
 </Note>

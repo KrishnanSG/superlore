@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getMDXComponents, PageHero } from "superlore";
 import { createRelativeLink } from "superlore/ui";
 import { superlore } from "@/superlore.config";
+import { ThemeGallery } from "@/components/theme-gallery";
 import type { Metadata } from "next";
 
 /** The section a page sits in (Guide / Components / Canvas / MCP) — the hero's eyebrow. */
@@ -32,7 +33,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
         description={page.data.description}
       />
       <DocsBody>
-        <MDX components={getMDXComponents({ a: createRelativeLink(source, page) })} />
+        <MDX components={getMDXComponents({ a: createRelativeLink(source, page), ThemeGallery })} />
       </DocsBody>
     </DocsPage>
   );
@@ -46,5 +47,19 @@ export async function generateMetadata(props: PageProps<"/docs/[[...slug]]">): P
   const params = await props.params;
   const page = source.getPage(params.slug);
   if (!page) notFound();
-  return { title: page.data.title, description: page.data.description };
+  const { title, description } = page.data;
+  // Per-page canonical + Open Graph so every doc URL is self-describing when shared or indexed —
+  // each page gets its own canonical (not just the root) and a typed `article` OG card.
+  return {
+    title,
+    description,
+    alternates: { canonical: page.url },
+    openGraph: {
+      type: "article",
+      url: page.url,
+      title,
+      description,
+    },
+    twitter: { card: "summary_large_image", title, description },
+  };
 }

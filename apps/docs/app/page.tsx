@@ -54,10 +54,17 @@ export default function Home() {
             + own borders (the step down from the hero's bg-fd-background). */}
         <BreadthSection />
 
-        {/* 3 · Why superlore — the founder story / pain / vision (the creator section). Steps back to
-            bg-fd-background, with a subtle violet aura behind it (content sits at z-10). DESKTOP-ONLY:
+        {/* 3 · The shift — Voices: the whole industry is describing the same gap. Social proof FIRST,
+            so the founder note that follows reads as the answer, not one person's opinion. Steps back
+            to bg-fd-background. */}
+        <div className="bg-fd-background">
+          <Voices />
+        </div>
+
+        {/* 4 · Why superlore — the founder's answer to the shift (creator story / pain / vision), with
+            a subtle violet aura behind it (content sits at z-10). Steps to bg-fd-muted/40. DESKTOP-ONLY:
             trimmed from the mobile flow to keep the phone journey short and visual. */}
-        <div className="relative hidden overflow-hidden bg-fd-background lg:block">
+        <div className="relative hidden overflow-hidden bg-fd-muted/40 lg:block">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[460px]"
@@ -67,11 +74,6 @@ export default function Home() {
             }}
           />
           <WhySuperlore />
-        </div>
-
-        {/* 4 · Voices — social proof early. Steps to bg-fd-muted/40. */}
-        <div className="bg-fd-muted/40">
-          <Voices />
         </div>
 
         {/* 5 · The Turn — WallToCanvas. Border-t divides it; self-paints bg-fd-background. */}

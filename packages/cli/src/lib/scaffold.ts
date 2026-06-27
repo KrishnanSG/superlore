@@ -245,14 +245,22 @@ export default config;
     "app/layout.tsx",
     `import type { ReactNode } from "react";
 import { RootProvider } from "superlore/ui";
+import config from "../superlore.json";
 import "./global.css";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  // Light and dark are co-equal; default to the system preference.
+  // Light and dark are co-equal; default to the system preference. From superlore.json: \`theme\`
+  // picks the visual skin (default | mint | geist | ledger | obsidian | prism | paste) and \`accent\`
+  // drives the whole brand palette — change them there, no code edits.
+  const theme = (config as { theme?: string }).theme;
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      data-sl-theme={theme && theme !== "default" ? theme : undefined}
+    >
       <body>
-        <RootProvider>{children}</RootProvider>
+        <RootProvider accent={(config as { accent?: string }).accent}>{children}</RootProvider>
       </body>
     </html>
   );

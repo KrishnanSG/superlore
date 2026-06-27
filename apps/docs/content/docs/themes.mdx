@@ -1,0 +1,115 @@
+---
+title: Themes
+icon: Palette
+description: Pick a visual skin for your KB with one flag in superlore.json. superlore ships seven themes — and your content never changes.
+summary: superlore themes are opt-in visual skins set via superlore.json's theme field (default, mint, geist, ledger, obsidian, prism, paste). The package ships each skin's CSS scoped to data-sl-theme on <html>, so switching restyles the whole KB — chrome, typography, surfaces, components — with zero .mdx edits. accent and font stay orthogonal brand overrides; Canvas, dual-representation data, and the MCP are identical across every theme.
+tags: [themes, design, mint, geist, ledger, obsidian, prism, paste]
+---
+
+A **theme** is an opt-in visual skin for your whole KB — chrome, typography, surfaces, and component
+styling — selected with one field in `superlore.json`. Switching themes restyles everything and touches
+**zero `.mdx`**. Your superpowers ride along unchanged: the Canvas stays a typed graph, every component
+still serializes to its knowledge face, and the MCP serves the same corpus — **identical across every theme**.
+
+```json
+{
+  "name": "your-kb",
+  "theme": "geist",
+  "accent": "#6D5CF0"
+}
+```
+
+Under the hood, the package ships each skin's CSS scoped to `data-sl-theme` on `<html>`; the layout
+stamps that attribute from your config. A theme is shipped, versioned, and inert until you opt in — not
+a fork of your styles. **`accent` and `font` are orthogonal** — they layer on _any_ theme, so a preset
+is never tied to a brand colour.
+
+## The seven themes — try them live
+
+Click a theme to reskin **this whole page** in place — navbar, sidebar, type, surfaces, components.
+Each card shows that theme's palette swatches, a sample set in its own type, and its radius + density.
+(It's a preview; a reload returns the site to its configured theme.)
+
+<ThemeGallery />
+
+<Note title="Set it for real">
+  This site runs `theme: "mint"`. Set the flag to any name above (or remove it for `default`) in
+  `superlore.json` and the same content ships in that skin — chrome, type, surfaces, components —
+  with no other edits.
+</Note>
+
+## Brand overrides (work on any theme)
+
+```jsonc
+{
+  "theme": "geist",
+  "accent": "#304FFE", // one hue → the whole palette (links, active, CTA, ring), light + dark
+  "font": { "sans": "Inter", "mono": "JetBrains Mono" }, // override a theme's default type
+  "logo": { "light": "/logo.svg", "dark": "/logo-dark.svg", "href": "/" },
+  "favicon": "/favicon.svg",
+}
+```
+
+- **`accent`** is a single hue that derives the entire accent family (and the fumadocs primary/ring) for
+  light and dark — no per-token overrides. A theme never hardcodes your brand colour.
+- **`font`** overrides a theme's default type pairing without forking the skin.
+- **`logo` / `favicon`** brand the navbar + tab the way Mintlify's `docs.json` does.
+
+## What a theme restyles
+
+<Table
+  caption="Surfaces a theme can change"
+  columns={[
+    { key: "area", label: "Area", type: "text" },
+    { key: "what", label: "What varies by theme", type: "text" },
+  ]}
+  rows={[
+    {
+      area: "Surface & background",
+      what: "base canvas (cool-white / warm cream / near-black) + surface tints",
+    },
+    {
+      area: "Typography",
+      what: "the type pairing — sans / serif body / mono labels — and scale, weight, rhythm",
+    },
+    { area: "Radius & density", what: "corner rounding and reading width / vertical rhythm" },
+    {
+      area: "Navbar & sidebar",
+      what: "blur, tab style (underline vs flat), sidebar rows + active treatment",
+    },
+    { area: "Hero & prose", what: "hero treatment and reading type" },
+    {
+      area: "Components",
+      what: "cards, callouts, the release timeline — border-first vs soft elevation",
+    },
+  ]}
+/>
+
+The content model is **never** touched — `accent`, `font`, and the seven skins are presentation only.
+
+## Switch themes
+
+<Steps>
+  <Step title="Set the flag">
+    In `superlore.json`, set `"theme"` to any of the seven names (or omit for `default`).
+  </Step>
+  <Step title="That's it">
+    The layout stamps `data-sl-theme` on `<html>` and the packaged skin activates. No component or
+    `.mdx` changes, no CSS to write.
+  </Step>
+  <Step title="Keep your brand">
+    `accent` drives links, the CTA, icons, and active states in every theme; `font` overrides the type.
+    Set them once and the chosen theme adopts them (light and dark derived for you).
+  </Step>
+</Steps>
+
+## Sidebar
+
+Across themes, the docs sidebar collapses (hide + hover-peek — the right pattern for a nested docs tree).
+Press **`⌘\`** (or `Ctrl+\`) to toggle it, and your collapsed/expanded choice **persists** across pages
+and reloads.
+
+<Tip title="Familiar on the surface, superlore underneath">
+  A theme gives a team migrating from another docs tool the look their users already know — now
+  backed by the Canvas engine, typed dual-representation data, and an MCP.
+</Tip>

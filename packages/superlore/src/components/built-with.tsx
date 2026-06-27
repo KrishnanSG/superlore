@@ -21,6 +21,8 @@ export interface BuiltWithSuperloreProps {
   href?: string;
   /** Lead-in text before the wordmark. Defaults to "Built with"; pass "Powered by" for embeds. */
   label?: string;
+  /** Mark-chip background — defaults to superlore violet. Set it to your brand for a themed badge. */
+  chipColor?: string;
   className?: string;
 }
 
@@ -35,6 +37,7 @@ export interface BuiltWithSuperloreProps {
 export function BuiltWithSuperlore({
   href = "https://superlore.vercel.app",
   label = "Built with",
+  chipColor = "#6D5CF0",
   className,
 }: BuiltWithSuperloreProps) {
   return (
@@ -48,7 +51,7 @@ export function BuiltWithSuperlore({
         className,
       )}
     >
-      <span className="flex items-center px-2" style={{ backgroundColor: "#6D5CF0" }}>
+      <span className="flex items-center px-2" style={{ backgroundColor: chipColor }}>
         <FoldMarkWhite />
       </span>
       <span className="flex items-center gap-1 bg-fd-card px-2.5 py-1">

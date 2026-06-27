@@ -12,8 +12,10 @@ const workspaceRoot = path.join(projectRoot, "..", "..");
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
-  // This app consumes the PUBLISHED `superlore` package (here, the packed tarball, for end-to-end
-  // validation) — no transpilePackages (superlore ships compiled ESM with preserved "use client").
+  // BRANCH (mint-theme dev): consume the LOCAL workspace `superlore` (workspace:*), whose dev exports
+  // point at src/*.tsx — so transpile it. Production consumes the published, prebuilt package and
+  // drops this line.
+  transpilePackages: ["superlore"],
   // Still a pnpm monorepo, so pin BOTH the Turbopack root and the output-file-tracing root to the
   // workspace root so they agree (Next 16 requires them equal) and file tracing resolves the dist.
   outputFileTracingRoot: workspaceRoot,

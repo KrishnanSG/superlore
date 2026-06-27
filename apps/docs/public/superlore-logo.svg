@@ -1,0 +1,7 @@
+<svg width="170" height="34" viewBox="0 0 170 34" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="superlore">
+  <g transform="translate(2 3.5) scale(0.42)">
+    <polygon points="14,20 32,12 32,46 14,54" fill="#6D5CF0"/>
+    <polygon points="32,12 50,20 50,54 32,46" fill="#6D5CF0" opacity="0.5"/>
+  </g>
+  <text x="36" y="23" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif" font-size="20" font-weight="600" letter-spacing="-0.4" fill="#17171F">superlore</text>
+</svg>
