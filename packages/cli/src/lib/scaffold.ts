@@ -119,7 +119,7 @@ function writeSkeleton(root: string, config: SuperloreJson): void {
           "fumadocs-core": "^16.8.2",
           "fumadocs-mdx": "^14.3.1",
           "fumadocs-ui": "^16.8.2",
-          superlore: "^0.9.0",
+          superlore: "^0.12.0",
           "lucide-react": "^1.21.0",
           ...(mcpEnabled
             ? // mcp-handler pins an EXACT sdk peer (1.26.0); npm errors on anything else (pnpm only
