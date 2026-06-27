@@ -647,6 +647,33 @@ html {
   background: var(--kp-accent-hover, var(--kp-accent));
 }
 
+/* Sidebar hierarchy (theme-agnostic, ships to every KB). Fumadocs renders section separators and
+   page links as a flat sibling list at one indent, so they read as the same level. Treat separators
+   as quiet eyebrow labels — **no icon**: an icon means "page", its absence means "section heading" —
+   and tuck the links a step to their right, so the tree reads header → items. */
+#nd-sidebar p {
+  margin-top: 1.5rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--color-fd-muted-foreground) 75%, transparent);
+}
+#nd-sidebar p svg {
+  /* Tailwind preflight sets svg { display: block } in @layer base; override hard so section
+     headers are pure type, visually distinct from the icon-bearing page links. */
+  display: none !important;
+}
+#nd-sidebar a[data-active] {
+  margin-inline-start: 0.75rem;
+}
+/* Dark active item: Fumadocs tints the accent ~10%, near-invisible on a near-black surface — lift it
+   so dark reads as clearly as light. */
+.dark #nd-sidebar a[data-active="true"] {
+  background-color: color-mix(in oklab, var(--kp-accent) 22%, transparent);
+}
+
 /* ══ mint theme — opt-in Mintlify-grade chrome ════════════════════════════════════
    Set `theme: "mint"` in superlore.json and the layout stamps `data-sl-theme="mint"` on
    <html>; every rule below is scoped to that attribute, so it ships with superlore/css and

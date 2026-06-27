@@ -95,34 +95,8 @@
 /* ── Shell polish (UX pass) ────────────────────────────────────────────────
    Dark + light parity and brand-consistent focus, all token-driven. */
 
-/* The Fumadocs sidebar active item uses the accent at ~10%, which is near-invisible on the
-   near-black dark surface — only the violet text reads. Strengthen it so dark matches light. */
-.dark #nd-sidebar a[data-active="true"] {
-  background-color: color-mix(in oklab, var(--kp-accent) 22%, transparent);
-}
-
-/* Sidebar hierarchy. The page tree renders separators (section headers) and page links as a flat
-   sibling list at one indent, so headers and items read as the same level. Treat the separators as
-   quiet eyebrow labels and tuck the links a step to their right, so the tree reads header → items.
-   `[data-active]` is present on every page/folder link (true|false), so this targets links only. */
-#nd-sidebar p {
-  margin-top: 1.5rem;
-  margin-bottom: 0.25rem;
-  font-size: 0.6875rem;
-  font-weight: 650;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--color-fd-muted-foreground) 75%, transparent);
-}
-/* Section headers are typographic only — no icon. An icon now means "page"; its absence means
-   "section heading". That's the hierarchy: headers sit quiet and flush; page links carry an icon
-   and are tucked a step to their right. */
-#nd-sidebar p svg {
-  display: none !important;
-}
-#nd-sidebar a[data-active] {
-  margin-inline-start: 0.75rem;
-}
+/* Sidebar hierarchy + dark active-item contrast now ship in the package (superlore/css) so every KB
+   gets them — see packages/superlore/src/theme/superlore.css. */
 
 /* Branded focus ring: replace the browser-default blue rectangle with an accent ring. Modern
    browsers round the outline to the element's border-radius, so pills/buttons stay on-brand. */
