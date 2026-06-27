@@ -47,5 +47,19 @@ export async function generateMetadata(props: PageProps<"/docs/[[...slug]]">): P
   const params = await props.params;
   const page = source.getPage(params.slug);
   if (!page) notFound();
-  return { title: page.data.title, description: page.data.description };
+  const { title, description } = page.data;
+  // Per-page canonical + Open Graph so every doc URL is self-describing when shared or indexed —
+  // each page gets its own canonical (not just the root) and a typed `article` OG card.
+  return {
+    title,
+    description,
+    alternates: { canonical: page.url },
+    openGraph: {
+      type: "article",
+      url: page.url,
+      title,
+      description,
+    },
+    twitter: { card: "summary_large_image", title, description },
+  };
 }

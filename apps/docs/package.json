@@ -18,6 +18,8 @@
     "@mdx-js/react": "^3.1.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@shikijs/engine-javascript": "^4.2.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "fumadocs-core": "16.8.2",
     "fumadocs-mdx": "14.3.1",
     "fumadocs-ui": "16.8.2",
