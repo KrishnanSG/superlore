@@ -5,6 +5,7 @@
   "pages": [
     "---[Compass]Start here---",
     "index",
+    "why-superlore",
     "getting-started",
     "migrate",
     "---[Layers]Concepts---",
@@ -13,6 +14,8 @@
     "---[PenLine]Authoring---",
     "authoring/index",
     "authoring/frontmatter",
+    "---[Palette]Theming---",
+    "themes",
     "---[Settings2]Operations---",
     "auth",
     "add-to-existing-app",
@@ -20,6 +23,8 @@
     "troubleshooting",
     "---[Share2]Share---",
     "single-doc",
-    "built-with-superlore"
+    "built-with-superlore",
+    "---[History]Releases---",
+    "changelog"
   ]
 }

@@ -43,7 +43,7 @@ export function NavTitle() {
               src={logo.light}
               alt={superlore.name}
               className="w-auto shrink-0 dark:hidden"
-              style={{ height: 22 }}
+              style={{ height: 28 }}
             />
           )}
           {logo?.dark && (
@@ -51,14 +51,14 @@ export function NavTitle() {
               src={logo.dark}
               alt={superlore.name}
               className="hidden w-auto shrink-0 dark:block"
-              style={{ height: 22 }}
+              style={{ height: 28 }}
             />
           )}
         </>
       ) : (
         <>
-          <SuperloreMark className="size-[22px] text-kp-accent-text" />
-          <span className="text-[17px] tracking-tight text-fd-foreground">{superlore.name}</span>
+          <SuperloreMark className="size-[26px] text-kp-accent-text" />
+          <span className="text-[18px] tracking-tight text-fd-foreground">{superlore.name}</span>
         </>
       )}
       <span className="rounded-full border border-fd-border bg-fd-muted px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-fd-muted-foreground uppercase">
