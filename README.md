@@ -14,6 +14,8 @@ can read over **MCP**.
 
 <p>
   <a href="https://www.npmjs.com/package/superlore"><img alt="superlore on npm" src="https://img.shields.io/npm/v/superlore?color=6D5CF0&label=superlore" /></a>
+  <a href="https://www.npmjs.com/package/superlore"><img alt="npm downloads" src="https://img.shields.io/npm/dm/superlore?color=6D5CF0&label=downloads" /></a>
+  <a href="https://github.com/KrishnanSG/superlore/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/KrishnanSG/superlore?color=6D5CF0&label=stars" /></a>
   <a href="./LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/License-Apache_2.0-6D5CF0.svg" /></a>
   <a href="./CONTRIBUTING.md"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-6D5CF0.svg" /></a>
 </p>

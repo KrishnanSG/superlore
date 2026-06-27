@@ -63,6 +63,11 @@ superlore follows [semver](https://semver.org). The two publishable packages ver
   `BREAKING CHANGE:` → major.
 - **Publish** with `pnpm --filter <pkg> publish` (it applies the `src` → `dist` export swap; npm
   2FA required), then tag the release.
+- **Write the notes to the standard** in [`docs/RELEASE_NOTES.md`](./docs/RELEASE_NOTES.md): an
+  upgrade recommendation, breaking changes + migration notes, New/Improved/Fixed/Security, and a
+  30–60s reel. Run the [`superlore-release`](./skills/superlore-release/SKILL.md) skill to produce the
+  docs-changelog entry and the GitHub Release together — the docs changelog is the source of truth;
+  the GitHub Release links back to it.
 
 ## License
 
