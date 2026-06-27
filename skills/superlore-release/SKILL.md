@@ -86,7 +86,8 @@ A short reel makes the release shareable (changelog hero, GitHub Release, Linked
 - **Build it with [Remotion](https://remotion.dev)** (canonical): programmatic React → MP4, so the
   reel is **on-brand** (it renders the real superlore UI + design tokens), **deterministic**,
   version-controlled, and **re-renderable in CI** (`remotion render`). Keep the compositions in the
-  repo (e.g. `apps/reels`), parameterized by the release data so each version's reel is a prop change.
+  repo at `reels/` (a standalone Remotion project, outside the pnpm workspace so its heavy deps don't
+  bloat the docs deploy), parameterized by the release data so each version's reel is a prop change.
   - Quick alternative when a bespoke composition isn't worth it: Playwright video capture
     (`newContext({ recordVideo: { dir } })`) driving the dev server through the feature, or a trimmed
     screen recording of `superlore dev`.

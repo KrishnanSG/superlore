@@ -58,21 +58,21 @@ row is green. Pair this with the notes standard in [`RELEASE_NOTES.md`](./RELEAS
 - [ ] **Add a changeset** (`pnpm changeset`) for each changed package — versions are computed, not
       hand-edited. (Sync the CLI `VERSION` constant by hand.) Merge opens a "Version Packages" PR;
       merging **that** publishes to npm + tags + cuts the GitHub Release.
-- [ ] Revert any branch-only dev wiring before the prod merge (see below), then deploy `apps/docs`.
+- [ ] Confirm the docs-app consumption model (workspace source — see below), then deploy `apps/docs`.
 - [ ] GitHub Release body mirrors the notes and ends with the docs-changelog link.
 - [ ] Rebuild/republish the extension if it depends on a changed core API.
 - [ ] Merge to `main` so the plugin marketplace serves the new `plugin.json`.
 - [ ] `post-publish` smoke test green; spot-check prod: `/docs`, `/docs/changelog`, `/llms.txt`, `/api/mcp`, the Viewer.
 
-## Branch-only dev wiring — MUST revert before a production merge
+## Docs app consumption (monorepo decision)
 
-`apps/docs` currently consumes the **local workspace** core for fast iteration. Production must consume
-the **published** package. Before merging `docs/mint-theme` → `main`:
-
-- [ ] `apps/docs/package.json`: `"superlore": "workspace:*"` → `"^0.12.x"` (the published version).
-- [ ] `apps/docs/next.config.mjs`: drop `transpilePackages: ["superlore"]`.
-- [ ] `apps/docs/app/global.css`: the `@source "../app"`/`"../content"` globs stay; the package ships its
-      own compiled CSS — confirm no `@source` points into `node_modules/superlore/src`.
+`apps/docs` consumes the **local workspace** core (`workspace:*` + `transpilePackages`), so the docs
+site builds from source — it can't race the npm publish on a merge and always reflects HEAD. The
+**published** tarball is validated independently by `e2e` (scaffold-and-build the packed artifact) and
+`post-publish` (install the live npm package + build). This is a deliberate monorepo dogfood, not a
+gap. To switch the docs to the published package later: set `"superlore": "^0.12.x"`, drop
+`transpilePackages: ["superlore"]`, and publish core **before** the docs deploy (two-phase) to avoid a
+resolve-before-publish race.
 
 ## Recommended CI hardening (not yet in `ci.yml`)
 
@@ -105,4 +105,5 @@ and a **link-check** of the docs build output.
 - CLI `superlore-cli`: repo `0.7.3`; npm `latest` **0.7.2**. → **0.7.3 not published yet.**
 - Plugin: repo `1.3.0`; live only **after merge to `main`** (marketplace serves the default branch).
 - Extension `superlore-preview`: `0.4.10`.
-- Docs/Viewer: on the branch they consume the **workspace** core (dev wiring above) — revert before prod.
+- Docs/Viewer: consume the **workspace** core and build from source (deliberate — see above); the
+  published tarball is validated separately by `e2e` + `post-publish`.
