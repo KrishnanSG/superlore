@@ -83,11 +83,13 @@ A short reel makes the release shareable (changelog hero, GitHub Release, Linked
 - **Length** 30s, 60s hard max. **Show the headline change**, not a feature tour — one "aha".
 - **Format** MP4 (H.264, 1280×720 or 1080p) for social; an optimized GIF (<5 MB) for the README/inline.
 - **No audio dependency** — it should read muted (captions/labels in-frame); LinkedIn/X autoplay muted.
-- **Capture** the real UI: record the new feature in the running app. Repeatable options:
-  - Playwright video capture (`context = browser.newContext({ recordVideo: { dir } })`) driving the
-    dev server through the feature — deterministic, re-runnable each release.
-  - Or a screen recording of `superlore dev` (macOS `screencapture`/QuickTime, or any recorder),
-    trimmed to the moment.
+- **Build it with [Remotion](https://remotion.dev)** (canonical): programmatic React → MP4, so the
+  reel is **on-brand** (it renders the real superlore UI + design tokens), **deterministic**,
+  version-controlled, and **re-renderable in CI** (`remotion render`). Keep the compositions in the
+  repo (e.g. `apps/reels`), parameterized by the release data so each version's reel is a prop change.
+  - Quick alternative when a bespoke composition isn't worth it: Playwright video capture
+    (`newContext({ recordVideo: { dir } })`) driving the dev server through the feature, or a trimmed
+    screen recording of `superlore dev`.
 - **Host** it in the repo (`/public` or a release asset) and reference it from the `Release` `media`
   (a `video`), the GitHub Release, and the social post — one asset, every surface.
 
@@ -143,23 +145,25 @@ If `recommendation` (or any prop you need) isn't yet on the component, **don't i
 put the recommendation line in `summary` and flag that the prop should be added (a versioned change to
 the package). Keep the human card and the knowledge face in lockstep.
 
-## Cut the GitHub Release (links back to the docs changelog)
+## Publish + the GitHub Release (automated on merge)
 
-Tag and release with the **same notes**, and always point to the canonical changelog so the two never
-drift:
+superlore publishes via **Changesets + npm Trusted Publishing (OIDC)** — the `release` workflow runs on
+merge to `main` with **no npm token** (OIDC provenance), gated by the e2e scaffold-and-build check.
+`superlore` and `superlore-cli` version **independently**; `superlore-docs` and `superlore-preview` are
+ignored by changesets. So the flow is:
 
-```bash
-git tag superlore-v0.12.0 && git push --tags
-gh release create superlore-v0.12.0 \
-  --title "superlore 0.12 — themes, reimagined releases, runtime safety" \
-  --notes-file RELEASE_NOTES_0.12.md   # the buckets + upgrade rec + migration notes
-```
+1. **Add a changeset** — don't hand-edit `package.json` versions. `pnpm changeset` → pick the
+   package(s), the bump (patch/minor/major), and a one-line summary. (Still sync the CLI `VERSION`
+   constant by hand — changesets won't touch a TS constant.)
+2. Open your PR. On merge, Changesets opens a **"Version Packages" PR** (bumps versions + writes each
+   package's CHANGELOG). Merging **that** PR publishes to npm and creates the GitHub Release + tag.
+3. The GitHub Release body must contain, in order: the **upgrade recommendation**, **Breaking +
+   migration** (or "No breaking changes"), **New / Improved / Fixed / Security**, the **reel**, and a
+   final line: **"Full notes: https://superlore.vercel.app/docs/changelog"**.
 
-The GitHub Release body must contain, in this order: the **upgrade recommendation**, **Breaking +
-migration** (or "No breaking changes"), **New / Improved / Fixed / Security**, the **reel** (or a link
-to it), and a final line: **"Full notes: https://superlore.vercel.app/docs/changelog"**. Keep it
-in sync with the `Release` entry — the docs changelog is the source of truth; the GitHub Release is a
-mirror that links home.
+The docs changelog (`content/docs/changelog.mdx`) is the source of truth; the GitHub Release mirrors it
+and links home. _Manual fallback only if automation is unavailable:_ `pnpm --filter <pkg> publish`
+(applies the src→dist export swap) then `gh release create <tag> --notes-file …`.
 
 ## Remember
 

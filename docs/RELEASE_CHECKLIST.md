@@ -49,18 +49,20 @@ row is green. Pair this with the notes standard in [`RELEASE_NOTES.md`](./RELEAS
 
 - [ ] Upgrade recommendation written; breaking changes have migration notes (or "No breaking changes").
 - [ ] New/Improved/Fixed/Security written reader-first; new features link their doc page.
-- [ ] 30–60s reel captured (or its absence justified).
+- [ ] 30–60s reel built (Remotion → MP4 — on-brand, deterministic, CI-renderable) — or its absence justified.
 - [ ] `Release` entry added to `apps/docs/content/docs/changelog.mdx` (newest on top).
 
-**Ship + verify**
+**Ship + verify** — publishing is automated: **Changesets + npm Trusted Publishing (OIDC)** on merge to
+`main` (no npm token), gated by `e2e`. `superlore` + `superlore-cli` publish; docs/extension are ignored.
 
-- [ ] Publish core to the right tag (`beta` for pre-release; promote to `latest` for production).
-- [ ] Publish CLI if changed; confirm `npm view superlore-cli version` matches the repo.
+- [ ] **Add a changeset** (`pnpm changeset`) for each changed package — versions are computed, not
+      hand-edited. (Sync the CLI `VERSION` constant by hand.) Merge opens a "Version Packages" PR;
+      merging **that** publishes to npm + tags + cuts the GitHub Release.
 - [ ] Revert any branch-only dev wiring before the prod merge (see below), then deploy `apps/docs`.
-- [ ] Cut the GitHub Release (mirrors the notes; ends with the docs-changelog link); push the tag.
+- [ ] GitHub Release body mirrors the notes and ends with the docs-changelog link.
 - [ ] Rebuild/republish the extension if it depends on a changed core API.
 - [ ] Merge to `main` so the plugin marketplace serves the new `plugin.json`.
-- [ ] Smoke-test production: `/docs`, `/docs/changelog`, `/llms.txt`, `/api/mcp`, the Viewer.
+- [ ] `post-publish` smoke test green; spot-check prod: `/docs`, `/docs/changelog`, `/llms.txt`, `/api/mcp`, the Viewer.
 
 ## Branch-only dev wiring — MUST revert before a production merge
 
