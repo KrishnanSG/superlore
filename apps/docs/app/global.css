@@ -106,15 +106,19 @@
    quiet eyebrow labels and tuck the links a step to their right, so the tree reads header → items.
    `[data-active]` is present on every page/folder link (true|false), so this targets links only. */
 #nd-sidebar p {
-  margin-top: 1.25rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.25rem;
   font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-weight: 650;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--color-fd-muted-foreground);
+  color: color-mix(in oklab, var(--color-fd-muted-foreground) 75%, transparent);
 }
+/* Section headers are typographic only — no icon. An icon now means "page"; its absence means
+   "section heading". That's the hierarchy: headers sit quiet and flush; page links carry an icon
+   and are tucked a step to their right. */
 #nd-sidebar p svg {
-  opacity: 0.6;
+  display: none !important;
 }
 #nd-sidebar a[data-active] {
   margin-inline-start: 0.75rem;
