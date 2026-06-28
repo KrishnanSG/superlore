@@ -35,10 +35,15 @@ jobs:
       # Build every publishable package so `changeset publish` has dist/ ready (superlore + the CLI).
       - run: pnpm turbo run build --filter=superlore --filter=superlore-cli
       # Opens/updates a "Version Packages" PR; on merge (versions bump), publishes to npm.
+      # createGithubReleases:false — we hand-bump versions (no changeset), so CHANGELOG.md has no
+      # matching section and the action would otherwise dump the whole stale file into the release
+      # body. GitHub Releases are cut by hand with curated notes that mirror the docs changelog
+      # (see skills/superlore-release) — the docs changelog is the source of truth.
       - uses: changesets/action@v1
         with:
           publish: pnpm changeset publish
           version: pnpm changeset version
+          createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

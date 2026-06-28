@@ -3,7 +3,7 @@ name: superlore-release
 description: Prepare best-in-class release notes for a superlore package, KB, or product — every time, the same way. Gathers what changed since the last release, classifies it (breaking / new / improved / fixed / security), writes developer-grade migration notes for breaking changes and usage notes for new features, decides whether the release is recommended to upgrade, scripts a 30–60s release reel, writes a dual-representation Release entry in the docs changelog, and cuts a GitHub Release that links back to that changelog. Use whenever someone says "cut a release", "prepare release notes", "what changed since the last version", "write the changelog entry", or "draft the GitHub release".
 metadata:
   author: superlore
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # Preparing a superlore release
@@ -156,15 +156,27 @@ ignored by changesets. So the flow is:
 1. **Add a changeset** — don't hand-edit `package.json` versions. `pnpm changeset` → pick the
    package(s), the bump (patch/minor/major), and a one-line summary. (Still sync the CLI `VERSION`
    constant by hand — changesets won't touch a TS constant.)
-2. Open your PR. On merge, Changesets opens a **"Version Packages" PR** (bumps versions + writes each
-   package's CHANGELOG). Merging **that** PR publishes to npm and creates the GitHub Release + tag.
-3. The GitHub Release body must contain, in order: the **upgrade recommendation**, **Breaking +
-   migration** (or "No breaking changes"), **New / Improved / Fixed / Security**, the **reel**, and a
-   final line: **"Full notes: https://superlore.vercel.app/docs/changelog"**.
+2. Open your PR. On merge, the `release` workflow publishes to npm and creates the git tag(s)
+   `<pkg>@<version>`. (If you hand-bump versions instead of adding a changeset — the current repo
+   flow — `changeset publish` still publishes any package whose `package.json` version isn't yet on
+   npm, and tags it.)
+3. **Cut the GitHub Release by hand with curated notes.** The workflow sets
+   `createGithubReleases: false` on the Changesets action **on purpose**: under hand-bumping there is
+   no matching `## <version>` section in `CHANGELOG.md`, so the action would dump the whole stale
+   file into the release body. So you write the release body yourself and create it:
 
-The docs changelog (`content/docs/changelog.mdx`) is the source of truth; the GitHub Release mirrors it
-and links home. _Manual fallback only if automation is unavailable:_ `pnpm --filter <pkg> publish`
-(applies the src→dist export swap) then `gh release create <tag> --notes-file …`.
+   ```bash
+   gh release create '<pkg>@<version>' --title '<pkg>@<version>' --notes-file notes.md
+   # editing an existing one: gh release edit '<pkg>@<version>' --notes-file notes.md
+   ```
+
+   The body must contain, in order: the **upgrade recommendation**, **Breaking + migration** (or
+   "No breaking changes"), **New / Improved / Fixed / Security**, the **reel** (if any), and a final
+   line: **"Full notes: https://superlore.vercel.app/docs/changelog"**.
+
+The docs changelog (`content/docs/changelog.mdx`) is the source of truth; the GitHub Release mirrors
+the same entry and links home. _Manual publish fallback if the workflow is unavailable:_
+`pnpm --filter <pkg> publish` (applies the src→dist export swap), then the `gh release create` above.
 
 ## Remember
 
