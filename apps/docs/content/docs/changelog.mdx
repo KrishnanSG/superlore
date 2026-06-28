@@ -4,6 +4,7 @@ icon: Tag
 description: What's new in superlore — every release as a complete record an agent can query, with a hero, highlights, grouped changes, and what's coming next.
 summary: A product changelog rendered with Releases — a collision-free release timeline (shipped left of Now, upcoming to the right) plus tag filter, and each entry a full release record (hero media, a Highlights grid, changes grouped into sections) beside a sticky area rail, all serialized to a release knowledge node for the MCP.
 tags: [changelog, releases, roadmap]
+hideToc: true
 ---
 
 Every superlore release is a complete record — a hero, the marquee highlights, and changes grouped
@@ -11,46 +12,124 @@ into sections — and every block is typed, so an agent over MCP reads the same 
 
 <Releases label="superlore changelog">
   <Release
-    version="0.12.0"
-    date="2026-06-27"
+    version="0.13.0"
+    date="2026-06-28"
     status="done"
-    title="superlore 0.12 — themes, reimagined releases, runtime safety"
-    tags={["Themes", "Releases", "Runtime"]}
-    areas={["Themes", "Releases", "Runtime", "Discoverability", "Canvas", "MCP"]}
-    summary="The first big release: a seven-theme system, a from-scratch release/changelog component, a render-time safety net, and an SEO + llms.txt discoverability layer. Recommended for everyone — no breaking changes."
-    media={[
-      {
-        type: "video",
-        provider: "file",
-        src: "/releases/0.12.mp4",
-        poster: "/releases/0.12.png",
-        title: "superlore 0.12",
-        caption: "The 0.12 release reel — themes, reimagined releases, runtime safety.",
-      },
-    ]}
+    title="Releases, round two — multi-select filter, timeline options, hideToc"
+    tags={["Releases", "Theming"]}
+    areas={["Releases", "Theming"]}
+    summary="The Releases component grows up: a multi-select feature filter, feature-tag chips back on the rail, a re-arranged + re-styled timeline with axis / strip variants, and a hideToc flag for self-navigating pages. Recommended for everyone — no breaking changes."
     highlights={[
-      { icon: "palette", title: "7-theme system", body: "default · mint · geist · ledger · obsidian · prism · paste — pick a skin with one flag in superlore.json, zero .mdx edits." },
-      { icon: "rocket", title: "Reimagined releases", body: "Media-first entries, a Highlights grid, grouped sections, and a collision-free timeline." },
-      { icon: "shield-check", title: "Runtime safety", body: "A bad token in prose degrades to a fallback instead of blanking the host page." },
-      { icon: "search", title: "Found by AI + search", body: "llms.txt + llms-full.txt, JSON-LD, and per-page canonical/OG — built in." },
+      { icon: "list-filter", title: "Multi-select filter", body: "Filter the changelog by any number of features at once (OR). Renamed Filter features, with a count badge and one-click clear." },
+      { icon: "git-commit-horizontal", title: "Timeline, fixed + optioned", body: "Dots clear the month labels, crowded versions never overlap, the latest wears the accent — plus a new strip variant beside the date axis." },
+      { icon: "tags", title: "Tags back on the rail", body: "Each release shows its feature tags as chips again — and they double as filter toggles." },
+      { icon: "panel-right-close", title: "hideToc", body: "Self-navigating pages (a Releases changelog) can drop the flat \"On this page\" list; the timeline and rail already navigate." },
     ]}
     sections={[
-      { label: "New features", changes: [
-        { type: "added", text: "Theme system — seven production themes scoped to data-sl-theme; accent + font stay orthogonal brand overrides.", refs: [{ target: "/docs/themes", label: "Themes" }] },
-        { type: "added", text: "Release component reimagined — media-first entries (image lightbox + video facade), a Highlights grid, grouped sections, and an area jump-rail." },
-        { type: "added", text: "superlore.json gains logo { light, dark, href } + favicon; accent now drives the whole palette." },
-        { type: "added", text: "Discoverability: /llms.txt + /llms-full.txt, JSON-LD, and per-page canonical + Open Graph." },
-        { type: "added", text: "A Why superlore page, plus a release-notes skill + Remotion reel pipeline.", refs: [{ target: "/docs/why-superlore", label: "Why superlore" }] },
+      { label: "New", changes: [
+        { type: "added", text: "Releases gains a timeline prop — axis (default, the date rail), strip (evenly-spaced stops), or off." },
+        { type: "added", text: "hideToc frontmatter flag hides the table of contents while keeping the centred layout — set it on a changelog." },
       ]},
-      { label: "Improvements", changes: [
-        { type: "changed", text: "The release timeline never overlaps — a lane layout stacks crowded versions at different heights." },
-        { type: "changed", text: "Sidebar hierarchy — section headers read distinct from page items; collapse persists (⌘\\)." },
+      { label: "Improved", changes: [
+        { type: "changed", text: "The feature filter is multi-select and renamed Filter features; each release's rail tags double as filter toggles." },
+        { type: "changed", text: "Timeline layout: dots no longer collide with the month labels, stacked release cards never overlap, and the latest release is accented." },
       ]},
-      { label: "Fixed", changes: [
-        { type: "fixed", text: "A bad {token} in prose now degrades gracefully instead of blanking the page (a render-time error boundary)." },
-      ]},
+      { label: "Breaking", changes: [] },
     ]}
   />
+
+<Release
+  version="0.12.0"
+  date="2026-06-27"
+  status="done"
+  title="superlore 0.12 — themes, reimagined releases, runtime safety"
+  tags={["Themes", "Releases", "Runtime"]}
+  areas={["Themes", "Releases", "Runtime", "Discoverability", "Canvas", "MCP"]}
+  summary="The first big release: a seven-theme system, a from-scratch release/changelog component, a render-time safety net, and an SEO + llms.txt discoverability layer. Recommended for everyone — no breaking changes."
+  media={[
+    {
+      type: "video",
+      provider: "file",
+      src: "/releases/0.12.mp4",
+      poster: "/releases/0.12.png",
+      title: "superlore 0.12",
+      caption: "The 0.12 release reel — themes, reimagined releases, runtime safety.",
+    },
+  ]}
+  highlights={[
+    {
+      icon: "palette",
+      title: "7-theme system",
+      body: "default · mint · geist · ledger · obsidian · prism · paste — pick a skin with one flag in superlore.json, zero .mdx edits.",
+    },
+    {
+      icon: "rocket",
+      title: "Reimagined releases",
+      body: "Media-first entries, a Highlights grid, grouped sections, and a collision-free timeline.",
+    },
+    {
+      icon: "shield-check",
+      title: "Runtime safety",
+      body: "A bad token in prose degrades to a fallback instead of blanking the host page.",
+    },
+    {
+      icon: "search",
+      title: "Found by AI + search",
+      body: "llms.txt + llms-full.txt, JSON-LD, and per-page canonical/OG — built in.",
+    },
+  ]}
+  sections={[
+    {
+      label: "New features",
+      changes: [
+        {
+          type: "added",
+          text: "Theme system — seven production themes scoped to data-sl-theme; accent + font stay orthogonal brand overrides.",
+          refs: [{ target: "/docs/themes", label: "Themes" }],
+        },
+        {
+          type: "added",
+          text: "Release component reimagined — media-first entries (image lightbox + video facade), a Highlights grid, grouped sections, and an area jump-rail.",
+        },
+        {
+          type: "added",
+          text: "superlore.json gains logo { light, dark, href } + favicon; accent now drives the whole palette.",
+        },
+        {
+          type: "added",
+          text: "Discoverability: /llms.txt + /llms-full.txt, JSON-LD, and per-page canonical + Open Graph.",
+        },
+        {
+          type: "added",
+          text: "A Why superlore page, plus a release-notes skill + Remotion reel pipeline.",
+          refs: [{ target: "/docs/why-superlore", label: "Why superlore" }],
+        },
+      ],
+    },
+    {
+      label: "Improvements",
+      changes: [
+        {
+          type: "changed",
+          text: "The release timeline never overlaps — a lane layout stacks crowded versions at different heights.",
+        },
+        {
+          type: "changed",
+          text: "Sidebar hierarchy — section headers read distinct from page items; collapse persists (⌘\\).",
+        },
+      ],
+    },
+    {
+      label: "Fixed",
+      changes: [
+        {
+          type: "fixed",
+          text: "A bad {token} in prose now degrades gracefully instead of blanking the page (a render-time error boundary).",
+        },
+      ],
+    },
+  ]}
+/>
 
 <Release
   version="0.11"
