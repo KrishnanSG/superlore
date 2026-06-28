@@ -28,6 +28,12 @@ export const superloreFrontmatterSchema = z.object({
   icon: z.string().optional(),
   /** Render the page full-width without a table of contents (Fumadocs default). */
   full: z.boolean().optional(),
+  /**
+   * Hide the "On this page" table of contents while keeping the normal centred layout (superlore).
+   * Use it on self-navigating pages — e.g. a `Releases` changelog, whose timeline and per-release
+   * rail already do the jumping, so the flat heading dump on the right is just noise.
+   */
+  hideToc: z.boolean().optional(),
   /** Reserved by Fumadocs' OpenAPI integration; passed through untouched. */
   _openapi: z.looseObject({}).optional(),
   /** Plain-text gloss for search/snippets and the MCP — never markup (superlore). */

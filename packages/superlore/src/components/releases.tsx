@@ -24,10 +24,15 @@ import {
  * and queryable, never a picture to interpret. That is the dual-representation moat applied to release
  * notes: a screenshot's caption and a highlight's text are DATA, not pixels.
  *
- * `Releases` / `Changelog` wraps the stack: a **release timeline** (versions on a date axis with a
- * collision-avoidance lane layout so crowded releases never overlap, plus a sleek hover card) and a
- * tag filter. Three variants — `feature` (default, the full record), `timeline` (lighter rolling
- * feed), `compact` (dense list). All from the same typed data.
+ * `Releases` / `Changelog` wraps the stack: a **release timeline** and a **multi-select feature
+ * filter** (pick any number of areas; the entry list narrows to releases touching them). The timeline
+ * has its own options via `timeline` — `axis` (default: versions on a date axis with a
+ * collision-avoidance lane layout so crowded releases never overlap, plus a sleek hover card),
+ * `strip` (an evenly-spaced, non-scrolling row of stops), or `off`. Each entry's rail shows the
+ * release's feature tags as chips that double as filter toggles.
+ *
+ * Three entry variants — `feature` (default, the full record), `timeline` (lighter rolling feed),
+ * `compact` (dense list). All from the same typed data.
  */
 
 type ReleaseRef = { rel?: string; target: string; label?: string };
@@ -43,6 +48,9 @@ export type ReleaseVariant = "feature" | "timeline" | "compact";
 const VariantCtx = React.createContext<ReleaseVariant>("feature");
 /** Version of the newest shipped release — it wears a "Latest" badge. */
 const LatestCtx = React.createContext<string | null>(null);
+/** Lets a release's rail tag-chips drive the changelog's multi-select feature filter. */
+type FilterApi = { selected: string[]; toggle: (tag: string) => void };
+const FilterCtx = React.createContext<FilterApi | null>(null);
 
 export interface ReleaseProps {
   version: string;
@@ -521,6 +529,10 @@ function Rail({
   const jump = highlights?.length
     ? highlights.map((h) => ({ label: h.title, href: `#${anchor}-h-${slug(h.title)}` }))
     : null;
+  const filter = React.useContext(FilterCtx);
+  // Feature-tag chips below the rail: filterable `tags` win; otherwise show `areas` (display-only).
+  const chipTags = tags && tags.length > 0 ? tags : [];
+  const chipAreas = !chipTags.length && areas && areas.length ? areas : [];
   return (
     <aside className="flex flex-col gap-2 lg:sticky lg:top-24 lg:self-start">
       {variant === "feature" ? (
@@ -583,6 +595,44 @@ function Rail({
           {statusMark[status].label}
         </div>
       )}
+
+      {/* Feature tags — the areas this release touched, as chips below the meta. In the feature
+          variant they double as filter toggles (click to filter the changelog by that feature). */}
+      {variant === "feature" && (chipTags.length > 0 || chipAreas.length > 0) && (
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
+          {chipTags.map((t) => {
+            const on = filter?.selected.includes(t) ?? false;
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => filter?.toggle(t)}
+                aria-pressed={on}
+                title={`Filter by ${t}`}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full border px-2 py-[3px] text-[11px] font-medium transition",
+                  on
+                    ? "border-kp-accent-border bg-kp-accent-weak text-kp-accent-text"
+                    : "border-fd-border bg-fd-card text-fd-muted-foreground hover:border-kp-accent-border hover:text-fd-foreground",
+                )}
+              >
+                <span className="size-1.5 rounded-full" style={{ background: tagColor(t) }} />
+                {t}
+              </button>
+            );
+          })}
+          {chipAreas.map((a) => (
+            <span
+              key={a}
+              className="inline-flex items-center gap-1.5 rounded-full border border-fd-border bg-fd-card px-2 py-[3px] text-[11px] font-medium text-fd-muted-foreground"
+            >
+              <span className="size-1.5 rounded-full bg-fd-muted-foreground/40" />
+              {a}
+            </span>
+          ))}
+        </div>
+      )}
+
       {variant !== "feature" && areas && areas.length > 0 && (
         <div className="mt-0.5 text-[12.5px] text-fd-muted-foreground/75">
           {areas.join("  ·  ")}
@@ -799,6 +849,13 @@ export interface ReleasesProps {
   label?: string;
   /** Default rendering for every child Release. Default `feature`. */
   variant?: ReleaseVariant;
+  /**
+   * The overview graph drawn above the entries — pick the shape that fits the cadence:
+   * - `axis` (default) — a date-proportional, scrollable rail; crowded versions stack into lanes.
+   * - `strip` — an evenly-spaced, non-scrolling row of version stops; calmer, no date distortion.
+   * - `off` — no graph; the entries carry their own rail navigation.
+   */
+  timeline?: "axis" | "strip" | "off";
 }
 
 /** Hover popover state — the item plus the fixed viewport coords to draw it at. */
@@ -808,7 +865,12 @@ interface PopState {
   top: number;
 }
 
-export function Releases({ children, label = "Changelog", variant = "feature" }: ReleasesProps) {
+export function Releases({
+  children,
+  label = "Changelog",
+  variant = "feature",
+  timeline = "axis",
+}: ReleasesProps) {
   const ref = React.useRef<HTMLElement>(null);
   const scRef = React.useRef<HTMLDivElement>(null);
   const thumbRef = React.useRef<HTMLDivElement>(null);
@@ -816,7 +878,16 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
   const rightBtn = React.useRef<HTMLButtonElement>(null);
   const [raw, setRaw] = React.useState<Omit<TimelineItem, "lane" | "x">[]>([]);
   const [tags, setTags] = React.useState<string[]>([]);
-  const [active, setActive] = React.useState<string>("All");
+  // Multi-select feature filter — empty means "show everything".
+  const [selected, setSelected] = React.useState<string[]>([]);
+  const toggleTag = React.useCallback((t: string) => {
+    setSelected((cur) => (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]));
+  }, []);
+  const clearFilter = React.useCallback(() => setSelected([]), []);
+  const filterApi = React.useMemo<FilterApi>(
+    () => ({ selected, toggle: toggleTag }),
+    [selected, toggleTag],
+  );
   const [filterOpen, setFilterOpen] = React.useState(false);
   const [pop, setPop] = React.useState<PopState | null>(null);
   const [now, setNow] = React.useState<number | null>(null);
@@ -848,15 +919,17 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
     setNow(Date.now());
   }, []);
 
-  // Filter the entry list (the timeline stays a full overview).
+  // Filter the entry list (the timeline stays a full overview). A release shows when nothing is
+  // selected, or when it carries ANY of the selected features (OR semantics).
   React.useEffect(() => {
     const root = ref.current;
     if (!root) return;
     for (const r of root.querySelectorAll<HTMLElement>("[data-sl-release]")) {
       const has = (r.dataset.tags ?? "").split("|").filter(Boolean);
-      r.style.display = active === "All" || has.includes(active) ? "" : "none";
+      const show = selected.length === 0 || has.some((t) => selected.includes(t));
+      r.style.display = show ? "" : "none";
     }
-  }, [active, raw.length]);
+  }, [selected, raw.length]);
 
   // Close the filter menu on outside click / Escape.
   React.useEffect(() => {
@@ -900,8 +973,8 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
 
   const items: TimelineItem[] = React.useMemo(() => {
     const sorted = [...dated0].map((i) => ({ ...i, x: xOf(i.t) })).sort((a, b) => a.x - b.x);
-    const CARD = 82;
-    const GAP = 8;
+    const CARD = 98;
+    const GAP = 12;
     const MAX_LANES = 3;
     const laneRight: number[] = [];
     return sorted.map((i) => {
@@ -1022,13 +1095,23 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
       ? `${items.length} releases · ${monthYear(minT)} – ${monthYear(maxT)}${upcomingCount ? ` · ${upcomingCount} upcoming` : ""}`
       : `${raw.length} release${raw.length === 1 ? "" : "s"}`;
 
-  const showTimeline = variant !== "compact" && items.length >= 2;
+  const showTimeline = variant !== "compact" && items.length >= 2 && timeline !== "off";
   const maxLane = items.length ? Math.max(...items.map((i) => i.lane)) : 0;
-  const LANE_STEP = 30;
-  const BASE_CONN = 50;
-  const trackH = 150 + maxLane * LANE_STEP;
+  // Vertical bands, measured up from the track's bottom edge:
+  //   month labels (LABEL_Y) ── axis line (AXIS_Y, dots centred here) ── connectors ── cards.
+  // A lane step taller than a card guarantees stacked cards never overlap; lane 0 sits nearest the
+  // axis and higher lanes climb away from it, so the track only grows as tall as a crowd needs.
+  const AXIS_Y = 52;
+  const LABEL_Y = 13;
+  const CARD_H = 44;
+  const LANE_STEP = CARD_H + 10;
+  const BASE_CONN = 26;
+  const connOf = (lane: number) => BASE_CONN + lane * LANE_STEP;
+  const trackH = AXIS_Y + connOf(maxLane) + CARD_H + 22;
   const matchCount =
-    active === "All" ? raw.length : raw.filter((r) => r.tags.includes(active)).length;
+    selected.length === 0
+      ? raw.length
+      : raw.filter((r) => r.tags.some((t) => selected.includes(t))).length;
   // The newest shipped release wears a "Latest" badge (computed once raw is read on the client).
   const shipped = raw.filter((r) => r.t > 0 && !r.up);
   const latestVersion = shipped.length ? shipped.reduce((a, b) => (b.t > a.t ? b : a)).v : null;
@@ -1037,7 +1120,7 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
     <VariantCtx.Provider value={variant}>
       <LatestCtx.Provider value={latestVersion}>
         <section ref={ref} aria-label={label} className="not-prose my-6">
-          {showTimeline && (
+          {showTimeline && timeline === "axis" && (
             <div className="mb-7 overflow-hidden rounded-2xl border border-fd-border bg-fd-card shadow-sm">
               <div className="flex items-center justify-between px-5 pt-5">
                 <span className="font-mono text-[11px] font-semibold tracking-widest text-kp-accent-text uppercase">
@@ -1102,7 +1185,7 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
                     {/* axis + tick ruler */}
                     <div
                       className="absolute right-0 left-0 h-px bg-fd-border"
-                      style={{ bottom: 46 }}
+                      style={{ bottom: AXIS_Y }}
                     />
                     {monthCols.flatMap((c) =>
                       Array.from({ length: 5 }, (_, k) => (
@@ -1110,9 +1193,9 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
                           key={`${c.m}-${k}`}
                           className={cn(
                             "absolute w-px",
-                            k === 0 ? "h-2 bg-fd-muted-foreground/40" : "h-1 bg-fd-border",
+                            k === 0 ? "h-2 bg-fd-muted-foreground/35" : "h-1 bg-fd-border",
                           )}
-                          style={{ left: c.x + k * (MONTH_W / 5), bottom: 47 }}
+                          style={{ left: c.x + k * (MONTH_W / 5), bottom: AXIS_Y - 8 }}
                         />
                       )),
                     )}
@@ -1122,7 +1205,7 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
                         className="absolute font-mono text-[10px] tracking-wider text-fd-muted-foreground/70 uppercase"
                         style={{
                           left: c.x + MONTH_W / 2,
-                          bottom: 22,
+                          bottom: LABEL_Y,
                           transform: "translateX(-50%)",
                         }}
                       >
@@ -1136,19 +1219,20 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
                         style={{
                           left: xOf(now),
                           top: 6,
-                          bottom: 46,
+                          bottom: AXIS_Y,
                           transform: "translateX(-50%)",
                         }}
                       >
                         <span className="text-kp-accent-ink absolute -top-1 left-1/2 -translate-x-1/2 rounded bg-kp-accent px-1.5 py-0.5 font-mono text-[8.5px] font-bold tracking-wider uppercase">
                           Now
                         </span>
-                        <div className="mt-4 h-full w-px border-l border-dashed border-kp-accent/40" />
+                        <div className="mt-4 h-full w-px border-l border-dashed border-kp-accent/45" />
                       </div>
                     )}
-                    {/* markers — light chips */}
+                    {/* markers — light chips; the latest shipped version wears the accent */}
                     {items.map((it) => {
-                      const conn = BASE_CONN - it.lane * LANE_STEP;
+                      const conn = connOf(it.lane);
+                      const isLatest = it.v === latestVersion && !it.up;
                       return (
                         <button
                           key={it.id}
@@ -1161,7 +1245,7 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
                           className="group absolute flex flex-col items-center"
                           style={{
                             left: it.x,
-                            bottom: 38,
+                            bottom: AXIS_Y,
                             transform: "translateX(-50%)",
                             appearance: "none",
                             background: "transparent",
@@ -1173,16 +1257,18 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
                         >
                           <span
                             className={cn(
-                              "block rounded-[9px] border px-2.5 py-1 text-center leading-tight whitespace-nowrap transition group-hover:-translate-y-0.5 group-focus-visible:-translate-y-0.5",
+                              "block rounded-[9px] border px-2.5 py-1 text-center leading-tight whitespace-nowrap shadow-sm transition group-hover:-translate-y-0.5 group-focus-visible:-translate-y-0.5",
                               it.up
                                 ? "border-dashed border-kp-accent-border bg-kp-accent-weak group-hover:border-kp-accent"
-                                : "border-fd-border bg-fd-card group-hover:border-kp-accent group-hover:shadow-[0_6px_16px_-8px_var(--kp-accent)]",
+                                : isLatest
+                                  ? "border-kp-accent bg-kp-accent-weak shadow-[0_6px_18px_-9px_var(--kp-accent)]"
+                                  : "border-fd-border bg-fd-card group-hover:border-kp-accent group-hover:shadow-[0_6px_16px_-8px_var(--kp-accent)]",
                             )}
                           >
                             <span
                               className={cn(
                                 "block font-mono text-[12px] font-semibold",
-                                it.up ? "text-kp-accent-text" : "text-fd-foreground",
+                                it.up || isLatest ? "text-kp-accent-text" : "text-fd-foreground",
                               )}
                             >
                               {it.v}
@@ -1190,7 +1276,11 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
                             <span
                               className={cn(
                                 "mt-px block font-mono text-[9px]",
-                                it.up ? "text-kp-accent-text/65" : "text-fd-muted-foreground/80",
+                                it.up
+                                  ? "text-kp-accent-text/65"
+                                  : isLatest
+                                    ? "text-kp-accent-text/70"
+                                    : "text-fd-muted-foreground/80",
                               )}
                             >
                               {it.dateLabel}
@@ -1201,7 +1291,9 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
                               "transition-colors",
                               it.up
                                 ? "border-l border-dashed border-kp-accent-border"
-                                : "w-px bg-fd-border group-hover:bg-kp-accent",
+                                : isLatest
+                                  ? "w-px bg-kp-accent"
+                                  : "w-px bg-fd-border group-hover:bg-kp-accent",
                             )}
                             style={{ height: conn, width: it.up ? 0 : 1 }}
                           />
@@ -1210,7 +1302,9 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
                               "size-2.5 translate-y-1/2 rounded-full ring-[3px] ring-fd-card transition group-hover:scale-110",
                               it.up
                                 ? "bg-fd-card shadow-[inset_0_0_0_2px_var(--kp-accent)]"
-                                : "bg-fd-muted-foreground/55 group-hover:bg-kp-accent",
+                                : isLatest
+                                  ? "bg-kp-accent"
+                                  : "bg-fd-muted-foreground/55 group-hover:bg-kp-accent",
                             )}
                           />
                         </button>
@@ -1226,6 +1320,82 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
                   ref={thumbRef}
                   className="absolute inset-y-0 left-0 min-w-[30px] rounded-full bg-fd-border"
                 />
+              </div>
+            </div>
+          )}
+
+          {/* strip — an evenly-spaced, non-scrolling row of version stops (calmer, no date axis) */}
+          {showTimeline && timeline === "strip" && (
+            <div className="mb-7 rounded-2xl border border-fd-border bg-fd-card px-5 py-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[11px] font-semibold tracking-widest text-kp-accent-text uppercase">
+                  Release timeline
+                </span>
+                <span className="hidden font-mono text-[10px] tracking-widest text-fd-muted-foreground uppercase sm:inline">
+                  Click to jump
+                </span>
+              </div>
+              <div className="mt-1 mb-5 text-[13px] text-fd-muted-foreground">{rangeLabel}</div>
+              <div className="relative">
+                <div className="pointer-events-none absolute top-[5px] right-2 left-2 h-px bg-fd-border" />
+                <div className="relative flex flex-wrap justify-between gap-x-3 gap-y-5">
+                  {items.map((it) => {
+                    const isLatest = it.v === latestVersion && !it.up;
+                    return (
+                      <button
+                        key={it.id}
+                        type="button"
+                        onMouseEnter={(e) => showPop(e.currentTarget, it)}
+                        onMouseLeave={() => setPop(null)}
+                        onFocus={(e) => showPop(e.currentTarget, it)}
+                        onBlur={() => setPop(null)}
+                        onClick={() => jump(it.id)}
+                        className="group flex flex-col items-center"
+                        aria-label={`Jump to ${it.v}${it.title ? ` — ${it.title}` : ""}`}
+                      >
+                        <span
+                          className={cn(
+                            "size-2.5 rounded-full ring-4 ring-fd-card transition group-hover:scale-110",
+                            it.up
+                              ? "bg-fd-card shadow-[inset_0_0_0_2px_var(--kp-accent)]"
+                              : isLatest
+                                ? "bg-kp-accent"
+                                : "bg-fd-muted-foreground/55 group-hover:bg-kp-accent",
+                          )}
+                        />
+                        <span
+                          className={cn(
+                            "mt-2.5 block rounded-[9px] border px-2.5 py-1 text-center leading-tight whitespace-nowrap shadow-sm transition group-hover:-translate-y-0.5",
+                            it.up
+                              ? "border-dashed border-kp-accent-border bg-kp-accent-weak"
+                              : isLatest
+                                ? "border-kp-accent bg-kp-accent-weak"
+                                : "border-fd-border bg-fd-card group-hover:border-kp-accent group-hover:shadow-[0_6px_16px_-8px_var(--kp-accent)]",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "block font-mono text-[12px] font-semibold",
+                              it.up || isLatest ? "text-kp-accent-text" : "text-fd-foreground",
+                            )}
+                          >
+                            {it.v}
+                          </span>
+                          <span
+                            className={cn(
+                              "mt-px block font-mono text-[9px]",
+                              it.up || isLatest
+                                ? "text-kp-accent-text/70"
+                                : "text-fd-muted-foreground/80",
+                            )}
+                          >
+                            {it.dateLabel}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
@@ -1274,13 +1444,13 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
             </div>
           )}
 
-          {/* right-aligned compact area filter */}
+          {/* right-aligned multi-select feature filter */}
           {tags.length > 0 && variant !== "compact" && (
             <div className="mb-7 flex items-center justify-between gap-3">
               <span className="text-[13px] text-fd-muted-foreground">
-                {active === "All"
+                {selected.length === 0
                   ? null
-                  : `${matchCount} release${matchCount === 1 ? "" : "s"} in ${active}`}
+                  : `${matchCount} release${matchCount === 1 ? "" : "s"} · ${selected.join(", ")}`}
               </span>
               <div data-sl-filter className="relative">
                 <button
@@ -1288,7 +1458,12 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
                   onClick={() => setFilterOpen((v) => !v)}
                   aria-haspopup="listbox"
                   aria-expanded={filterOpen}
-                  className="inline-flex items-center gap-2 rounded-lg border border-fd-border bg-fd-card px-3 py-1.5 text-[13px] font-medium text-fd-foreground transition hover:border-kp-accent-border"
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-lg border bg-fd-card px-3 py-1.5 text-[13px] font-medium transition",
+                    selected.length > 0
+                      ? "border-kp-accent-border text-kp-accent-text"
+                      : "border-fd-border text-fd-foreground hover:border-kp-accent-border",
+                  )}
                 >
                   <svg
                     width="14"
@@ -1297,27 +1472,32 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
-                    className="text-fd-muted-foreground"
+                    className={selected.length > 0 ? "" : "text-fd-muted-foreground"}
                   >
                     <path d="M3 5h18M6 12h12M10 19h4" />
                   </svg>
-                  {active === "All" ? "Filter by area" : active}
-                  {active !== "All" && (
+                  Filter features
+                  {selected.length > 0 && (
+                    <span className="grid min-w-[18px] place-items-center rounded-full bg-kp-accent px-1.5 py-0.5 font-mono text-[10px] font-bold text-white">
+                      {selected.length}
+                    </span>
+                  )}
+                  {selected.length > 0 && (
                     <span
                       role="button"
                       tabIndex={0}
-                      aria-label="Clear filter"
+                      aria-label="Clear all filters"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setActive("All");
+                        clearFilter();
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
                           e.stopPropagation();
-                          setActive("All");
+                          clearFilter();
                         }
                       }}
-                      className="ml-0.5 grid size-4 place-items-center rounded-full text-fd-muted-foreground hover:bg-fd-muted hover:text-fd-foreground"
+                      className="grid size-4 place-items-center rounded-full text-fd-muted-foreground hover:bg-fd-muted hover:text-fd-foreground"
                     >
                       <svg
                         width="11"
@@ -1349,63 +1529,95 @@ export function Releases({ children, label = "Changelog", variant = "feature" }:
                 {filterOpen && (
                   <div
                     role="listbox"
-                    className="absolute right-0 z-50 mt-1.5 max-h-72 w-56 overflow-y-auto rounded-xl border border-fd-border bg-fd-card p-1.5 shadow-[0_16px_44px_-12px_rgba(30,25,75,.3)]"
+                    aria-multiselectable="true"
+                    className="absolute right-0 z-50 mt-1.5 max-h-72 w-60 overflow-y-auto rounded-xl border border-fd-border bg-fd-card p-1.5 shadow-[0_16px_44px_-12px_rgba(30,25,75,.3)]"
                   >
-                    {["All", ...tags].map((t) => (
-                      <button
-                        key={t}
-                        type="button"
-                        role="option"
-                        aria-selected={active === t}
-                        onClick={() => {
-                          setActive(t);
-                          setFilterOpen(false);
-                        }}
-                        className={cn(
-                          "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[13px] transition",
-                          active === t
-                            ? "bg-kp-accent-weak text-kp-accent-text"
-                            : "text-fd-foreground hover:bg-fd-muted",
-                        )}
-                      >
-                        {t === "All" ? (
-                          <span className="size-2 rounded-full bg-fd-muted-foreground/40" />
-                        ) : (
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={selected.length === 0}
+                      onClick={clearFilter}
+                      className={cn(
+                        "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[13px] transition",
+                        selected.length === 0
+                          ? "text-kp-accent-text"
+                          : "text-fd-muted-foreground hover:bg-fd-muted",
+                      )}
+                    >
+                      <span className="flex-1 font-medium">All features</span>
+                      {selected.length === 0 && (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.4"
+                        >
+                          <path d="M20 6 9 17l-5-5" />
+                        </svg>
+                      )}
+                    </button>
+                    <div className="my-1 h-px bg-fd-border/60" />
+                    {tags.map((t) => {
+                      const on = selected.includes(t);
+                      return (
+                        <button
+                          key={t}
+                          type="button"
+                          role="option"
+                          aria-selected={on}
+                          onClick={() => toggleTag(t)}
+                          className={cn(
+                            "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[13px] transition",
+                            on
+                              ? "bg-kp-accent-weak text-kp-accent-text"
+                              : "text-fd-foreground hover:bg-fd-muted",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "grid size-[18px] shrink-0 place-items-center rounded-[6px] border transition",
+                              on
+                                ? "border-kp-accent bg-kp-accent text-white"
+                                : "border-fd-border text-transparent",
+                            )}
+                          >
+                            <svg
+                              width="11"
+                              height="11"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                            >
+                              <path d="M20 6 9 17l-5-5" />
+                            </svg>
+                          </span>
                           <span
                             className="size-2 rounded-full"
                             style={{ background: tagColor(t) }}
                           />
-                        )}
-                        <span className="flex-1">{t}</span>
-                        {active === t && (
-                          <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.4"
-                          >
-                            <path d="M20 6 9 17l-5-5" />
-                          </svg>
-                        )}
-                      </button>
-                    ))}
+                          <span className="flex-1">{t}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
             </div>
           )}
 
-          {children}
+          <FilterCtx.Provider value={filterApi}>{children}</FilterCtx.Provider>
 
           {/* empty state when a filter matches nothing */}
-          {active !== "All" && matchCount === 0 && (
+          {selected.length > 0 && matchCount === 0 && (
             <div className="rounded-xl border border-dashed border-fd-border py-12 text-center text-[14px] text-fd-muted-foreground">
-              No releases tagged <span className="font-medium text-fd-foreground">{active}</span>.{" "}
+              No releases tagged{" "}
+              <span className="font-medium text-fd-foreground">{selected.join(", ")}</span>.{" "}
               <button
                 type="button"
-                onClick={() => setActive("All")}
+                onClick={clearFilter}
                 className="font-medium text-kp-accent-text underline-offset-2 hover:underline"
               >
                 Show all

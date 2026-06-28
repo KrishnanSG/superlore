@@ -119,7 +119,7 @@ function writeSkeleton(root: string, config: SuperloreJson): void {
           "fumadocs-core": "^16.8.2",
           "fumadocs-mdx": "^14.3.1",
           "fumadocs-ui": "^16.8.2",
-          superlore: "^0.12.0",
+          superlore: "^0.13.0",
           "lucide-react": "^1.21.0",
           ...(mcpEnabled
             ? // mcp-handler pins an EXACT sdk peer (1.26.0); npm errors on anything else (pnpm only
@@ -309,8 +309,11 @@ export default async function Page(props: { params: Promise<{ slug?: string[] }>
   const page = source.getPage(params.slug);
   if (!page) notFound();
   const MDX = page.data.body;
+  // \`hideToc\` (superlore frontmatter) drops the "On this page" panel on self-navigating pages
+  // like a Releases changelog, whose timeline + per-release rail already do the jumping.
+  const hideToc = page.data.hideToc === true;
   return (
-    <DocsPage toc={page.data.toc}>
+    <DocsPage toc={page.data.toc} tableOfContent={hideToc ? { enabled: false } : undefined}>
       <DocsBody>
         <MDX components={getMDXComponents()} />
       </DocsBody>

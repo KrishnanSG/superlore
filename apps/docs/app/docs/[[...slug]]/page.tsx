@@ -23,8 +23,15 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
 
   const MDX = page.data.body;
 
+  // Self-navigating pages (e.g. the Releases changelog) opt out of the flat "On this page" TOC.
+  const hideToc = page.data.hideToc === true;
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full} tableOfContent={{ style: "clerk" }}>
+    <DocsPage
+      toc={page.data.toc}
+      full={page.data.full}
+      tableOfContent={hideToc ? { enabled: false } : { style: "clerk" }}
+      tableOfContentPopover={hideToc ? { enabled: false } : undefined}
+    >
       {/* The branded page hero is the default top-of-page treatment on every doc — an eyebrow
           (the section), the title, and the description in a violet-gradient card. */}
       <PageHero
