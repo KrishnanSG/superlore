@@ -23,6 +23,7 @@ function nodeText(node: KnowledgeNode): string {
 
 function pageText(page: KnowledgePage): string {
   return [page.frontmatter.title, page.frontmatter.summary ?? "", ...(page.frontmatter.tags ?? [])]
+    .concat(page.content ?? "")
     .concat(page.nodes.map(nodeText))
     .filter(Boolean)
     .join(" ");
@@ -57,6 +58,99 @@ export function search(index: SuperloreIndex, query: string, limit = 10): Search
 
 export function getPage(index: SuperloreIndex, path: string): KnowledgePage | null {
   return index.pages.find((p) => p.path === path) ?? null;
+}
+
+/* ----------------------------------------------------------------- grep / glob --- */
+
+/** Compile a shell-style glob (`*`, `**`, `?`) into an anchored RegExp over a `/`-delimited path. */
+function globToRegExp(pattern: string): RegExp {
+  let re = "";
+  for (let i = 0; i < pattern.length; i++) {
+    const c = pattern[i]!;
+    if (c === "*") {
+      if (pattern[i + 1] === "*") {
+        re += ".*"; // ** — cross path segments
+        i++;
+        if (pattern[i + 1] === "/") i++; // swallow the slash after **
+      } else {
+        re += "[^/]*"; // * — within a segment
+      }
+    } else if (c === "?") re += "[^/]";
+    else re += c.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
+  }
+  return new RegExp("^" + re + "$", "i");
+}
+
+export interface GlobHit {
+  path: string;
+  title?: string;
+}
+
+/** Match page paths against a shell-style glob over the corpus (asterisk within a path segment,
+ * double-asterisk across segments, question-mark for one character). */
+export function glob(index: SuperloreIndex, pattern: string): GlobHit[] {
+  let re: RegExp;
+  try {
+    re = globToRegExp(pattern);
+  } catch {
+    return [];
+  }
+  return index.pages
+    .filter((p) => re.test(p.path))
+    .map((p) => ({ path: p.path, title: p.frontmatter.title }));
+}
+
+export interface GrepMatch {
+  path: string;
+  title?: string;
+  /** 1-based line number within the page body. */
+  line: number;
+  text: string;
+}
+
+export interface GrepOptions {
+  /** RegExp flags; defaults to `"i"` (case-insensitive). `g`/`m` are added internally as needed. */
+  flags?: string;
+  /** Cap on total matches returned (default 200). */
+  limit?: number;
+  /** Restrict to pages whose path matches this glob. */
+  path?: string;
+}
+
+/**
+ * Ripgrep-style search: match a regex against every page's body, line by line, returning
+ * `{ path, line, text }` hits. This is the "find anything, like a folder" tool — it reads the same
+ * body `get_page` returns (raw MDX when wired, else extracted prose).
+ */
+export function grep(index: SuperloreIndex, pattern: string, opts: GrepOptions = {}): GrepMatch[] {
+  const limit = opts.limit ?? 200;
+  let re: RegExp;
+  try {
+    const flags = (opts.flags ?? "i").replace(/[gm]/g, "");
+    re = new RegExp(pattern, flags);
+  } catch {
+    return [];
+  }
+  const pathRe = opts.path ? globToRegExp(opts.path) : null;
+  const out: GrepMatch[] = [];
+  for (const page of index.pages) {
+    if (pathRe && !pathRe.test(page.path)) continue;
+    const body = page.content;
+    if (!body) continue;
+    const lines = body.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      if (re.test(lines[i]!)) {
+        out.push({
+          path: page.path,
+          title: page.frontmatter.title,
+          line: i + 1,
+          text: lines[i]!.trim(),
+        });
+        if (out.length >= limit) return out;
+      }
+    }
+  }
+  return out;
 }
 
 /** Resolve a node by global id `${path}#${id}` or by a bare node id across the corpus. */

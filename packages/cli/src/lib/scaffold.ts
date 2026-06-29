@@ -119,7 +119,7 @@ function writeSkeleton(root: string, config: SuperloreJson): void {
           "fumadocs-core": "^16.8.2",
           "fumadocs-mdx": "^14.3.1",
           "fumadocs-ui": "^16.8.2",
-          superlore: "^0.13.0",
+          superlore: "^0.14.0",
           "lucide-react": "^1.21.0",
           ...(mcpEnabled
             ? // mcp-handler pins an EXACT sdk peer (1.26.0); npm errors on anything else (pnpm only
@@ -420,9 +420,11 @@ the whole point.
     // segment, mcp-handler serves Streamable HTTP at /api/mcp by default.
     write(
       "app/api/[transport]/route.ts",
-      `import { createMcpHandler } from "mcp-handler";
+      `import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
-import { getComponentData, getPage, list, navigate, search } from "superlore/mcp";
+import { getComponentData, getPage, glob, grep, list, navigate, search } from "superlore/mcp";
 import { buildIndexFromSource } from "superlore/source";
 import type { KKind } from "superlore";
 import { source } from "@/lib/source";
@@ -430,7 +432,37 @@ import { source } from "@/lib/source";
 // Your KB's MCP endpoint. Served at ${mcpPath} — the same structured content the site renders,
 // exposed to agents. The index is built straight from your content \`source\`: author once, and
 // humans read the pages while agents query this corpus. No scraping, no drift.
-const index = buildIndexFromSource(source);
+
+const DOCS_DIR = join(process.cwd(), "content", "docs");
+
+/** Map a doc URL to its source .mdx file so the MCP can serve the raw authored body. */
+function fileForUrl(url: string): string | null {
+  const rel = url.replace(/^\\/docs\\/?/, "");
+  const candidates = rel === "" ? ["index.mdx"] : [\`\${rel}.mdx\`, \`\${rel}/index.mdx\`];
+  for (const candidate of candidates) {
+    const abs = join(DOCS_DIR, candidate);
+    if (existsSync(abs)) return abs;
+  }
+  return null;
+}
+
+function stripFrontmatter(raw: string): string {
+  if (!raw.startsWith("---")) return raw;
+  const end = raw.indexOf("\\n---", 3);
+  if (end === -1) return raw;
+  const after = raw.indexOf("\\n", end + 1);
+  return after === -1 ? "" : raw.slice(after + 1);
+}
+
+// readContent wires the raw MDX body into the index: get_page returns the literal authored source
+// (components and all) and grep matches the real text. Remove it and bodies fall back to extracted
+// prose — get_page still returns readable content either way.
+const index = buildIndexFromSource(source, {
+  readContent: (url) => {
+    const file = fileForUrl(url);
+    return file ? stripFrontmatter(readFileSync(file, "utf8")).trim() : undefined;
+  },
+});
 
 const json = (data: unknown) => ({
   content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }],
@@ -446,9 +478,26 @@ const handler = createMcpHandler(
     );
     server.tool(
       "get_page",
-      "Get a page's full structured content by path.",
+      "Get a page's full content by path — frontmatter, the readable body, headings, and nodes.",
       { path: z.string() },
       async ({ path }) => json(getPage(index, path)),
+    );
+    server.tool(
+      "grep",
+      "Regex search across every page body, line by line. Returns { path, line, text } hits.",
+      {
+        pattern: z.string(),
+        flags: z.string().optional(),
+        path: z.string().optional(),
+        limit: z.number().int().positive().optional(),
+      },
+      async ({ pattern, flags, path, limit }) => json(grep(index, pattern, { flags, path, limit })),
+    );
+    server.tool(
+      "glob",
+      "List page paths matching a shell-style glob.",
+      { pattern: z.string() },
+      async ({ pattern }) => json(glob(index, pattern)),
     );
     server.tool(
       "list",

@@ -3,7 +3,9 @@ import { describe, it, expect } from "vitest";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { createSuperloreMcpServer } from "./server";
+import { grep, glob, getPage, search } from "./query";
 import { serializePage } from "../knowledge/extract";
+import { buildIndexFromSource } from "../source";
 import "../components/timeline"; // registers the Timeline knowledge face
 
 type TextResult = { content: { type: string; text: string }[] };
@@ -45,5 +47,83 @@ describe("superlore MCP — parity with the in-process serializer", () => {
     expect(JSON.parse(hits.content[0]!.text)[0].path).toBe("/roadmap");
 
     await client.close();
+  });
+
+  it("grep / glob find content like a folder, and get_page returns the body", async () => {
+    const { index } = buildIndex();
+    // Attach a body so get_page returns readable content and grep has something to match.
+    index.pages[0]!.content = "# Roadmap\n\nThe GA launch ships in Q3.\nBeta opens earlier.";
+    index.pages[0]!.contentType = "mdx";
+    const server = createSuperloreMcpServer({ index });
+    const [clientT, serverT] = InMemoryTransport.createLinkedPair();
+    const client = new Client({ name: "test", version: "0.0.0" });
+    await Promise.all([server.connect(serverT), client.connect(clientT)]);
+
+    const page = (await client.callTool({
+      name: "get_page",
+      arguments: { path: "/roadmap" },
+    })) as TextResult;
+    expect(JSON.parse(page.content[0]!.text).content).toContain("GA launch ships");
+
+    const g = (await client.callTool({
+      name: "grep",
+      arguments: { pattern: "ships in Q\\d" },
+    })) as TextResult;
+    const matches = JSON.parse(g.content[0]!.text);
+    expect(matches).toHaveLength(1);
+    expect(matches[0]).toMatchObject({ path: "/roadmap", line: 3 });
+
+    const gl = (await client.callTool({
+      name: "glob",
+      arguments: { pattern: "/road*" },
+    })) as TextResult;
+    expect(JSON.parse(gl.content[0]!.text)[0].path).toBe("/roadmap");
+
+    await client.close();
+  });
+});
+
+describe("buildIndexFromSource — pages carry body + headings, not just frontmatter", () => {
+  const fakeSource = {
+    getPages: () => [
+      {
+        url: "/docs/guide",
+        data: {
+          title: "Guide",
+          summary: "How to drive it.",
+          tags: ["guide"],
+          toc: [{ depth: 2, title: "Setup", url: "#setup" }],
+          structuredData: {
+            headings: [{ id: "setup", content: "Setup" }],
+            contents: [
+              { heading: "setup", content: "Install the package." },
+              { heading: "setup", content: "Then run the server." },
+            ],
+          },
+        },
+      },
+    ],
+  };
+
+  it("falls back to structuredData prose when no raw reader is wired", () => {
+    const index = buildIndexFromSource(fakeSource);
+    const page = getPage(index, "/docs/guide")!;
+    expect(page.contentType).toBe("text");
+    expect(page.content).toContain("Install the package.");
+    expect(page.content).toContain("run the server");
+    expect(page.headings).toEqual([{ depth: 2, id: "setup", text: "Setup" }]);
+    // grep + search now hit the body, not just frontmatter.
+    expect(grep(index, "run the server")).toHaveLength(1);
+    expect(search(index, "install").length).toBeGreaterThan(0);
+  });
+
+  it("serves raw MDX when readContent is wired", () => {
+    const index = buildIndexFromSource(fakeSource, {
+      readContent: () => "## Setup\n\nimport { X } from 'pkg'\n\n<Canvas id=\"c\" />",
+    });
+    const page = getPage(index, "/docs/guide")!;
+    expect(page.contentType).toBe("mdx");
+    expect(page.content).toContain("<Canvas");
+    expect(glob(index, "/docs/**")[0]!.path).toBe("/docs/guide");
   });
 });
