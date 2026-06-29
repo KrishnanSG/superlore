@@ -128,11 +128,30 @@ export interface PageFrontmatter {
   refs?: Ref[];
 }
 
+/** A page heading — the document outline an agent can jump through. */
+export interface PageHeading {
+  /** Heading depth (1 = H1 … 6 = H6). */
+  depth: number;
+  /** Anchor id (`${path}#${id}`). */
+  id?: string;
+  text: string;
+}
+
 /** What a page serializes to: ordered nodes + the page's own frontmatter envelope. */
 export interface KnowledgePage extends KnowledgeNode {
   kind: "prose";
   path: string;
   frontmatter: PageFrontmatter;
+  /**
+   * The page body as readable text — raw MDX when a content reader is wired, otherwise the
+   * plain-text prose extracted from the page. This is what `get_page` returns so an agent can
+   * actually READ the page, and what `grep` matches over.
+   */
+  content?: string;
+  /** `"mdx"` when {@link content} is the raw authored source; `"text"` when it is extracted prose. */
+  contentType?: "mdx" | "text";
+  /** The page outline (headings) for quick navigation. */
+  headings?: PageHeading[];
   /** Flattened, in document order. */
   nodes: KnowledgeNode[];
 }

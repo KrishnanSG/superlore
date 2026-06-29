@@ -2,13 +2,14 @@
 title: Tools
 icon: Wrench
 docType: reference
-description: The six MCP tools superlore exposes — search, get_page, get_section, list, navigate, get_component_data — with their arguments and what each returns.
-summary: Reference for the six superlore MCP tools — search (ranked page hits), get_page (full structured page), get_section (one node by id), list (filtered knowledge nodes), navigate (refs + backlinks), and get_component_data (a component's knowledge face).
+description: The MCP tools superlore exposes — search, get_page, grep, glob, list, navigate, get_component_data — with their arguments and what each returns.
+summary: Reference for the superlore MCP tools — search (ranked page hits), get_page (a page's body + headings + nodes), grep (regex over every page body, ripgrep-style), glob (page paths by pattern), list (filtered knowledge nodes), navigate (refs + backlinks), and get_component_data (a component's knowledge face).
 tags: [mcp, agents, reference]
 ---
 
-The superlore MCP server (`/api/mcp` on this deploy) exposes **six tools** over the structured
-index. Each returns JSON — the typed knowledge behind the pages, never scraped HTML.
+The superlore MCP server (`/api/mcp` on this deploy) exposes its corpus two ways: **read it** (the
+page body and the typed knowledge nodes) and **find anything in it** (grep + glob, like a folder).
+Each tool returns JSON — never scraped HTML.
 
 <DataTable
   columns={[
@@ -21,12 +22,17 @@ index. Each returns JSON — the typed knowledge behind the pages, never scraped
     {
       tool: "get_page",
       args: "path",
-      returns: "Frontmatter + ordered knowledge nodes for one page",
+      returns: "Frontmatter + body (MDX) + headings + ordered knowledge nodes",
     },
     {
-      tool: "get_section",
-      args: "id",
-      returns: "A single knowledge node by ${path}#${id}",
+      tool: "grep",
+      args: "pattern, flags?, path?, limit?",
+      returns: "Regex matches across page bodies — { path, line, text }",
+    },
+    {
+      tool: "glob",
+      args: "pattern",
+      returns: "Page paths matching a shell-style glob",
     },
     {
       tool: "list",
@@ -50,18 +56,23 @@ index. Each returns JSON — the typed knowledge behind the pages, never scraped
 
 <Steps>
   <Step title="search(query, limit?)">
-    Full-text search across the documentation. Returns ranked page hits — `summary` weighs heavily
-    in ranking, which is why every page should carry one.
+    Full-text search across the documentation, ranked over the page **body** (not just frontmatter).
+    Returns page hits; `title` and `summary` weigh heaviest.
   </Step>
   <Step title="get_page(path)">
-    Fetch a page's full structured content by path (e.g. `/docs/architecture`): its frontmatter
-    plus the ordered list of knowledge nodes — prose sections and the serialized knowledge faces of
-    every component on the page. Returns `{ error: "not_found", path }` for an unknown path.
+    Fetch a page's full content by path (e.g. `/docs/architecture`): its frontmatter, the readable
+    **body** (the raw MDX when the deploy wires a content reader, otherwise the extracted prose),
+    the `headings` outline, and the ordered knowledge nodes — the serialized faces of every
+    component on the page. Returns `{ error: "not_found", path }` for an unknown path.
   </Step>
-  <Step title="get_section(id)">
-    Fetch a single knowledge node by its `${path}#${id}` address — one prose section or one
-    component's face, without the rest of the page. Returns `{ error: "not_found", id }` for an
-    unknown id.
+  <Step title="grep(pattern, flags?, path?, limit?)">
+    Regex search across every page body, line by line — ripgrep for the corpus. Returns
+    `{ path, line, text }` hits. Pass `flags` (default `i`), scope with a `path` glob, and cap with
+    `limit`. This is how an agent finds anything by content, the way you'd grep a folder.
+  </Step>
+  <Step title="glob(pattern)">
+    List page paths matching a shell-style glob — `*` within a segment, `**` across segments, `?`
+    for one character (e.g. everything under `/docs/agents`). The corpus's file finder.
   </Step>
   <Step title="list({ kind?, tag?, entityType? })">
     List knowledge nodes across the whole corpus, filtered by node `kind`, by frontmatter `tag`, or

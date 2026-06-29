@@ -12,31 +12,92 @@ into sections — and every block is typed, so an agent over MCP reads the same 
 
 <Releases label="superlore changelog">
   <Release
-    version="0.13.0"
+    version="0.14.0"
     date="2026-06-28"
     status="done"
-    title="Releases, round two — multi-select filter, timeline options, hideToc"
-    tags={["Releases", "Theming"]}
-    areas={["Releases", "Theming"]}
-    summary="The Releases component grows up: a multi-select feature filter, feature-tag chips back on the rail, a re-arranged + re-styled timeline with axis / strip variants, and a hideToc flag for self-navigating pages. Recommended for everyone — no breaking changes."
+    title="The MCP serves the whole corpus — body, grep, and glob"
+    tags={["MCP", "Agents"]}
+    areas={["MCP", "Agents"]}
+    summary="get_page now returns the page body (raw MDX when wired, else extracted prose) plus headings — not just frontmatter — and two new tools, grep and glob, let an agent find anything in the corpus the way it would grep a folder. Recommended for everyone — no breaking changes."
     highlights={[
-      { icon: "list-filter", title: "Multi-select filter", body: "Filter the changelog by any number of features at once (OR). Renamed Filter features, with a count badge and one-click clear." },
-      { icon: "git-commit-horizontal", title: "Timeline, fixed + optioned", body: "Dots clear the month labels, crowded versions never overlap, the latest wears the accent — plus a new strip variant beside the date axis." },
-      { icon: "tags", title: "Tags back on the rail", body: "Each release shows its feature tags as chips again — and they double as filter toggles." },
-      { icon: "panel-right-close", title: "hideToc", body: "Self-navigating pages (a Releases changelog) can drop the flat \"On this page\" list; the timeline and rail already navigate." },
+      { icon: "file-text", title: "get_page returns content", body: "The readable body (raw MDX) + headings + typed nodes, so an agent can actually read a page — prose pages are no longer empty." },
+      { icon: "search-code", title: "grep across the corpus", body: "Regex over every page body, line by line — ripgrep-style { path, line, text } hits, scoped by a path glob." },
+      { icon: "folder-tree", title: "glob the page tree", body: "List page paths by shell-style pattern — the corpus's file finder." },
     ]}
     sections={[
       { label: "New", changes: [
-        { type: "added", text: "Releases gains a timeline prop — axis (default, the date rail), strip (evenly-spaced stops), or off." },
-        { type: "added", text: "hideToc frontmatter flag hides the table of contents while keeping the centred layout — set it on a changelog." },
+        { type: "added", text: "MCP tool grep(pattern, flags?, path?, limit?) — regex search across page bodies, returning { path, line, text }.", refs: [{ target: "/docs/agents/mcp/tools", label: "MCP tools" }] },
+        { type: "added", text: "MCP tool glob(pattern) — list page paths matching a shell-style glob." },
+        { type: "added", text: "buildIndexFromSource(source, { readContent }) — wire a reader to serve the raw authored MDX body; without it, bodies fall back to extracted prose." },
       ]},
       { label: "Improved", changes: [
-        { type: "changed", text: "The feature filter is multi-select and renamed Filter features; each release's rail tags double as filter toggles." },
-        { type: "changed", text: "Timeline layout: dots no longer collide with the month labels, stacked release cards never overlap, and the latest release is accented." },
+        { type: "changed", text: "get_page now returns the page body + headings, not just frontmatter — the index reads the real content, so search ranks over it too." },
+        { type: "changed", text: "The scaffolded MCP route ships grep + glob and serves raw MDX out of the box." },
       ]},
       { label: "Breaking", changes: [] },
     ]}
   />
+
+<Release
+  version="0.13.0"
+  date="2026-06-28"
+  status="done"
+  title="Releases, round two — multi-select filter, timeline options, hideToc"
+  tags={["Releases", "Theming"]}
+  areas={["Releases", "Theming"]}
+  summary="The Releases component grows up: a multi-select feature filter, feature-tag chips back on the rail, a re-arranged + re-styled timeline with axis / strip variants, and a hideToc flag for self-navigating pages. Recommended for everyone — no breaking changes."
+  highlights={[
+    {
+      icon: "list-filter",
+      title: "Multi-select filter",
+      body: "Filter the changelog by any number of features at once (OR). Renamed Filter features, with a count badge and one-click clear.",
+    },
+    {
+      icon: "git-commit-horizontal",
+      title: "Timeline, fixed + optioned",
+      body: "Dots clear the month labels, crowded versions never overlap, the latest wears the accent — plus a new strip variant beside the date axis.",
+    },
+    {
+      icon: "tags",
+      title: "Tags back on the rail",
+      body: "Each release shows its feature tags as chips again — and they double as filter toggles.",
+    },
+    {
+      icon: "panel-right-close",
+      title: "hideToc",
+      body: 'Self-navigating pages (a Releases changelog) can drop the flat "On this page" list; the timeline and rail already navigate.',
+    },
+  ]}
+  sections={[
+    {
+      label: "New",
+      changes: [
+        {
+          type: "added",
+          text: "Releases gains a timeline prop — axis (default, the date rail), strip (evenly-spaced stops), or off.",
+        },
+        {
+          type: "added",
+          text: "hideToc frontmatter flag hides the table of contents while keeping the centred layout — set it on a changelog.",
+        },
+      ],
+    },
+    {
+      label: "Improved",
+      changes: [
+        {
+          type: "changed",
+          text: "The feature filter is multi-select and renamed Filter features; each release's rail tags double as filter toggles.",
+        },
+        {
+          type: "changed",
+          text: "Timeline layout: dots no longer collide with the month labels, stacked release cards never overlap, and the latest release is accented.",
+        },
+      ],
+    },
+    { label: "Breaking", changes: [] },
+  ]}
+/>
 
 <Release
   version="0.12.0"

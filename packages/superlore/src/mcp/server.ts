@@ -1,7 +1,16 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { KKind } from "../knowledge/primitives";
-import { getComponentData, getPage, list, navigate, search, type SuperloreIndex } from "./query";
+import {
+  getComponentData,
+  getPage,
+  glob,
+  grep,
+  list,
+  navigate,
+  search,
+  type SuperloreIndex,
+} from "./query";
 
 export interface SuperloreMcpOptions {
   index: SuperloreIndex;
@@ -34,12 +43,33 @@ export function createSuperloreMcpServer(opts: SuperloreMcpOptions): McpServer {
 
   server.tool(
     "get_page",
-    "Get a page's full structured content (frontmatter + ordered knowledge nodes) by path.",
+    "Get a page's full content by path — frontmatter, the readable body (raw MDX when available, " +
+      "else extracted prose), headings, and the ordered typed knowledge nodes.",
     { path: z.string() },
     async ({ path }) => {
       const page = getPage(index, path);
       return page ? json(page) : json({ error: "not_found", path });
     },
+  );
+
+  server.tool(
+    "grep",
+    "Regex search across every page body, line by line (ripgrep-style). Returns { path, line, " +
+      "text } hits. Use it to find anything in the corpus the way you'd grep a folder.",
+    {
+      pattern: z.string(),
+      flags: z.string().optional(),
+      path: z.string().optional(),
+      limit: z.number().int().positive().optional(),
+    },
+    async ({ pattern, flags, path, limit }) => json(grep(index, pattern, { flags, path, limit })),
+  );
+
+  server.tool(
+    "glob",
+    "List page paths matching a shell-style glob (e.g. `/docs/agents/**`). The corpus's file finder.",
+    { pattern: z.string() },
+    async ({ pattern }) => json(glob(index, pattern)),
   );
 
   server.tool(
