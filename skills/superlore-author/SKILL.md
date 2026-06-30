@@ -3,7 +3,7 @@ name: superlore-author
 description: Author and edit content into an existing superlore knowledge base — "vibe your docs". Turns intent ("add a page about X", "document our onboarding", "make a roadmap") into well-structured MDX with dual-representation components (cards, timelines, boards, entity cards, tables, a Canvas), so humans get a clean page and agents get a typed knowledge face from one source. Use when adding, writing, editing, or restructuring pages, components, or a Canvas in a superlore KB.
 metadata:
   author: superlore
-  version: "1.2.2"
+  version: "1.4.0"
 ---
 
 # Authoring superlore content ("vibe your docs")
@@ -97,8 +97,33 @@ for search and for what an agent reads first. One plain, specific line.
 Anything beyond these is the KB's own — if `source.config.ts` extends `superloreFrontmatterSchema` with
 custom fields, carry them; don't invent fields that aren't in the schema.
 
+## Before you author: reconcile the installed version (upgrade if trivial)
+
+superlore moves fast, and the docs/MCP always reflect the **latest** release — an out-of-date install
+means missing components, stale props, and silent drift. At the **start** of an authoring task,
+reconcile the KB's installed version against latest:
+
+1. **Installed** — `node_modules/superlore/package.json` `version` (or `<pm> ls superlore`).
+2. **Latest** — `curl -s https://superlore.vercel.app/api/version` → `{ "name": "superlore", "version": "x.y.z" }`.
+   (Fallback if unreachable: `npm view superlore version`.)
+3. **Act on the gap.** superlore is **0.x**, where a caret pin (`^0.14.0`) locks the minor — so patch
+   bumps are in-pin and safe, but a minor/major bump is a deliberate, possibly-breaking change:
+   - **Up to date** → proceed; trust the doc page/MCP for props.
+   - **Patch behind**, same `major.minor` (e.g. `0.14.0 → 0.14.3`) → **trivial: just upgrade it.** Run
+     the KB's package manager — match the lockfile (`pnpm up superlore` · `npm i superlore@latest` ·
+     `yarn up superlore` · `bun update superlore`) — tell the user you did, then author against latest.
+   - **Minor/major behind** (e.g. `0.14 → 0.15`; may change props/MDX) → **don't silently upgrade.**
+     Tell the user a newer version is out, point them at the release notes (`/docs/releases`), and offer
+     to do the upgrade _and_ fix any pages it affects. Until they accept, author against the
+     **installed** version (its `dist/*.d.mts` is the prop source — see below).
+
+This is the same comparison the props lookup keys off: knowing installed-vs-latest tells you whether
+to trust the MCP or pin to the installed declarations.
+
 ## Workflow
 
+0. **Reconcile the installed version** (above) — upgrade if trivial, else note it — so you author
+   against the right component API.
 1. **Understand the intent and the audience.** Internal company KB vs public product docs changes
    register. Ask only what you genuinely need (the topic, where it lives in the nav).
 2. **Pick the right surface for the knowledge** (see the chooser below). Don't default everything to
@@ -126,8 +151,29 @@ custom fields, carry them; don't invent fields that aren't in the schema.
 | A caveat, tip, or warning                       | `Callout` (`Note` / `Tip` / `Warning` / `Danger`)  |
 | A flow, system, brainstorm, or map (**visual**) | **Canvas** → invoke the **superlore-canvas** skill |
 
-Browse the full library in the KB's component docs (`content/docs/components/**`) when unsure — each
-component page has a live example and shows its knowledge face.
+Browse the full library in superlore's component docs — `/docs/components/**`, via the superlore-docs
+MCP or the live site; each page has a live example and shows its knowledge face. For a component's
+exact API, see **Look up a component's props** below — get it the version-safe way.
+
+## Look up a component's props (version-safe)
+
+When you need a component's exact props or a real usage example, **don't read the package's React
+source**, and never dig through `~/.claude/plugins/cache/**` — that's the _plugin's_ version line, not
+the KB's, and it will drift. Use this order:
+
+1. **Read the component's reference page** — `/docs/components/<name>` — for the prop table, a live
+   example, and the knowledge face. Fastest via the superlore-docs MCP: `get_page` (or
+   `search "<Component>"`). In superlore's own repo it's the local file
+   `apps/docs/content/docs/components/<name>.mdx`.
+2. **Mind the version.** That MCP serves **superlore.vercel.app's _latest_ docs**, which can be ahead
+   of the version this KB has installed. Check the KB's pin — `node_modules/superlore/package.json`
+   `version`.
+   - **Matches latest → trust the doc page.**
+   - **Behind → the installed package is authoritative.** Read the typed prop interface (it carries
+     JSDoc) from `node_modules/superlore/dist/components/<name>.d.mts` (e.g. `ComparisonProps`). Use the
+     doc page only for usage shape/examples, and don't author a prop the installed declarations lack.
+
+The binding contract is always the version the KB's build uses — props can change across releases.
 
 ## Connect related things
 
